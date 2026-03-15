@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { ArrowLeft, Loader2, Sparkles, Search, Filter } from "lucide-react";
 import { SidebarTrigger } from "@/components/ui/sidebar";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { streamChat } from "@/lib/streamChat";
 import { useSpreadsheetLeads } from "@/hooks/useWorkspaceData";
 
