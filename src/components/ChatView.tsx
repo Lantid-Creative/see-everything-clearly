@@ -10,6 +10,7 @@ import { useFileUpload } from "@/hooks/useFileUpload";
 import { FilePreviewBar, MessageAttachments } from "@/components/FilePreview";
 import type { ViewMode } from "@/pages/Index";
 import { useUserProfile } from "@/hooks/useUserProfile";
+import { NotificationBell } from "@/components/NotificationBell";
 
 interface ChatViewProps {
   onOpenWorkspace: (type?: ViewMode) => void;
@@ -257,9 +258,9 @@ export function ChatView({
   return (
     <div className="flex flex-col h-screen">
       {/* Header */}
-      <header className="h-12 flex items-center px-4 border-b shrink-0">
-        <SidebarTrigger className="mr-3" />
+      <header className="h-12 flex items-center justify-between px-4 border-b shrink-0">
         <div className="flex items-center gap-2">
+          <SidebarTrigger className="mr-1" />
           <span className="text-sm font-medium text-foreground truncate max-w-[200px]">
             {conversation.title}
           </span>
@@ -269,6 +270,7 @@ export function ChatView({
             <span>Lantid AI</span>
           </div>
         </div>
+        <NotificationBell />
       </header>
 
       {/* Messages */}
