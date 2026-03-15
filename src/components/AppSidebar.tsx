@@ -75,6 +75,7 @@ export function AppSidebar({
 }: AppSidebarProps) {
   const { state } = useSidebar();
   const { user, signOut } = useAuth();
+  const { theme, toggleTheme } = useTheme();
   const collapsed = state === "collapsed";
   const [activeItem, setActiveItem] = useState("home");
   const [searchQuery, setSearchQuery] = useState("");
