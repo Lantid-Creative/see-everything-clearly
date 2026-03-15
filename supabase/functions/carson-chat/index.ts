@@ -5,6 +5,8 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
+const KIMI_ENDPOINT = "https://smartedge.services.ai.azure.com/models/chat/completions?api-version=2024-05-01-preview";
+
 const SYSTEM_PROMPT = `You are Carson, an adaptive AI assistant built for sales, marketing, and ops teams. You help with:
 - Finding and researching leads and startup founders
 - Writing personalized outreach emails
@@ -27,17 +29,17 @@ serve(async (req) => {
 
   try {
     const { messages } = await req.json();
-    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-    if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
+    const KIMI_API_KEY = Deno.env.get("KIMI_API_KEY");
+    if (!KIMI_API_KEY) throw new Error("KIMI_API_KEY is not configured");
 
-    const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+    const response = await fetch(KIMI_ENDPOINT, {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${LOVABLE_API_KEY}`,
+        "Authorization": `Bearer ${KIMI_API_KEY}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "google/gemini-3-flash-preview",
+        model: "Kimi-K2.5",
         messages: [
           { role: "system", content: SYSTEM_PROMPT },
           ...messages,
@@ -60,8 +62,8 @@ serve(async (req) => {
         });
       }
       const t = await response.text();
-      console.error("AI gateway error:", response.status, t);
-      return new Response(JSON.stringify({ error: "AI service error" }), {
+      console.error("Kimi API error:", response.status, t);
+      return new Response(JSON.stringify({ error: `Kimi API error: ${response.status}` }), {
         status: 500,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
