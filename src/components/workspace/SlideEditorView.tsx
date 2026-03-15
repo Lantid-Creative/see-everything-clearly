@@ -182,6 +182,13 @@ export function SlideEditorView({ onBack }: SlideEditorViewProps) {
         </div>
         <div className="flex items-center gap-2">
           <button
+            onClick={() => exportSlidesAsMarkdown(slides)}
+            className="h-8 px-3 text-xs text-muted-foreground hover:text-foreground border rounded-lg flex items-center gap-1.5 transition-colors"
+          >
+            <Download className="h-3.5 w-3.5" />
+            Export
+          </button>
+          <button
             onClick={() => setShowComments(!showComments)}
             className={`h-7 px-2 rounded-md text-xs flex items-center gap-1 transition-colors ${showComments ? "bg-primary text-primary-foreground" : "hover:bg-secondary text-muted-foreground"}`}
           >
