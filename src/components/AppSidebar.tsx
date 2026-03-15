@@ -228,14 +228,14 @@ export function AppSidebar({
             <SidebarGroup>
               <SidebarGroupContent>
                 <SidebarMenu>
-                  {mainNav.map((item) => (
+                 {mainNav.map((item) => (
                     <SidebarMenuItem key={item.id}>
                       <SidebarMenuButton
                         onClick={() => {
                           setActiveItem(item.id);
-                          onSwitchView("chat");
+                          onSwitchView(item.view);
                         }}
-                        isActive={activeItem === item.id}
+                        isActive={activeItem === item.id || currentView === item.view}
                         className="text-sidebar-foreground hover:text-sidebar-primary hover:bg-sidebar-accent data-[active=true]:bg-sidebar-accent data-[active=true]:text-sidebar-primary"
                       >
                         <item.icon className="h-4 w-4" />
@@ -251,6 +251,34 @@ export function AppSidebar({
                 </SidebarMenu>
               </SidebarGroupContent>
             </SidebarGroup>
+
+            {/* Workspace Tools */}
+            {!collapsed && (
+              <SidebarGroup>
+                <SidebarGroupLabel className="text-sidebar-muted text-[10px] uppercase tracking-wider font-semibold">
+                  Tools
+                </SidebarGroupLabel>
+                <SidebarGroupContent>
+                  <SidebarMenu>
+                    {workspaceNav.map((item) => (
+                      <SidebarMenuItem key={item.id}>
+                        <SidebarMenuButton
+                          onClick={() => {
+                            setActiveItem(item.id);
+                            onSwitchView(item.view);
+                          }}
+                          isActive={currentView === item.view}
+                          className="text-sidebar-foreground hover:text-sidebar-primary hover:bg-sidebar-accent data-[active=true]:bg-sidebar-accent data-[active=true]:text-sidebar-primary text-xs"
+                        >
+                          <item.icon className="h-3.5 w-3.5" />
+                          <span>{item.title}</span>
+                        </SidebarMenuButton>
+                      </SidebarMenuItem>
+                    ))}
+                  </SidebarMenu>
+                </SidebarGroupContent>
+              </SidebarGroup>
+            )
 
             {/* Recent Conversations */}
             {!collapsed && (
