@@ -17,6 +17,8 @@ import {
   Users,
   GitBranch,
   Loader2,
+  LayoutGrid,
+  Table,
 } from "lucide-react";
 import { useState } from "react";
 import { Logo } from "@/components/Logo";
@@ -41,9 +43,15 @@ import type { ViewMode } from "@/pages/Index";
 import type { Conversation } from "@/hooks/useConversations";
 
 const mainNav = [
-  { title: "Home", icon: Home, id: "home" },
-  { title: "Inbox", icon: Inbox, id: "inbox", badge: 15 },
-  { title: "Workflows", icon: Workflow, id: "workflows" },
+  { title: "Home", icon: Home, id: "home", view: "chat" as ViewMode },
+  { title: "Inbox", icon: Inbox, id: "inbox", view: "chat" as ViewMode, badge: 15 },
+  { title: "Workflows", icon: Workflow, id: "workflows", view: "workflow" as ViewMode },
+];
+
+const workspaceNav = [
+  { title: "Workspace", icon: LayoutGrid, id: "workspace", view: "workspace" as ViewMode },
+  { title: "Slides", icon: Presentation, id: "slides", view: "slides" as ViewMode },
+  { title: "Spreadsheet", icon: Table, id: "spreadsheet", view: "spreadsheet" as ViewMode },
 ];
 
 // Team members are now loaded dynamically from the database
@@ -220,14 +228,14 @@ export function AppSidebar({
             <SidebarGroup>
               <SidebarGroupContent>
                 <SidebarMenu>
-                  {mainNav.map((item) => (
+                 {mainNav.map((item) => (
                     <SidebarMenuItem key={item.id}>
                       <SidebarMenuButton
                         onClick={() => {
                           setActiveItem(item.id);
-                          onSwitchView("chat");
+                          onSwitchView(item.view);
                         }}
-                        isActive={activeItem === item.id}
+                        isActive={activeItem === item.id || currentView === item.view}
                         className="text-sidebar-foreground hover:text-sidebar-primary hover:bg-sidebar-accent data-[active=true]:bg-sidebar-accent data-[active=true]:text-sidebar-primary"
                       >
                         <item.icon className="h-4 w-4" />
@@ -243,6 +251,34 @@ export function AppSidebar({
                 </SidebarMenu>
               </SidebarGroupContent>
             </SidebarGroup>
+
+            {/* Workspace Tools */}
+            {!collapsed && (
+              <SidebarGroup>
+                <SidebarGroupLabel className="text-sidebar-muted text-[10px] uppercase tracking-wider font-semibold">
+                  Tools
+                </SidebarGroupLabel>
+                <SidebarGroupContent>
+                  <SidebarMenu>
+                    {workspaceNav.map((item) => (
+                      <SidebarMenuItem key={item.id}>
+                        <SidebarMenuButton
+                          onClick={() => {
+                            setActiveItem(item.id);
+                            onSwitchView(item.view);
+                          }}
+                          isActive={currentView === item.view}
+                          className="text-sidebar-foreground hover:text-sidebar-primary hover:bg-sidebar-accent data-[active=true]:bg-sidebar-accent data-[active=true]:text-sidebar-primary text-xs"
+                        >
+                          <item.icon className="h-3.5 w-3.5" />
+                          <span>{item.title}</span>
+                        </SidebarMenuButton>
+                      </SidebarMenuItem>
+                    ))}
+                  </SidebarMenu>
+                </SidebarGroupContent>
+              </SidebarGroup>
+            )}
 
             {/* Recent Conversations */}
             {!collapsed && (
