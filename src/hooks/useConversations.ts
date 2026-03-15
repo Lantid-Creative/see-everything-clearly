@@ -233,6 +233,23 @@ export function useConversations() {
     []
   );
 
+  const deleteConversation = useCallback(
+    async (convId: string) => {
+      setConversations((prev) => prev.filter((c) => c.id !== convId));
+      if (activeConversationId === convId) {
+        const remaining = conversations.filter((c) => c.id !== convId);
+        if (remaining.length > 0) {
+          setActiveConversationId(remaining[0].id);
+        } else {
+          // Create a new one if all deleted
+          await createConversation();
+        }
+      }
+      await supabase.from("conversations").delete().eq("id", convId);
+    },
+    [activeConversationId, conversations, createConversation]
+  );
+
   return {
     conversations,
     activeConversation,
@@ -242,6 +259,7 @@ export function useConversations() {
     addMessage,
     updateLastAssistantMessage,
     setMessageAction,
+    deleteConversation,
     loaded,
   };
 }

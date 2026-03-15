@@ -21,6 +21,7 @@ const Index = () => {
     addMessage,
     updateLastAssistantMessage,
     setMessageAction,
+    deleteConversation,
     loaded,
   } = useConversations();
 
@@ -75,6 +76,7 @@ const Index = () => {
             createConversation();
             setViewMode("chat");
           }}
+          onDeleteConversation={deleteConversation}
         />
         <main className="flex-1 flex flex-col min-w-0">
           {renderView()}

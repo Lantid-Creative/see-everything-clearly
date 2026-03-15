@@ -10,6 +10,7 @@ import {
   Presentation,
   FileText,
   LogOut,
+  Trash2,
 } from "lucide-react";
 import { useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
@@ -57,6 +58,7 @@ interface AppSidebarProps {
   activeConversationId: string;
   onSelectConversation: (id: string) => void;
   onNewConversation: () => void;
+  onDeleteConversation: (id: string) => void;
 }
 
 export function AppSidebar({
@@ -66,6 +68,7 @@ export function AppSidebar({
   activeConversationId,
   onSelectConversation,
   onNewConversation,
+  onDeleteConversation,
 }: AppSidebarProps) {
   const { state } = useSidebar();
   const { user, signOut } = useAuth();
@@ -165,10 +168,20 @@ export function AppSidebar({
                       <SidebarMenuButton
                         onClick={() => onSelectConversation(conv.id)}
                         isActive={conv.id === activeConversationId}
-                        className="text-sidebar-foreground hover:text-sidebar-primary hover:bg-sidebar-accent data-[active=true]:bg-sidebar-accent data-[active=true]:text-sidebar-primary text-xs"
+                        className="text-sidebar-foreground hover:text-sidebar-primary hover:bg-sidebar-accent data-[active=true]:bg-sidebar-accent data-[active=true]:text-sidebar-primary text-xs group/conv"
                       >
                         <Icon className="h-3.5 w-3.5" />
-                        <span className="truncate">{conv.title}</span>
+                        <span className="truncate flex-1">{conv.title}</span>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onDeleteConversation(conv.id);
+                          }}
+                          className="opacity-0 group-hover/conv:opacity-100 h-4 w-4 rounded hover:bg-sidebar-accent flex items-center justify-center shrink-0 transition-opacity"
+                          title="Delete conversation"
+                        >
+                          <Trash2 className="h-3 w-3 text-destructive" />
+                        </button>
                       </SidebarMenuButton>
                     </SidebarMenuItem>
                   );
