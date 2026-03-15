@@ -1,5 +1,13 @@
 import { useState, useCallback } from "react";
-import { ArrowLeft, Plus, Play, Loader2, Sparkles, X, GripVertical, Mail, Bell, FileText, Calendar, Send } from "lucide-react";
+import { ArrowLeft, Plus, Play, Loader2, Sparkles, X, GripVertical, Mail, Bell, FileText, Calendar, Send, Shield, Check, AlertTriangle } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { streamChat } from "@/lib/streamChat";
 import { useToast } from "@/hooks/use-toast";
