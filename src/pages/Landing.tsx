@@ -140,6 +140,7 @@ export default function Landing() {
             <a href="#features" className="hover:text-white transition-colors">Features</a>
             <a href="#how-it-works" className="hover:text-white transition-colors">How It Works</a>
             <a href="#why" className="hover:text-white transition-colors">Why Lantid</a>
+            <a href="#pricing" className="hover:text-white transition-colors">Pricing</a>
           </div>
           <div className="flex items-center gap-3">
             <Link
