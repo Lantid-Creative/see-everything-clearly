@@ -297,20 +297,20 @@ function WorkflowScene({ active }: { active: boolean }) {
   );
 }
 
-/* ─── Scene: Team Collaboration ─── */
+/* ─── Scene: Team Alignment ─── */
 function TeamScene({ active }: { active: boolean }) {
   const messages = [
-    { user: "Sarah", initials: "SC", msg: "Just finished the checkout redesign discovery 🎉", time: "2m ago" },
-    { user: "Marcus", initials: "ML", msg: "PRD looks solid. Approved for sprint 14.", time: "5m ago" },
-    { user: "Priya", initials: "PK", msg: "Uploaded 12 new interview transcripts", time: "12m ago" },
-    { user: "Lantid AI", initials: "L", msg: "3 new themes detected across interviews. Top: 'collaborative editing'", time: "12m ago", isAI: true },
+    { user: "Sarah (PM)", initials: "SC", msg: "PRD for collaborative editing is ready for review — AI drafted it from our last 12 interviews", time: "2m ago" },
+    { user: "Marcus (Eng)", initials: "ML", msg: "Acceptance criteria are clear. I can start sprint planning from this.", time: "5m ago" },
+    { user: "Priya (Design)", initials: "PK", msg: "Love the user stories. Uploading wireframes now.", time: "8m ago" },
+    { user: "Lantid AI", initials: "L", msg: "Conflict detected: 'permissions v2' depends on 'co-editing' — suggest sequencing co-editing first in Q2.", time: "8m ago", isAI: true },
   ];
 
   return (
     <div className="flex-1 flex flex-col p-4 overflow-hidden">
       <div className="flex items-center gap-2 pb-3 border-b border-white/[0.06] mb-3">
         <Users className="h-3.5 w-3.5 text-primary" />
-        <span className="text-xs font-medium text-white/70">Team Chat</span>
+        <span className="text-xs font-medium text-white/70">Product Team</span>
         <span className="ml-auto text-[10px] text-white/30">4 online</span>
       </div>
 
@@ -340,7 +340,7 @@ function TeamScene({ active }: { active: boolean }) {
       </div>
 
       <div className="mt-3 flex items-center gap-2 bg-white/[0.04] border border-white/[0.06] rounded-xl px-3 py-2">
-        <span className="text-xs text-white/20 flex-1">Message the team…</span>
+        <span className="text-xs text-white/20 flex-1">Discuss product decisions…</span>
         <Send className="h-3.5 w-3.5 text-white/20" />
       </div>
     </div>
