@@ -10,6 +10,7 @@ import { useFileUpload } from "@/hooks/useFileUpload";
 import { FilePreviewBar, MessageAttachments } from "@/components/FilePreview";
 import type { ViewMode } from "@/pages/Index";
 import { useUserProfile } from "@/hooks/useUserProfile";
+import { NotificationBell } from "@/components/NotificationBell";
 
 interface ChatViewProps {
   onOpenWorkspace: (type?: ViewMode) => void;
