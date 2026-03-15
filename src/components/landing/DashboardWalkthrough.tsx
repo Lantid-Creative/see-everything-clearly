@@ -412,7 +412,7 @@ export function DashboardWalkthrough() {
             </div>
             <div className="flex-1 flex justify-center">
               <div className="bg-white/[0.04] border border-white/[0.06] rounded-md px-4 py-0.5 text-[10px] text-white/25">
-                app.lantid.ai
+                lantid.com/dashboard
               </div>
             </div>
           </div>
