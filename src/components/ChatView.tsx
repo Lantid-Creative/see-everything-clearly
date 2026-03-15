@@ -39,24 +39,28 @@ export function ChatView({
 
   const detectWorkspaceType = (content: string): { action: string; type: ViewMode } | null => {
     const lower = content.toLowerCase();
+    // Check outreach/workspace first (most common)
+    if (
+      lower.includes("outreach") ||
+      lower.includes("email template") ||
+      lower.includes("set up your") ||
+      lower.includes("ready for you") ||
+      (lower.includes("workspace") && (lower.includes("email") || lower.includes("outreach") || lower.includes("lead")))
+    ) {
+      return { action: "open_workspace", type: "workspace" };
+    }
     if (lower.includes("slide") || lower.includes("presentation") || lower.includes("deck")) {
       return { action: "open_slides", type: "slides" };
     }
     if (lower.includes("workflow") || lower.includes("automat") || lower.includes("deploy")) {
       return { action: "open_workflow", type: "workflow" };
     }
-    if (lower.includes("spreadsheet") || lower.includes("table") || lower.includes("lead")) {
-      if (lower.includes("found") || lower.includes("research") || lower.includes("pulling")) {
+    if (lower.includes("spreadsheet") || lower.includes("table")) {
+      if (lower.includes("found") || lower.includes("research") || lower.includes("pulling") || lower.includes("lead")) {
         return { action: "open_spreadsheet", type: "spreadsheet" };
       }
     }
-    if (
-      lower.includes("outreach") ||
-      lower.includes("workspace") ||
-      lower.includes("email") ||
-      lower.includes("set up your") ||
-      lower.includes("ready for you")
-    ) {
+    if (lower.includes("workspace") || lower.includes("email")) {
       return { action: "open_workspace", type: "workspace" };
     }
     return null;
