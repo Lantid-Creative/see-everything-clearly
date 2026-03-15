@@ -38,10 +38,10 @@ const SCENES: Scene[] = [
 
 const SIDEBAR_ITEMS = [
   { id: "home", icon: Home, label: "Home" },
-  { id: "leads", icon: Search, label: "Leads" },
-  { id: "email", icon: Mail, label: "Email" },
+  { id: "leads", icon: Search, label: "Insights" },
+  { id: "email", icon: BarChart3, label: "Roadmap" },
   { id: "workflows", icon: Workflow, label: "Workflows" },
-  { id: "slides", icon: Presentation, label: "Slides" },
+  { id: "slides", icon: Presentation, label: "Specs" },
   { id: "team", icon: Users, label: "Team" },
 ];
 
