@@ -43,7 +43,7 @@ import type { ViewMode } from "@/pages/Index";
 import type { Conversation } from "@/hooks/useConversations";
 
 const mainNav = [
-  { title: "Home", icon: Home, id: "home", view: "chat" as ViewMode },
+  { title: "Home", icon: Home, id: "home", view: "dashboard" as ViewMode },
   { title: "Inbox", icon: Inbox, id: "inbox", view: "chat" as ViewMode, badge: 15 },
   { title: "Workflows", icon: Workflow, id: "workflows", view: "workflow" as ViewMode },
 ];
