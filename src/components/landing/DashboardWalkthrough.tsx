@@ -29,19 +29,19 @@ type Scene = {
 };
 
 const SCENES: Scene[] = [
-  { id: "chat", label: "AI Chat", sidebarActive: "home", duration: 6000 },
-  { id: "research", label: "Lead Research", sidebarActive: "leads", duration: 5000 },
-  { id: "email", label: "Email Outreach", sidebarActive: "email", duration: 5000 },
-  { id: "workflow", label: "Workflow Builder", sidebarActive: "workflows", duration: 5000 },
-  { id: "team", label: "Team Collaboration", sidebarActive: "team", duration: 5000 },
+  { id: "chat", label: "PRD Generation", sidebarActive: "home", duration: 6000 },
+  { id: "research", label: "Feedback Synthesis", sidebarActive: "leads", duration: 5000 },
+  { id: "email", label: "Roadmap Prioritization", sidebarActive: "email", duration: 5000 },
+  { id: "workflow", label: "Automation Workflows", sidebarActive: "workflows", duration: 5000 },
+  { id: "team", label: "Team Alignment", sidebarActive: "team", duration: 5000 },
 ];
 
 const SIDEBAR_ITEMS = [
   { id: "home", icon: Home, label: "Home" },
-  { id: "leads", icon: Search, label: "Leads" },
-  { id: "email", icon: Mail, label: "Email" },
+  { id: "leads", icon: Search, label: "Insights" },
+  { id: "email", icon: BarChart3, label: "Roadmap" },
   { id: "workflows", icon: Workflow, label: "Workflows" },
-  { id: "slides", icon: Presentation, label: "Slides" },
+  { id: "slides", icon: Presentation, label: "Specs" },
   { id: "team", icon: Users, label: "Team" },
 ];
 
@@ -70,18 +70,18 @@ function useTypingText(text: string, isActive: boolean, speed = 25) {
   return displayed;
 }
 
-/* ─── Scene: AI Chat ─── */
+/* ─── Scene: PRD Generation ─── */
 function ChatScene({ active }: { active: boolean }) {
   const userMsg = useTypingText(
-    "Research B2B SaaS founders in the Bay Area who recently raised Series A",
+    "Generate a PRD for our new collaborative editing feature based on the last 50 user interviews",
     active,
     30
   );
   const [showAI, setShowAI] = useState(false);
   const aiMsg = useTypingText(
-    "Found 12 founders matching your criteria. Top 3:\n\n• Sarah Chen — Acme AI (Series A, $14M)\n  AI-powered analytics for e-commerce\n\n• James Park — DataFlow ($8M Series A)\n  Real-time data pipeline management\n\n• Maria Torres — CloudSync ($11M Series A)\n  Multi-cloud infrastructure",
+    "PRD: Collaborative Editing v1.0\n\n▎ Problem\nTeams lose context switching between docs, chat, and specs. 73% of interviewed users cited 'fragmented tools' as #1 pain.\n\n▎ User Stories\n✅ As a PM, I can co-edit specs in real-time\n✅ As a designer, I can leave inline feedback\n✅ As an engineer, I can link PRD sections to tickets\n\n▎ Success Metrics\n• 40% reduction in spec review cycles\n• NPS > 50 for editing experience",
     showAI,
-    15
+    12
   );
 
   useEffect(() => {
@@ -94,10 +94,10 @@ function ChatScene({ active }: { active: boolean }) {
     <div className="flex-1 flex flex-col p-4 gap-3 overflow-hidden">
       <div className="flex items-center gap-2 pb-3 border-b border-white/[0.06]">
         <Sparkles className="h-3.5 w-3.5 text-primary" />
-        <span className="text-xs font-medium text-white/70">Lantid AI</span>
+        <span className="text-xs font-medium text-white/70">PRD Generator</span>
+        <span className="ml-auto text-[10px] bg-primary/15 text-primary px-2 py-0.5 rounded-full">From interviews</span>
       </div>
 
-      {/* User message */}
       <motion.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: active ? 1 : 0, y: active ? 0 : 10 }}
@@ -106,15 +106,14 @@ function ChatScene({ active }: { active: boolean }) {
         <div className="shrink-0 h-6 w-6 rounded-full bg-gradient-to-br from-blue-500 to-violet-500 flex items-center justify-center text-[9px] font-bold text-white">
           Y
         </div>
-        <div className="bg-white/[0.06] rounded-xl rounded-tl-sm px-3 py-2 text-xs text-white/80 max-w-[260px] leading-relaxed">
+        <div className="bg-white/[0.06] rounded-xl rounded-tl-sm px-3 py-2 text-xs text-white/80 max-w-[280px] leading-relaxed">
           {userMsg}
-          {userMsg.length < 70 && active && (
+          {userMsg.length < 80 && active && (
             <span className="inline-block w-0.5 h-3.5 bg-primary ml-0.5 animate-pulse" />
           )}
         </div>
       </motion.div>
 
-      {/* AI response */}
       <AnimatePresence>
         {showAI && (
           <motion.div
@@ -125,9 +124,9 @@ function ChatScene({ active }: { active: boolean }) {
             <div className="shrink-0 h-6 w-6 rounded-full bg-gradient-to-br from-primary to-orange-400 flex items-center justify-center">
               <Sparkles className="h-3 w-3 text-white" />
             </div>
-            <div className="bg-white/[0.04] border border-white/[0.06] rounded-xl rounded-tl-sm px-3 py-2 text-xs text-white/70 max-w-[280px] leading-relaxed whitespace-pre-wrap">
+            <div className="bg-white/[0.04] border border-white/[0.06] rounded-xl rounded-tl-sm px-3 py-2 text-xs text-white/70 max-w-[300px] leading-relaxed whitespace-pre-wrap">
               {aiMsg}
-              {aiMsg.length < 250 && (
+              {aiMsg.length < 350 && (
                 <span className="inline-block w-0.5 h-3.5 bg-primary ml-0.5 animate-pulse" />
               )}
             </div>
@@ -135,57 +134,57 @@ function ChatScene({ active }: { active: boolean }) {
         )}
       </AnimatePresence>
 
-      {/* Input bar */}
       <div className="mt-auto flex items-center gap-2 bg-white/[0.04] border border-white/[0.06] rounded-xl px-3 py-2">
         <Plus className="h-3.5 w-3.5 text-white/30" />
-        <span className="text-xs text-white/20 flex-1">Ask Lantid anything…</span>
+        <span className="text-xs text-white/20 flex-1">Ask about your product…</span>
         <Send className="h-3.5 w-3.5 text-white/20" />
       </div>
     </div>
   );
 }
 
-/* ─── Scene: Lead Research ─── */
+/* ─── Scene: Feedback Synthesis ─── */
 function ResearchScene({ active }: { active: boolean }) {
-  const leads = [
-    { name: "Sarah Chen", company: "Acme AI", title: "CEO & Co-founder", status: "verified", score: 92 },
-    { name: "James Park", company: "DataFlow", title: "Founder", status: "verified", score: 87 },
-    { name: "Maria Torres", company: "CloudSync", title: "CEO", status: "new", score: 85 },
-    { name: "David Kim", company: "NexGen", title: "CTO", status: "contacted", score: 78 },
-    { name: "Lisa Wang", company: "Synthia", title: "Co-founder", status: "verified", score: 91 },
+  const themes = [
+    { theme: "Real-time collaboration", mentions: 34, sentiment: "positive", trend: "+12", sources: "Interviews, NPS" },
+    { theme: "Slow spec approval cycles", mentions: 28, sentiment: "negative", trend: "+8", sources: "Support, Interviews" },
+    { theme: "Better Jira integration", mentions: 22, sentiment: "neutral", trend: "+5", sources: "Slack, Surveys" },
+    { theme: "Mobile editing support", mentions: 19, sentiment: "positive", trend: "+3", sources: "NPS, App reviews" },
+    { theme: "Confusing permissions model", mentions: 15, sentiment: "negative", trend: "+6", sources: "Support tickets" },
   ];
 
   return (
     <div className="flex-1 flex flex-col p-4 overflow-hidden">
       <div className="flex items-center justify-between pb-3 border-b border-white/[0.06] mb-3">
-        <span className="text-xs font-medium text-white/70">Lead Research</span>
-        <span className="text-[10px] text-white/30">{leads.length} results</span>
+        <div className="flex items-center gap-2">
+          <Sparkles className="h-3.5 w-3.5 text-primary" />
+          <span className="text-xs font-medium text-white/70">AI Feedback Synthesis</span>
+        </div>
+        <span className="text-[10px] text-white/30">118 sources analyzed</span>
       </div>
 
       <div className="space-y-1">
-        {leads.map((lead, i) => (
+        {themes.map((t, i) => (
           <motion.div
-            key={lead.name}
+            key={t.theme}
             initial={{ opacity: 0, x: -10 }}
             animate={{ opacity: active ? 1 : 0, x: active ? 0 : -10 }}
             transition={{ delay: i * 0.15, duration: 0.3 }}
-            className={`flex items-center gap-3 px-3 py-2 rounded-lg ${i === 0 ? "bg-primary/10 border border-primary/20" : "hover:bg-white/[0.03]"}`}
+            className={`flex items-center gap-3 px-3 py-2.5 rounded-lg ${i === 0 ? "bg-primary/10 border border-primary/20" : "hover:bg-white/[0.03]"}`}
           >
-            <div className="h-7 w-7 rounded-full bg-gradient-to-br from-violet-500/40 to-blue-500/40 flex items-center justify-center text-[9px] font-bold text-white/80">
-              {lead.name.split(" ").map(n => n[0]).join("")}
-            </div>
             <div className="flex-1 min-w-0">
-              <div className="text-xs font-medium text-white/80 truncate">{lead.name}</div>
-              <div className="text-[10px] text-white/30 truncate">{lead.title} · {lead.company}</div>
+              <div className="text-xs font-medium text-white/80 truncate">{t.theme}</div>
+              <div className="text-[10px] text-white/30 truncate">{t.sources}</div>
             </div>
             <div className={`text-[9px] px-1.5 py-0.5 rounded-full font-medium ${
-              lead.status === "verified" ? "bg-emerald-500/15 text-emerald-400" :
-              lead.status === "contacted" ? "bg-blue-500/15 text-blue-400" :
+              t.sentiment === "positive" ? "bg-emerald-500/15 text-emerald-400" :
+              t.sentiment === "negative" ? "bg-red-500/15 text-red-400" :
               "bg-white/[0.06] text-white/40"
             }`}>
-              {lead.status}
+              {t.sentiment}
             </div>
-            <div className="text-[10px] text-white/40 font-medium">{lead.score}</div>
+            <div className="text-[10px] text-emerald-400/70 font-medium">{t.trend}</div>
+            <div className="text-[10px] text-white/40 font-mono">{t.mentions}</div>
           </motion.div>
         ))}
       </div>
@@ -193,65 +192,81 @@ function ResearchScene({ active }: { active: boolean }) {
   );
 }
 
-/* ─── Scene: Email Outreach ─── */
+/* ─── Scene: Roadmap Prioritization ─── */
 function EmailScene({ active }: { active: boolean }) {
-  const subjectLine = useTypingText("Quick question about Acme AI's analytics approach", active, 35);
-  const bodyText = useTypingText(
-    "Hi Sarah,\n\nI noticed Acme AI just closed your Series A — congrats! I've been following your work on AI-powered e-commerce analytics.\n\nWe help product teams like yours turn customer feedback into actionable specs. Would love to chat about how we could help Acme ship faster.\n\nBest,\nYour Name",
-    active,
-    12
-  );
+  const features = [
+    { name: "Real-time co-editing", impact: 9.2, effort: "M", rice: 94, quarter: "Q2", status: "approved" },
+    { name: "Approval workflow revamp", impact: 8.5, effort: "L", rice: 87, quarter: "Q2", status: "approved" },
+    { name: "Jira bi-directional sync", impact: 7.8, effort: "M", rice: 76, quarter: "Q3", status: "proposed" },
+    { name: "Mobile spec viewer", impact: 7.1, effort: "S", rice: 72, quarter: "Q3", status: "proposed" },
+    { name: "Role-based permissions v2", impact: 6.9, effort: "L", rice: 65, quarter: "Q4", status: "backlog" },
+  ];
 
   return (
     <div className="flex-1 flex flex-col p-4 overflow-hidden">
-      <div className="flex items-center gap-2 pb-3 border-b border-white/[0.06] mb-3">
-        <Mail className="h-3.5 w-3.5 text-primary" />
-        <span className="text-xs font-medium text-white/70">Email Composer</span>
-        <span className="ml-auto text-[10px] bg-primary/15 text-primary px-2 py-0.5 rounded-full">AI Generated</span>
+      <div className="flex items-center justify-between pb-3 border-b border-white/[0.06] mb-3">
+        <div className="flex items-center gap-2">
+          <BarChart3 className="h-3.5 w-3.5 text-primary" />
+          <span className="text-xs font-medium text-white/70">AI-Ranked Roadmap</span>
+        </div>
+        <span className="text-[10px] bg-primary/15 text-primary px-2 py-0.5 rounded-full">RICE scored</span>
       </div>
 
-      <div className="space-y-3">
-        <div>
-          <div className="text-[10px] text-white/30 mb-1">To</div>
-          <div className="text-xs text-white/70 bg-white/[0.04] border border-white/[0.06] rounded-lg px-3 py-1.5">
-            sarah@acme-ai.com
-          </div>
-        </div>
-        <div>
-          <div className="text-[10px] text-white/30 mb-1">Subject</div>
-          <div className="text-xs text-white/70 bg-white/[0.04] border border-white/[0.06] rounded-lg px-3 py-1.5 min-h-[28px]">
-            {subjectLine}
-            {subjectLine.length < 40 && active && <span className="inline-block w-0.5 h-3 bg-primary ml-0.5 animate-pulse" />}
-          </div>
-        </div>
-        <div>
-          <div className="text-[10px] text-white/30 mb-1">Body</div>
-          <div className="text-xs text-white/60 bg-white/[0.04] border border-white/[0.06] rounded-lg px-3 py-2 min-h-[120px] whitespace-pre-wrap leading-relaxed">
-            {bodyText}
-            {bodyText.length < 280 && active && <span className="inline-block w-0.5 h-3 bg-primary ml-0.5 animate-pulse" />}
-          </div>
-        </div>
+      {/* Header */}
+      <div className="flex items-center gap-2 px-3 py-1.5 text-[9px] text-white/30 uppercase tracking-wider">
+        <span className="flex-1">Feature</span>
+        <span className="w-10 text-center">Impact</span>
+        <span className="w-8 text-center">Effort</span>
+        <span className="w-10 text-center">RICE</span>
+        <span className="w-12 text-center">Status</span>
+      </div>
+
+      <div className="space-y-0.5">
+        {features.map((f, i) => (
+          <motion.div
+            key={f.name}
+            initial={{ opacity: 0, x: -10 }}
+            animate={{ opacity: active ? 1 : 0, x: active ? 0 : -10 }}
+            transition={{ delay: i * 0.15, duration: 0.3 }}
+            className={`flex items-center gap-2 px-3 py-2 rounded-lg ${i < 2 ? "bg-primary/[0.06] border border-primary/10" : "hover:bg-white/[0.03]"}`}
+          >
+            <div className="flex-1 min-w-0">
+              <div className="text-xs font-medium text-white/80 truncate">{f.name}</div>
+              <div className="text-[10px] text-white/30">{f.quarter}</div>
+            </div>
+            <div className="w-10 text-center text-[11px] text-white/60 font-medium">{f.impact}</div>
+            <div className="w-8 text-center text-[10px] text-white/40 font-mono">{f.effort}</div>
+            <div className="w-10 text-center text-[11px] text-primary font-bold">{f.rice}</div>
+            <div className={`w-12 text-center text-[9px] px-1 py-0.5 rounded-full font-medium ${
+              f.status === "approved" ? "bg-emerald-500/15 text-emerald-400" :
+              f.status === "proposed" ? "bg-blue-500/15 text-blue-400" :
+              "bg-white/[0.06] text-white/40"
+            }`}>
+              {f.status}
+            </div>
+          </motion.div>
+        ))}
       </div>
     </div>
   );
 }
 
-/* ─── Scene: Workflow Builder ─── */
+/* ─── Scene: Automation Workflows ─── */
 function WorkflowScene({ active }: { active: boolean }) {
   const nodes = [
-    { label: "NPS < 7 Trigger", icon: BarChart3, color: "from-red-500/30 to-orange-500/30" },
-    { label: "Aggregate Feedback", icon: MessageSquare, color: "from-blue-500/30 to-cyan-500/30" },
-    { label: "AI Analysis", icon: Sparkles, color: "from-primary/30 to-orange-400/30" },
-    { label: "Generate Report", icon: FileText, color: "from-violet-500/30 to-purple-500/30" },
-    { label: "Alert Team", icon: Users, color: "from-emerald-500/30 to-green-500/30" },
+    { label: "NPS Drop < 7 Detected", icon: BarChart3, color: "from-red-500/30 to-orange-500/30" },
+    { label: "Pull Related Feedback", icon: Search, color: "from-blue-500/30 to-cyan-500/30" },
+    { label: "AI Root Cause Analysis", icon: Sparkles, color: "from-primary/30 to-orange-400/30" },
+    { label: "Draft Action Items", icon: FileText, color: "from-violet-500/30 to-purple-500/30" },
+    { label: "Notify PM + Create Ticket", icon: Users, color: "from-emerald-500/30 to-green-500/30" },
   ];
 
   return (
     <div className="flex-1 flex flex-col p-4 overflow-hidden">
       <div className="flex items-center justify-between pb-3 border-b border-white/[0.06] mb-4">
-        <span className="text-xs font-medium text-white/70">NPS Alert Pipeline</span>
+        <span className="text-xs font-medium text-white/70">NPS → Insight Pipeline</span>
         <span className="text-[10px] bg-emerald-500/15 text-emerald-400 px-2 py-0.5 rounded-full flex items-center gap-1">
-          <CheckCircle2 className="h-2.5 w-2.5" /> Deployed
+          <CheckCircle2 className="h-2.5 w-2.5" /> Active
         </span>
       </div>
 
@@ -262,7 +277,7 @@ function WorkflowScene({ active }: { active: boolean }) {
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: active ? 1 : 0, scale: active ? 1 : 0.8 }}
               transition={{ delay: i * 0.25, duration: 0.4 }}
-              className={`flex items-center gap-2.5 bg-gradient-to-r ${node.color} border border-white/[0.08] rounded-xl px-4 py-2.5 w-full max-w-[220px]`}
+              className={`flex items-center gap-2.5 bg-gradient-to-r ${node.color} border border-white/[0.08] rounded-xl px-4 py-2.5 w-full max-w-[240px]`}
             >
               <node.icon className="h-3.5 w-3.5 text-white/70 shrink-0" />
               <span className="text-xs text-white/80 font-medium">{node.label}</span>
@@ -282,20 +297,20 @@ function WorkflowScene({ active }: { active: boolean }) {
   );
 }
 
-/* ─── Scene: Team Collaboration ─── */
+/* ─── Scene: Team Alignment ─── */
 function TeamScene({ active }: { active: boolean }) {
   const messages = [
-    { user: "Sarah", initials: "SC", msg: "Just finished the checkout redesign discovery 🎉", time: "2m ago" },
-    { user: "Marcus", initials: "ML", msg: "PRD looks solid. Approved for sprint 14.", time: "5m ago" },
-    { user: "Priya", initials: "PK", msg: "Uploaded 12 new interview transcripts", time: "12m ago" },
-    { user: "Lantid AI", initials: "L", msg: "3 new themes detected across interviews. Top: 'collaborative editing'", time: "12m ago", isAI: true },
+    { user: "Sarah (PM)", initials: "SC", msg: "PRD for collaborative editing is ready for review — AI drafted it from our last 12 interviews", time: "2m ago" },
+    { user: "Marcus (Eng)", initials: "ML", msg: "Acceptance criteria are clear. I can start sprint planning from this.", time: "5m ago" },
+    { user: "Priya (Design)", initials: "PK", msg: "Love the user stories. Uploading wireframes now.", time: "8m ago" },
+    { user: "Lantid AI", initials: "L", msg: "Conflict detected: 'permissions v2' depends on 'co-editing' — suggest sequencing co-editing first in Q2.", time: "8m ago", isAI: true },
   ];
 
   return (
     <div className="flex-1 flex flex-col p-4 overflow-hidden">
       <div className="flex items-center gap-2 pb-3 border-b border-white/[0.06] mb-3">
         <Users className="h-3.5 w-3.5 text-primary" />
-        <span className="text-xs font-medium text-white/70">Team Chat</span>
+        <span className="text-xs font-medium text-white/70">Product Team</span>
         <span className="ml-auto text-[10px] text-white/30">4 online</span>
       </div>
 
@@ -325,7 +340,7 @@ function TeamScene({ active }: { active: boolean }) {
       </div>
 
       <div className="mt-3 flex items-center gap-2 bg-white/[0.04] border border-white/[0.06] rounded-xl px-3 py-2">
-        <span className="text-xs text-white/20 flex-1">Message the team…</span>
+        <span className="text-xs text-white/20 flex-1">Discuss product decisions…</span>
         <Send className="h-3.5 w-3.5 text-white/20" />
       </div>
     </div>
