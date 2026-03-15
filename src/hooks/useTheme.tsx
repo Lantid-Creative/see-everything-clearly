@@ -12,7 +12,7 @@ const ThemeContext = createContext<ThemeContext | undefined>(undefined);
 export function ThemeProvider({ children }: { children: ReactNode }) {
   const [theme, setTheme] = useState<Theme>(() => {
     if (typeof window !== "undefined") {
-      return (localStorage.getItem("carson-theme") as Theme) || "light";
+      return (localStorage.getItem("lantid-theme") as Theme) || "light";
     }
     return "light";
   });
