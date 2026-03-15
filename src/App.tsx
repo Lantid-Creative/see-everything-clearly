@@ -38,7 +38,7 @@ const App = () => (
               <Route path="/landing" element={<Landing />} />
               <Route path="/auth" element={<Auth />} />
               <Route path="/" element={<ProtectedRoute><Index /></ProtectedRoute>} />
-              <Route path="/home" element={<PublicRoute><Landing /></PublicRoute>} />
+              
               <Route path="*" element={<NotFound />} />
             </Routes>
           </AuthProvider>
