@@ -278,6 +278,7 @@ export function useConversations() {
     updateLastAssistantMessage,
     setMessageAction,
     deleteConversation,
+    updateConversationTitle,
     loaded,
   };
 }

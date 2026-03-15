@@ -95,6 +95,7 @@ export function AppSidebar({
   onSelectConversation,
   onNewConversation,
   onDeleteConversation,
+  searchFocusTrigger,
 }: AppSidebarProps) {
   const { state } = useSidebar();
   const { user, signOut } = useAuth();
