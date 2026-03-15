@@ -234,7 +234,7 @@ export function WorkflowBuilderView({ onBack }: WorkflowBuilderViewProps) {
     try {
       await streamChat({
         messages: [
-          { role: "user", content: `You are Carson helping build a workflow automation. Current nodes: ${nodes.map(n => n.description).join(" → ")}. User request: ${chatInput}. Respond concisely.` },
+          { role: "user", content: `You are Lantid helping build a workflow automation. Current nodes: ${nodes.map(n => n.description).join(" → ")}. User request: ${chatInput}. Respond concisely.` },
         ],
         onDelta: (chunk) => {
           fullContent += chunk;
