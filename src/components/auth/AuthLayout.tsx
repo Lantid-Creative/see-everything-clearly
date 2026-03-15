@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { Sparkles } from "lucide-react";
 import { motion } from "framer-motion";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { Logo } from "@/components/Logo";
 
 const features = [
   "AI-powered PRD generation",
@@ -23,10 +24,7 @@ export function AuthLayout({ children }: { children: React.ReactNode }) {
 
         {/* Logo */}
         <Link to="/" className="relative flex items-center gap-3">
-          <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center shadow-lg shadow-primary/20">
-            <span className="text-primary-foreground font-bold text-lg">L</span>
-          </div>
-          <span className="font-semibold text-xl text-sidebar-primary">Lantid</span>
+          <Logo size="lg" variant="light" />
         </Link>
 
         {/* Hero copy */}
@@ -93,10 +91,7 @@ export function AuthLayout({ children }: { children: React.ReactNode }) {
         >
           {/* Mobile logo */}
           <Link to="/" className="flex lg:hidden items-center justify-center gap-2 mb-10">
-            <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center shadow-lg shadow-primary/20">
-              <span className="text-primary-foreground font-bold text-lg">L</span>
-            </div>
-            <span className="font-semibold text-xl text-foreground">Lantid</span>
+            <Logo size="lg" />
           </Link>
 
           {children}
