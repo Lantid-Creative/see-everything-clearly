@@ -134,7 +134,7 @@ export function AppSidebar({
             <span className="text-primary-foreground font-bold text-sm">C</span>
           </div>
           {!collapsed && (
-            <span className="font-semibold text-sidebar-primary text-sm">Carson</span>
+            <span className="font-semibold text-sidebar-primary text-sm">Lantid</span>
           )}
         </div>
         {!collapsed && (

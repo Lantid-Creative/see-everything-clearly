@@ -210,7 +210,7 @@ export function WorkspaceView({ onBack }: WorkspaceViewProps) {
             value={chatInput}
             onChange={(e) => setChatInput(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && handleWorkspaceChat()}
-            placeholder="Ask Carson about this lead..."
+            placeholder="Ask Lantid about this lead..."
             disabled={isLoadingChat}
             className="flex-1 text-sm bg-transparent text-foreground placeholder:text-muted-foreground focus:outline-none disabled:opacity-60"
           />

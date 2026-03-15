@@ -69,7 +69,7 @@ export function SpreadsheetView({ onBack }: SpreadsheetViewProps) {
     try {
       await streamChat({
         messages: [
-          { role: "user", content: `You are Carson helping with lead research. There are ${leads.length} leads in the spreadsheet. ${selectedRows.size} are selected. User request: ${chatInput}. Respond concisely.` },
+          { role: "user", content: `You are Lantid helping with lead research. There are ${leads.length} leads in the spreadsheet. ${selectedRows.size} are selected. User request: ${chatInput}. Respond concisely.` },
         ],
         onDelta: (chunk) => {
           fullContent += chunk;
