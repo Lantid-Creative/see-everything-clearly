@@ -5,10 +5,11 @@ import { WorkspaceView } from "@/components/WorkspaceView";
 import { SlideEditorView } from "@/components/workspace/SlideEditorView";
 import { WorkflowBuilderView } from "@/components/workspace/WorkflowBuilderView";
 import { SpreadsheetView } from "@/components/workspace/SpreadsheetView";
+import { TeamPanel } from "@/components/team/TeamPanel";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { useConversations } from "@/hooks/useConversations";
 
-export type ViewMode = "chat" | "workspace" | "slides" | "workflow" | "spreadsheet";
+export type ViewMode = "chat" | "workspace" | "slides" | "workflow" | "spreadsheet" | "team";
 
 const Index = () => {
   const [viewMode, setViewMode] = useState<ViewMode>("chat");
@@ -43,6 +44,8 @@ const Index = () => {
         return <WorkflowBuilderView onBack={() => setViewMode("chat")} />;
       case "spreadsheet":
         return <SpreadsheetView onBack={() => setViewMode("chat")} />;
+      case "team":
+        return <TeamPanel onBack={() => setViewMode("chat")} />;
       default:
         return (
           <ChatView
