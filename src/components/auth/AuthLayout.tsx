@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { Sparkles } from "lucide-react";
 import { motion } from "framer-motion";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { Logo } from "@/components/Logo";
 
 const features = [
   "AI-powered PRD generation",
