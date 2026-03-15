@@ -11,9 +11,12 @@ import {
   FileText,
   LogOut,
   Trash2,
+  Sun,
+  Moon,
 } from "lucide-react";
 import { useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
+import { useTheme } from "@/hooks/useTheme";
 import {
   Sidebar,
   SidebarContent,
