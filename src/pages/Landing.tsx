@@ -492,12 +492,12 @@ export default function Landing() {
         <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2">
             <div className="h-7 w-7 rounded-lg bg-gradient-to-br from-primary to-orange-400 flex items-center justify-center">
-              <span className="text-white font-bold text-xs">C</span>
+              <span className="text-white font-bold text-xs">L</span>
             </div>
-            <span className="text-sm font-medium text-white">Carson</span>
+            <span className="text-sm font-medium text-white">Lantid</span>
           </div>
           <p className="text-xs text-white/30">
-            © {new Date().getFullYear()} Carson AI. The product discovery platform.
+            © {new Date().getFullYear()} Lantid AI. The product discovery platform.
           </p>
           <div className="flex gap-6 text-xs text-white/30">
             <a href="#" className="hover:text-white transition-colors">Privacy</a>

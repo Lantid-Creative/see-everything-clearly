@@ -39,7 +39,7 @@ async function callAI(prompt: string, apiKey: string): Promise<string> {
         {
           role: "system",
           content:
-            "You are Carson, executing a workflow step. Be concise and produce actionable output for the given task.",
+            "You are Lantid, executing a workflow step. Be concise and produce actionable output for the given task.",
         },
         { role: "user", content: prompt },
       ],

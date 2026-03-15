@@ -55,7 +55,7 @@ const Auth = () => {
             {isSignUp ? "Create your account" : "Welcome back"}
           </h1>
           <p className="text-sm text-muted-foreground text-center mb-6">
-            {isSignUp ? "Start using Carson AI" : "Sign in to continue"}
+            {isSignUp ? "Start using Lantid AI" : "Sign in to continue"}
           </p>
 
           <form onSubmit={handleSubmit} className="space-y-4">

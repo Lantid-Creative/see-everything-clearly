@@ -431,7 +431,7 @@ export function WorkflowBuilderView({ onBack }: WorkflowBuilderViewProps) {
               <DialogTitle className="text-base">Authorization Required</DialogTitle>
             </div>
             <DialogDescription className="text-xs">
-              Carson needs the following permissions to run this workflow autonomously.
+              Lantid needs the following permissions to run this workflow autonomously.
             </DialogDescription>
           </DialogHeader>
 

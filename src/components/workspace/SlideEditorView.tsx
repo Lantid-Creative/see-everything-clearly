@@ -127,7 +127,7 @@ export function SlideEditorView({ onBack }: SlideEditorViewProps) {
       )
     );
     setCommentInput("");
-    toast({ title: "Comment added", description: "Carson will address your feedback." });
+    toast({ title: "Comment added", description: "Lantid will address your feedback." });
   };
 
   const handleChat = async () => {

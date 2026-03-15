@@ -173,7 +173,7 @@ export function ChatView({
           <span className="text-muted-foreground text-xs">·</span>
           <div className="flex items-center gap-1 text-xs text-muted-foreground">
             <Sparkles className="h-3 w-3" />
-            <span>Carson AI</span>
+            <span>Lantid AI</span>
           </div>
         </div>
       </header>
