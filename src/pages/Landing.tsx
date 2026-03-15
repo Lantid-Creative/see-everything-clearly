@@ -2,6 +2,7 @@ import { useState } from "react";
 import { DashboardWalkthrough } from "@/components/landing/DashboardWalkthrough";
 import { motion, AnimatePresence } from "framer-motion";
 import { Link } from "react-router-dom";
+import { Logo } from "@/components/Logo";
 import {
   ArrowRight,
   MessageSquare,
