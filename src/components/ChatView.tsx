@@ -163,14 +163,35 @@ export function ChatView({
     open_spreadsheet: { label: "Open spreadsheet", icon: Table, type: "spreadsheet" },
   };
 
-  const starterSuggestions = [
-    { icon: Search, label: "Validate a product idea", prompt: "I have a product idea and I want to validate it. Can you help me structure a discovery process — who to talk to, what to ask, and how to evaluate if it's worth building?" },
-    { icon: FileText, label: "Write a PRD", prompt: "Help me write a PRD for a new feature. I'll describe the problem and you help me structure it with goals, user stories, success metrics, and scope." },
-    { icon: BarChart3, label: "Prioritize my backlog", prompt: "I have a list of features to prioritize. Can you help me apply RICE scoring and figure out what to build first?" },
-    { icon: Zap, label: "Create a workflow", prompt: "Help me create an automated workflow for my product process — like turning NPS responses into categorized insights." },
-    { icon: MessageSquare, label: "Draft outreach emails", prompt: "Help me draft customer discovery outreach emails to schedule interviews with potential users." },
-    { icon: Presentation, label: "Build a strategy deck", prompt: "Help me create a product strategy presentation covering vision, market opportunity, competitive landscape, and roadmap." },
-  ];
+  const getStarterSuggestions = () => {
+    const allSuggestions = [
+      { icon: Search, label: "Validate a product idea", prompt: "I have a product idea and I want to validate it. Can you help me structure a discovery process — who to talk to, what to ask, and how to evaluate if it's worth building?", goals: ["Discover what to build next"] },
+      { icon: FileText, label: "Write a PRD", prompt: "Help me write a PRD for a new feature. I'll describe the problem and you help me structure it with goals, user stories, success metrics, and scope.", goals: ["Generate PRDs & specs"] },
+      { icon: BarChart3, label: "Prioritize my backlog", prompt: "I have a list of features to prioritize. Can you help me apply RICE scoring and figure out what to build first?", goals: ["Prioritize my roadmap"] },
+      { icon: Zap, label: "Create a workflow", prompt: "Help me create an automated workflow for my product process — like turning NPS responses into categorized insights.", goals: ["Automate product workflows"] },
+      { icon: MessageSquare, label: "Draft outreach emails", prompt: "Help me draft customer discovery outreach emails to schedule interviews with potential users.", goals: ["Discover what to build next"] },
+      { icon: Presentation, label: "Build a strategy deck", prompt: "Help me create a product strategy presentation covering vision, market opportunity, competitive landscape, and roadmap.", goals: ["Prioritize my roadmap"] },
+      { icon: Users, label: "Align my team", prompt: "Help me prepare a product decision brief to align my team on what we should build next and why.", goals: ["Align my team on decisions"] },
+      { icon: Target, label: "Define success metrics", prompt: "Help me define the right success metrics and KPIs for my product. I want to track whether what we're building is actually working.", goals: [] },
+    ];
+
+    if (!profile?.productGoals) return allSuggestions.slice(0, 6);
+
+    const userGoals = profile.productGoals.split(", ").map((g) => g.trim().toLowerCase());
+
+    // Score suggestions by goal match
+    const scored = allSuggestions.map((s) => {
+      const matchScore = s.goals.filter((g) =>
+        userGoals.some((ug) => ug.includes(g.toLowerCase()) || g.toLowerCase().includes(ug))
+      ).length;
+      return { ...s, matchScore };
+    });
+
+    scored.sort((a, b) => b.matchScore - a.matchScore);
+    return scored.slice(0, 6);
+  };
+
+  const starterSuggestions = getStarterSuggestions();
 
   const isNewConversation = conversation.messages.length <= 1 || 
     (conversation.messages.length === 1 && conversation.messages[0].id === "welcome");
