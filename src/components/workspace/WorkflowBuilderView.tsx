@@ -116,11 +116,25 @@ export function WorkflowBuilderView({ onBack }: WorkflowBuilderViewProps) {
     setEditingNode(null);
   };
 
-  const handleDeploy = () => {
+  const handleDeployClick = () => {
+    setPermissionScopes(deriveScopes());
+    setShowPermissions(true);
+  };
+
+  const toggleScope = (id: string) => {
+    setPermissionScopes((prev) =>
+      prev.map((s) => (s.id === id ? { ...s, granted: !s.granted } : s))
+    );
+  };
+
+  const allRequiredGranted = permissionScopes.filter((s) => s.required).every((s) => s.granted);
+
+  const confirmDeploy = () => {
+    setShowPermissions(false);
     setIsDeployed(true);
     toast({
       title: "Workflow deployed!",
-      description: "Your automation is now active and monitoring for triggers.",
+      description: "All permissions granted. Your automation is now active.",
     });
   };
 
