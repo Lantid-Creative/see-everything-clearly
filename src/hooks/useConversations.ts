@@ -170,6 +170,7 @@ export function useConversations() {
           role: message.role,
           content: message.content,
           action: message.action || null,
+          attachments: (message.attachments as any) || null,
         })
         .then();
     }
