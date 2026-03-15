@@ -23,8 +23,12 @@ export function ThemeToggle({ className = "" }: { className?: string }) {
   );
 }
 
-/** Fixed-position toggle that floats on every page */
+/** Fixed-position toggle that floats on every page except landing */
 export function FloatingThemeToggle() {
+  const pathname = typeof window !== "undefined" ? window.location.pathname : "/";
+  // Landing page has its own theme toggle in the nav
+  if (pathname === "/") return null;
+
   return (
     <div className="fixed top-4 right-4 z-50">
       <ThemeToggle />
