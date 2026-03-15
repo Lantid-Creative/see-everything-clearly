@@ -21,6 +21,7 @@ const Index = () => {
     addMessage,
     updateLastAssistantMessage,
     setMessageAction,
+    deleteConversation,
     loaded,
   } = useConversations();
 
