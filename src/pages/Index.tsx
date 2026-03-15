@@ -4,13 +4,14 @@ import { AppSidebar } from "@/components/AppSidebar";
 import { ChatView } from "@/components/ChatView";
 import { WorkspaceView } from "@/components/WorkspaceView";
 import { SlideEditorView } from "@/components/workspace/SlideEditorView";
+import { SettingsView } from "@/components/SettingsView";
 import { WorkflowBuilderView } from "@/components/workspace/WorkflowBuilderView";
 import { SpreadsheetView } from "@/components/workspace/SpreadsheetView";
 import { TeamPanel } from "@/components/team/TeamPanel";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { useConversations } from "@/hooks/useConversations";
 
-export type ViewMode = "chat" | "workspace" | "slides" | "workflow" | "spreadsheet" | "team";
+export type ViewMode = "chat" | "workspace" | "slides" | "workflow" | "spreadsheet" | "team" | "settings";
 
 const Index = () => {
   const [viewMode, setViewMode] = useState<ViewMode>("chat");
@@ -47,6 +48,8 @@ const Index = () => {
         return <SpreadsheetView onBack={() => setViewMode("chat")} />;
       case "team":
         return <TeamPanel onBack={() => setViewMode("chat")} />;
+      case "settings":
+        return <SettingsView onBack={() => setViewMode("chat")} />;
       default:
         return (
           <ChatView
