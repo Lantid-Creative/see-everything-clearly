@@ -101,7 +101,7 @@ export function SpreadsheetView({ onBack }: SpreadsheetViewProps) {
             <ArrowLeft className="h-4 w-4 text-muted-foreground" />
           </button>
           <h1 className="text-sm font-semibold text-foreground">Lead Research</h1>
-          <span className="text-xs text-muted-foreground bg-secondary px-2 py-0.5 rounded-full">
+          <span className="text-xs text-muted-foreground bg-secondary px-2 py-0.5 rounded-full hidden sm:inline">
             {leads.filter((l) => l.status === "verified").length}/{leads.length} verified
           </span>
         </div>
@@ -112,14 +112,16 @@ export function SpreadsheetView({ onBack }: SpreadsheetViewProps) {
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search leads..."
-              className="h-8 pl-8 pr-3 text-xs bg-secondary rounded-lg text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary w-48"
+              placeholder="Search..."
+              className="h-8 pl-8 pr-3 text-xs bg-secondary rounded-lg text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary w-32 md:w-48"
             />
           </div>
-          <button className="h-8 px-3 text-xs text-muted-foreground hover:text-foreground border rounded-lg flex items-center gap-1.5 transition-colors">
-            <Filter className="h-3.5 w-3.5" />
-            Filter
-          </button>
+          {!isMobile && (
+            <button className="h-8 px-3 text-xs text-muted-foreground hover:text-foreground border rounded-lg flex items-center gap-1.5 transition-colors">
+              <Filter className="h-3.5 w-3.5" />
+              Filter
+            </button>
+          )}
         </div>
       </header>
 
