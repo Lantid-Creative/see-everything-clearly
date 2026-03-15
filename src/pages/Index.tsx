@@ -11,7 +11,7 @@ import { TeamPanel } from "@/components/team/TeamPanel";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { useConversations } from "@/hooks/useConversations";
 import { GettingStartedTour } from "@/components/GettingStartedTour";
-
+import { OnboardingChecklist } from "@/components/OnboardingChecklist";
 export type ViewMode = "chat" | "workspace" | "slides" | "workflow" | "spreadsheet" | "team" | "settings";
 
 const Index = () => {
