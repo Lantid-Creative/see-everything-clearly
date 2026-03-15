@@ -470,7 +470,7 @@ export default function Landing() {
                 becomes everything.
               </h2>
               <p className="mt-6 text-white/50 max-w-lg mx-auto leading-relaxed text-sm md:text-base">
-                PRDs and Jira tickets were designed for human engineers. Carson creates specs
+                PRDs and Jira tickets were designed for human engineers. Lantid creates specs
                 that AI agents can execute and humans can trust.
               </p>
               <div className="mt-8">
