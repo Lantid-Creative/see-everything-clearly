@@ -40,6 +40,7 @@ export type Database = {
       }
       email_drafts: {
         Row: {
+          attachments: Json | null
           body: string
           created_at: string
           id: string
@@ -51,6 +52,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          attachments?: Json | null
           body?: string
           created_at?: string
           id?: string
@@ -62,6 +64,7 @@ export type Database = {
           user_id: string
         }
         Update: {
+          attachments?: Json | null
           body?: string
           created_at?: string
           id?: string
@@ -151,6 +154,7 @@ export type Database = {
       messages: {
         Row: {
           action: string | null
+          attachments: Json | null
           content: string
           conversation_id: string
           created_at: string
@@ -159,6 +163,7 @@ export type Database = {
         }
         Insert: {
           action?: string | null
+          attachments?: Json | null
           content?: string
           conversation_id: string
           created_at?: string
@@ -167,6 +172,7 @@ export type Database = {
         }
         Update: {
           action?: string | null
+          attachments?: Json | null
           content?: string
           conversation_id?: string
           created_at?: string

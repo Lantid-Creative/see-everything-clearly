@@ -1,6 +1,7 @@
 import { useState, useCallback, useEffect, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import type { FileAttachment } from "@/hooks/useFileUpload";
 
 export interface ChatMessage {
   id: string;
@@ -8,6 +9,7 @@ export interface ChatMessage {
   content: string;
   action?: string;
   isStreaming?: boolean;
+  attachments?: FileAttachment[];
 }
 
 export interface Conversation {
@@ -81,6 +83,7 @@ export function useConversations() {
               role: m.role as "user" | "assistant",
               content: m.content,
               action: m.action || undefined,
+              attachments: (m.attachments as unknown as FileAttachment[] | null) || undefined,
             })),
             createdAt: new Date(conv.created_at),
           });
@@ -167,6 +170,7 @@ export function useConversations() {
           role: message.role,
           content: message.content,
           action: message.action || null,
+          attachments: (message.attachments as any) || null,
         })
         .then();
     }
