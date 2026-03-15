@@ -9,7 +9,6 @@ import {
   MessageSquare,
   Presentation,
   FileText,
-  Users,
 } from "lucide-react";
 import { useState } from "react";
 import {
@@ -27,17 +26,12 @@ import {
 } from "@/components/ui/sidebar";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import type { ViewMode } from "@/pages/Index";
+import type { Conversation } from "@/hooks/useConversations";
 
 const mainNav = [
   { title: "Home", icon: Home, id: "home" },
   { title: "Inbox", icon: Inbox, id: "inbox", badge: 15 },
   { title: "Workflows", icon: Workflow, id: "workflows" },
-];
-
-const recentItems = [
-  { title: "Untitled", icon: MessageSquare },
-  { title: "Assisting with present...", icon: Presentation },
-  { title: "Conducting competiti...", icon: FileText },
 ];
 
 const teamMembers = [
@@ -48,15 +42,38 @@ const teamMembers = [
   { name: "Milan", initials: "M", color: "bg-rose-500" },
 ];
 
+const iconForConversation = (title: string) => {
+  if (title.toLowerCase().includes("present")) return Presentation;
+  if (title.toLowerCase().includes("compet")) return FileText;
+  return MessageSquare;
+};
+
 interface AppSidebarProps {
   onSwitchView: (view: ViewMode) => void;
   currentView: ViewMode;
+  conversations: Conversation[];
+  activeConversationId: string;
+  onSelectConversation: (id: string) => void;
+  onNewConversation: () => void;
 }
 
-export function AppSidebar({ onSwitchView, currentView }: AppSidebarProps) {
+export function AppSidebar({
+  onSwitchView,
+  currentView,
+  conversations,
+  activeConversationId,
+  onSelectConversation,
+  onNewConversation,
+}: AppSidebarProps) {
   const { state } = useSidebar();
   const collapsed = state === "collapsed";
   const [activeItem, setActiveItem] = useState("home");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [isSearching, setIsSearching] = useState(false);
+
+  const filteredConversations = conversations.filter((c) =>
+    c.title.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   return (
     <Sidebar collapsible="icon" className="border-r-0">
@@ -71,11 +88,30 @@ export function AppSidebar({ onSwitchView, currentView }: AppSidebarProps) {
         </div>
         {!collapsed && (
           <div className="mt-3 flex items-center gap-2">
-            <div className="flex-1 flex items-center gap-2 rounded-md bg-sidebar-accent px-2.5 py-1.5 text-xs text-sidebar-muted">
-              <Search className="h-3.5 w-3.5" />
-              <span>Search...</span>
-            </div>
-            <button className="h-7 w-7 rounded-md bg-sidebar-accent flex items-center justify-center text-sidebar-foreground hover:text-sidebar-primary transition-colors">
+            {isSearching ? (
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                onBlur={() => { if (!searchQuery) setIsSearching(false); }}
+                autoFocus
+                placeholder="Search conversations..."
+                className="flex-1 rounded-md bg-sidebar-accent px-2.5 py-1.5 text-xs text-sidebar-primary placeholder:text-sidebar-muted focus:outline-none focus:ring-1 focus:ring-sidebar-ring"
+              />
+            ) : (
+              <button
+                onClick={() => setIsSearching(true)}
+                className="flex-1 flex items-center gap-2 rounded-md bg-sidebar-accent px-2.5 py-1.5 text-xs text-sidebar-muted hover:text-sidebar-primary transition-colors"
+              >
+                <Search className="h-3.5 w-3.5" />
+                <span>Search...</span>
+              </button>
+            )}
+            <button
+              onClick={onNewConversation}
+              className="h-7 w-7 rounded-md bg-sidebar-accent flex items-center justify-center text-sidebar-foreground hover:text-sidebar-primary transition-colors"
+              title="New conversation"
+            >
               <Plus className="h-4 w-4" />
             </button>
           </div>
@@ -111,7 +147,7 @@ export function AppSidebar({ onSwitchView, currentView }: AppSidebarProps) {
           </SidebarGroupContent>
         </SidebarGroup>
 
-        {/* Recent */}
+        {/* Recent Conversations */}
         {!collapsed && (
           <SidebarGroup>
             <SidebarGroupLabel className="text-sidebar-muted text-[10px] uppercase tracking-wider font-semibold">
@@ -119,17 +155,21 @@ export function AppSidebar({ onSwitchView, currentView }: AppSidebarProps) {
             </SidebarGroupLabel>
             <SidebarGroupContent>
               <SidebarMenu>
-                {recentItems.map((item) => (
-                  <SidebarMenuItem key={item.title}>
-                    <SidebarMenuButton
-                      onClick={() => onSwitchView("workspace")}
-                      className="text-sidebar-foreground hover:text-sidebar-primary hover:bg-sidebar-accent text-xs"
-                    >
-                      <item.icon className="h-3.5 w-3.5" />
-                      <span className="truncate">{item.title}</span>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                ))}
+                {filteredConversations.slice(0, 5).map((conv) => {
+                  const Icon = iconForConversation(conv.title);
+                  return (
+                    <SidebarMenuItem key={conv.id}>
+                      <SidebarMenuButton
+                        onClick={() => onSelectConversation(conv.id)}
+                        isActive={conv.id === activeConversationId}
+                        className="text-sidebar-foreground hover:text-sidebar-primary hover:bg-sidebar-accent data-[active=true]:bg-sidebar-accent data-[active=true]:text-sidebar-primary text-xs"
+                      >
+                        <Icon className="h-3.5 w-3.5" />
+                        <span className="truncate">{conv.title}</span>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  );
+                })}
               </SidebarMenu>
             </SidebarGroupContent>
           </SidebarGroup>

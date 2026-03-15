@@ -1,69 +1,121 @@
-import { useState } from "react";
-import { Send, Sparkles, ArrowRight } from "lucide-react";
+import { useState, useRef, useEffect, useCallback } from "react";
+import { Send, Sparkles, ArrowRight, Loader2 } from "lucide-react";
 import { SidebarTrigger } from "@/components/ui/sidebar";
-
-interface ChatMessage {
-  id: string;
-  role: "user" | "assistant";
-  content: string;
-  action?: string;
-}
-
-const initialMessages: ChatMessage[] = [
-  {
-    id: "1",
-    role: "assistant",
-    content: "Hi! I'm Carson, your adaptive assistant. I can help you with sales outreach, research, email campaigns, and more. What would you like to work on today?",
-  },
-  {
-    id: "2",
-    role: "user",
-    content: "I need to find startup founders who'd be a natural fit for ClosedAI. Can you help me research some leads?",
-  },
-  {
-    id: "3",
-    role: "assistant",
-    content: "Great idea — I'll find startup founders who'd be a natural fit for ClosedAI. Running parallel research now across early-stage companies doing knowledge-heavy work — pulling name, title, email, and LinkedIn data for each.",
-    action: "Used spreadsheet research",
-  },
-  {
-    id: "4",
-    role: "assistant",
-    content: "Research complete. Found 15 founders across 7 companies with verified emails and LinkedIn profiles.",
-    action: "open_workspace",
-  },
-];
+import { streamChat } from "@/lib/streamChat";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+import type { ChatMessage, Conversation } from "@/hooks/useConversations";
+import { useToast } from "@/hooks/use-toast";
 
 interface ChatViewProps {
   onOpenWorkspace: () => void;
+  conversation: Conversation;
+  onAddMessage: (msg: ChatMessage) => void;
+  onUpdateLastAssistant: (content: string, isStreaming: boolean) => void;
+  onSetAction: (messageId: string, action: string) => void;
 }
 
-export function ChatView({ onOpenWorkspace }: ChatViewProps) {
-  const [messages, setMessages] = useState<ChatMessage[]>(initialMessages);
+export function ChatView({
+  onOpenWorkspace,
+  conversation,
+  onAddMessage,
+  onUpdateLastAssistant,
+  onSetAction,
+}: ChatViewProps) {
   const [input, setInput] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const abortRef = useRef<AbortController | null>(null);
+  const { toast } = useToast();
 
-  const handleSend = () => {
-    if (!input.trim()) return;
-    const newMessage: ChatMessage = {
-      id: Date.now().toString(),
+  const scrollToBottom = useCallback(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, []);
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [conversation.messages, scrollToBottom]);
+
+  const handleSend = async () => {
+    const text = input.trim();
+    if (!text || isLoading) return;
+
+    const userMsg: ChatMessage = {
+      id: `user-${Date.now()}`,
       role: "user",
-      content: input,
+      content: text,
     };
-    setMessages((prev) => [...prev, newMessage]);
+    onAddMessage(userMsg);
     setInput("");
+    setIsLoading(true);
 
-    // Simulate AI response
-    setTimeout(() => {
-      setMessages((prev) => [
-        ...prev,
-        {
-          id: (Date.now() + 1).toString(),
-          role: "assistant",
-          content: "I'll get started on that right away. Let me set up a workspace for you.",
-          action: "open_workspace",
+    // Create placeholder assistant message
+    const assistantId = `assistant-${Date.now()}`;
+    const assistantMsg: ChatMessage = {
+      id: assistantId,
+      role: "assistant",
+      content: "",
+      isStreaming: true,
+    };
+    onAddMessage(assistantMsg);
+
+    let fullContent = "";
+    const controller = new AbortController();
+    abortRef.current = controller;
+
+    try {
+      const apiMessages = [...conversation.messages, userMsg]
+        .filter((m) => !m.isStreaming)
+        .map((m) => ({ role: m.role, content: m.content }));
+
+      await streamChat({
+        messages: apiMessages,
+        onDelta: (chunk) => {
+          fullContent += chunk;
+          onUpdateLastAssistant(fullContent, true);
         },
-      ]);
-    }, 1000);
+        onDone: () => {
+          onUpdateLastAssistant(fullContent, false);
+
+          // Detect if the response mentions workspace/outreach/research completion
+          const lower = fullContent.toLowerCase();
+          if (
+            lower.includes("workspace") ||
+            lower.includes("outreach dashboard") ||
+            lower.includes("set up your") ||
+            lower.includes("ready for you")
+          ) {
+            setTimeout(() => {
+              onSetAction(assistantId, "open_workspace");
+            }, 300);
+          }
+          if (
+            lower.includes("research") &&
+            (lower.includes("found") || lower.includes("complete") || lower.includes("identified"))
+          ) {
+            setTimeout(() => {
+              onSetAction(assistantId, "Used spreadsheet research");
+            }, 200);
+          }
+        },
+        signal: controller.signal,
+      });
+    } catch (err: any) {
+      if (err.name === "AbortError") return;
+      console.error("Chat error:", err);
+      onUpdateLastAssistant(
+        fullContent || "Sorry, I encountered an error. Please try again.",
+        false
+      );
+      toast({
+        title: "Error",
+        description: err.message || "Failed to get response",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+      abortRef.current = null;
+    }
   };
 
   return (
@@ -72,11 +124,13 @@ export function ChatView({ onOpenWorkspace }: ChatViewProps) {
       <header className="h-12 flex items-center px-4 border-b shrink-0">
         <SidebarTrigger className="mr-3" />
         <div className="flex items-center gap-2">
-          <span className="text-sm font-medium text-foreground">Untitled</span>
+          <span className="text-sm font-medium text-foreground truncate max-w-[200px]">
+            {conversation.title}
+          </span>
           <span className="text-muted-foreground text-xs">·</span>
           <div className="flex items-center gap-1 text-xs text-muted-foreground">
             <Sparkles className="h-3 w-3" />
-            <span>Claude</span>
+            <span>Gemini</span>
           </div>
         </div>
       </header>
@@ -84,10 +138,10 @@ export function ChatView({ onOpenWorkspace }: ChatViewProps) {
       {/* Messages */}
       <div className="flex-1 overflow-y-auto px-4 py-6">
         <div className="max-w-2xl mx-auto space-y-4">
-          {messages.map((msg) => (
+          {conversation.messages.map((msg) => (
             <div
               key={msg.id}
-              className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
+              className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"} animate-in fade-in slide-in-from-bottom-2 duration-300`}
             >
               <div
                 className={`max-w-[80%] rounded-2xl px-4 py-2.5 text-sm leading-relaxed ${
@@ -96,7 +150,18 @@ export function ChatView({ onOpenWorkspace }: ChatViewProps) {
                     : "bg-chat-bubble-ai text-chat-bubble-ai-foreground"
                 }`}
               >
-                <p>{msg.content}</p>
+                {msg.role === "assistant" ? (
+                  <div className="prose prose-sm max-w-none dark:prose-invert [&>p]:my-1 [&>ul]:my-1 [&>ol]:my-1">
+                    <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                      {msg.content || " "}
+                    </ReactMarkdown>
+                    {msg.isStreaming && (
+                      <span className="inline-block w-1.5 h-4 bg-foreground/60 animate-pulse ml-0.5 align-middle" />
+                    )}
+                  </div>
+                ) : (
+                  <p>{msg.content}</p>
+                )}
                 {msg.action === "Used spreadsheet research" && (
                   <div className="mt-2 text-xs opacity-70 flex items-center gap-1">
                     <Sparkles className="h-3 w-3" />
@@ -115,6 +180,7 @@ export function ChatView({ onOpenWorkspace }: ChatViewProps) {
               </div>
             </div>
           ))}
+          <div ref={messagesEndRef} />
         </div>
       </div>
 
@@ -126,16 +192,21 @@ export function ChatView({ onOpenWorkspace }: ChatViewProps) {
               type="text"
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && handleSend()}
+              onKeyDown={(e) => e.key === "Enter" && !e.shiftKey && handleSend()}
               placeholder="Reply..."
-              className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground focus:outline-none"
+              disabled={isLoading}
+              className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground focus:outline-none disabled:opacity-60"
             />
             <button
               onClick={handleSend}
-              disabled={!input.trim()}
+              disabled={!input.trim() || isLoading}
               className="h-8 w-8 rounded-lg bg-primary text-primary-foreground flex items-center justify-center disabled:opacity-40 hover:bg-primary/90 transition-colors"
             >
-              <Send className="h-4 w-4" />
+              {isLoading ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Send className="h-4 w-4" />
+              )}
             </button>
           </div>
         </div>
