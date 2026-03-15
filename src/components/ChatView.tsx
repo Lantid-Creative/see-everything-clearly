@@ -83,7 +83,7 @@ export function ChatView({
     clearPending();
     setIsLoading(true);
 
-    const assistantId = `assistant-${Date.now()}`;
+    const assistantId = crypto.randomUUID();
     const assistantMsg: ChatMessage = {
       id: assistantId,
       role: "assistant",
