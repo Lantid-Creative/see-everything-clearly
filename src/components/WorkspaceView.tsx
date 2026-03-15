@@ -95,7 +95,7 @@ export function WorkspaceView({ onBack }: WorkspaceViewProps) {
     try {
       await streamChat({
         messages: [
-          { role: "system", content: `You are Carson, helping with sales outreach. The user is viewing ${selectedLead?.name}, ${selectedLead?.title} at ${selectedLead?.company}. Be concise.` },
+          { role: "system", content: `You are Lantid, helping with sales outreach. The user is viewing ${selectedLead?.name}, ${selectedLead?.title} at ${selectedLead?.company}. Be concise.` },
           ...workspaceChatMessages.filter(m => m.content).map(m => ({ role: m.role, content: m.content })),
           { role: "user", content: currentInput },
         ],
