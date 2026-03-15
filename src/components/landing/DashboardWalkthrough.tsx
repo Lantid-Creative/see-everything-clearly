@@ -251,22 +251,22 @@ function EmailScene({ active }: { active: boolean }) {
   );
 }
 
-/* ─── Scene: Workflow Builder ─── */
+/* ─── Scene: Automation Workflows ─── */
 function WorkflowScene({ active }: { active: boolean }) {
   const nodes = [
-    { label: "NPS < 7 Trigger", icon: BarChart3, color: "from-red-500/30 to-orange-500/30" },
-    { label: "Aggregate Feedback", icon: MessageSquare, color: "from-blue-500/30 to-cyan-500/30" },
-    { label: "AI Analysis", icon: Sparkles, color: "from-primary/30 to-orange-400/30" },
-    { label: "Generate Report", icon: FileText, color: "from-violet-500/30 to-purple-500/30" },
-    { label: "Alert Team", icon: Users, color: "from-emerald-500/30 to-green-500/30" },
+    { label: "NPS Drop < 7 Detected", icon: BarChart3, color: "from-red-500/30 to-orange-500/30" },
+    { label: "Pull Related Feedback", icon: Search, color: "from-blue-500/30 to-cyan-500/30" },
+    { label: "AI Root Cause Analysis", icon: Sparkles, color: "from-primary/30 to-orange-400/30" },
+    { label: "Draft Action Items", icon: FileText, color: "from-violet-500/30 to-purple-500/30" },
+    { label: "Notify PM + Create Ticket", icon: Users, color: "from-emerald-500/30 to-green-500/30" },
   ];
 
   return (
     <div className="flex-1 flex flex-col p-4 overflow-hidden">
       <div className="flex items-center justify-between pb-3 border-b border-white/[0.06] mb-4">
-        <span className="text-xs font-medium text-white/70">NPS Alert Pipeline</span>
+        <span className="text-xs font-medium text-white/70">NPS → Insight Pipeline</span>
         <span className="text-[10px] bg-emerald-500/15 text-emerald-400 px-2 py-0.5 rounded-full flex items-center gap-1">
-          <CheckCircle2 className="h-2.5 w-2.5" /> Deployed
+          <CheckCircle2 className="h-2.5 w-2.5" /> Active
         </span>
       </div>
 
@@ -277,7 +277,7 @@ function WorkflowScene({ active }: { active: boolean }) {
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: active ? 1 : 0, scale: active ? 1 : 0.8 }}
               transition={{ delay: i * 0.25, duration: 0.4 }}
-              className={`flex items-center gap-2.5 bg-gradient-to-r ${node.color} border border-white/[0.08] rounded-xl px-4 py-2.5 w-full max-w-[220px]`}
+              className={`flex items-center gap-2.5 bg-gradient-to-r ${node.color} border border-white/[0.08] rounded-xl px-4 py-2.5 w-full max-w-[240px]`}
             >
               <node.icon className="h-3.5 w-3.5 text-white/70 shrink-0" />
               <span className="text-xs text-white/80 font-medium">{node.label}</span>
