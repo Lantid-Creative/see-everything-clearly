@@ -11,7 +11,7 @@ import { TeamPanel } from "@/components/team/TeamPanel";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { useConversations } from "@/hooks/useConversations";
 
-export type ViewMode = "chat" | "workspace" | "slides" | "workflow" | "spreadsheet" | "team";
+export type ViewMode = "chat" | "workspace" | "slides" | "workflow" | "spreadsheet" | "team" | "settings";
 
 const Index = () => {
   const [viewMode, setViewMode] = useState<ViewMode>("chat");
