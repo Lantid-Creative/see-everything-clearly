@@ -138,7 +138,7 @@ export default function Landing() {
       <nav className="fixed top-0 inset-x-0 z-50 bg-background/80 backdrop-blur-xl border-b border-border">
         <div className="max-w-6xl mx-auto flex items-center justify-between px-6 h-20">
           <div className="flex items-center gap-2.5">
-            <Logo size="lg" />
+            <Logo size="lg" className="dark:h-24 dark:-my-4" />
           </div>
           <div className="hidden md:flex items-center gap-8 text-sm text-muted-foreground">
             <a href="#features" className="hover:text-foreground transition-colors">Features</a>
