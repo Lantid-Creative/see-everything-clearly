@@ -12,10 +12,12 @@ import { SidebarProvider } from "@/components/ui/sidebar";
 import { useConversations } from "@/hooks/useConversations";
 import { GettingStartedTour } from "@/components/GettingStartedTour";
 import { OnboardingChecklist } from "@/components/OnboardingChecklist";
-export type ViewMode = "chat" | "workspace" | "slides" | "workflow" | "spreadsheet" | "team" | "settings";
+import { DashboardView } from "@/components/DashboardView";
+
+export type ViewMode = "dashboard" | "chat" | "workspace" | "slides" | "workflow" | "spreadsheet" | "team" | "settings";
 
 const Index = () => {
-  const [viewMode, setViewMode] = useState<ViewMode>("chat");
+  const [viewMode, setViewMode] = useState<ViewMode>("dashboard");
   const {
     conversations,
     activeConversation,
