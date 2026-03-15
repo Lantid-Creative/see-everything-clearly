@@ -193,7 +193,7 @@ export default function Landing() {
               custom={2}
               className="mt-6 md:mt-8 text-base md:text-lg text-white/50 max-w-2xl mx-auto leading-relaxed"
             >
-              AI tools write code. Carson tells them{" "}
+              AI tools write code. Lantid tells them{" "}
               <span className="text-white font-medium">what code to write</span>.
               Upload customer signals, discover opportunities, and generate specs
               your coding agent can ship.
