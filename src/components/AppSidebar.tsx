@@ -224,13 +224,16 @@ export function AppSidebar({
             </SidebarMenuButton>
           </SidebarMenuItem>
           <SidebarMenuItem>
-            <SidebarMenuButton className="text-sidebar-foreground hover:text-sidebar-primary hover:bg-sidebar-accent">
-              <div className="flex items-center gap-2">
-                <div className="h-5 w-5 rounded-full bg-emerald-600 flex items-center justify-center">
-                  <span className="text-[9px] font-medium text-primary-foreground">AI</span>
-                </div>
-                {!collapsed && <span className="text-xs">Closed AI</span>}
-              </div>
+            <SidebarMenuButton
+              onClick={signOut}
+              className="text-sidebar-foreground hover:text-sidebar-primary hover:bg-sidebar-accent"
+            >
+              <LogOut className="h-4 w-4" />
+              {!collapsed && (
+                <span className="text-xs truncate">
+                  {user?.email || "Sign out"}
+                </span>
+              )}
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
