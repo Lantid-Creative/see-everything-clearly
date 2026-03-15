@@ -165,7 +165,7 @@ export default function Landing() {
       </nav>
 
       {/* ─── HERO ─── */}
-      <section className="relative pt-32 pb-8 md:pt-44 md:pb-16 px-6">
+      <section className="relative pt-36 pb-8 md:pt-48 md:pb-16 px-6">
         {/* Background gradient orbs */}
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[600px] pointer-events-none">
           <div className="absolute top-20 left-1/4 w-[400px] h-[400px] bg-primary/15 rounded-full blur-[150px]" />
