@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { WelcomeModal } from "@/components/WelcomeModal";
 import { AppSidebar } from "@/components/AppSidebar";
 import { ChatView } from "@/components/ChatView";
 import { WorkspaceView } from "@/components/WorkspaceView";
@@ -65,6 +66,7 @@ const Index = () => {
 
   return (
     <SidebarProvider>
+      <WelcomeModal />
       <div className="min-h-screen flex w-full">
         <AppSidebar
           onSwitchView={setViewMode}
