@@ -36,6 +36,7 @@ interface PermissionScope {
 
 export function WorkflowBuilderView({ onBack }: WorkflowBuilderViewProps) {
   const { nodes, setNodes: saveNodes, isDeployed, deploy, loaded } = useWorkflow();
+  const isMobile = useIsMobile();
   const [showPermissions, setShowPermissions] = useState(false);
   const [permissionScopes, setPermissionScopes] = useState<PermissionScope[]>([]);
   const [chatInput, setChatInput] = useState("");
