@@ -1,6 +1,7 @@
 import { Moon, Sun } from "lucide-react";
 import { useTheme } from "@/hooks/useTheme";
 import { motion } from "framer-motion";
+import { useLocation } from "react-router-dom";
 
 export function ThemeToggle({ className = "" }: { className?: string }) {
   const { theme, toggleTheme } = useTheme();
@@ -25,9 +26,13 @@ export function ThemeToggle({ className = "" }: { className?: string }) {
 
 /** Fixed-position toggle that floats on every page except landing */
 export function FloatingThemeToggle() {
-  const pathname = typeof window !== "undefined" ? window.location.pathname : "/";
-  // Landing page has its own theme toggle in the nav
-  if (pathname === "/") return null;
+  try {
+    const { pathname } = useLocation();
+    // Landing page has its own theme toggle in the nav
+    if (pathname === "/") return null;
+  } catch {
+    // useLocation may fail outside Router — show toggle as fallback
+  }
 
   return (
     <div className="fixed top-4 right-4 z-50">
