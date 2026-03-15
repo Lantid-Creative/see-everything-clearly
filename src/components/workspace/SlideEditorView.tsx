@@ -339,7 +339,7 @@ export function SlideEditorView({ onBack }: SlideEditorViewProps) {
         </div>
 
         {/* Comments & Chat Panel */}
-        {showComments && (
+        {showComments && !isMobile && (
           <div className="w-[280px] border-l flex flex-col shrink-0">
             <div className="px-4 py-2.5 border-b">
               <h2 className="text-xs font-semibold text-foreground uppercase tracking-wider">Comments</h2>
