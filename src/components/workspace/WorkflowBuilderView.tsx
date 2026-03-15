@@ -11,21 +11,7 @@ import {
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { streamChat } from "@/lib/streamChat";
 import { useToast } from "@/hooks/use-toast";
-
-interface WorkflowNode {
-  id: string;
-  type: "trigger" | "action" | "condition";
-  label: string;
-  description: string;
-  icon: string;
-  connected: boolean;
-}
-
-const defaultNodes: WorkflowNode[] = [
-  { id: "1", type: "trigger", label: "Calendar Event", description: "When someone books time on my calendar", icon: "calendar", connected: true },
-  { id: "2", type: "action", label: "Generate Slides", description: "Create personalized presentation using research", icon: "file", connected: true },
-  { id: "3", type: "action", label: "Send Email", description: "Email slides to me for review", icon: "mail", connected: true },
-];
+import { useWorkflow, type WorkflowNode } from "@/hooks/useWorkspaceData";
 
 const iconMap: Record<string, any> = {
   calendar: Calendar,
@@ -48,8 +34,7 @@ interface PermissionScope {
 }
 
 export function WorkflowBuilderView({ onBack }: WorkflowBuilderViewProps) {
-  const [nodes, setNodes] = useState<WorkflowNode[]>(defaultNodes);
-  const [isDeployed, setIsDeployed] = useState(false);
+  const { nodes, setNodes: saveNodes, isDeployed, deploy, loaded } = useWorkflow();
   const [showPermissions, setShowPermissions] = useState(false);
   const [permissionScopes, setPermissionScopes] = useState<PermissionScope[]>([]);
   const [chatInput, setChatInput] = useState("");
@@ -61,6 +46,14 @@ export function WorkflowBuilderView({ onBack }: WorkflowBuilderViewProps) {
   ]);
   const { toast } = useToast();
 
+  if (!loaded) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
+
   const deriveScopes = (): PermissionScope[] => {
     const scopes: PermissionScope[] = [];
     const hasCalendar = nodes.some((n) => n.icon === "calendar");
@@ -68,9 +61,7 @@ export function WorkflowBuilderView({ onBack }: WorkflowBuilderViewProps) {
     const hasSlides = nodes.some((n) => n.icon === "file");
     const hasSlack = nodes.some((n) => n.label.toLowerCase().includes("slack"));
 
-    if (hasCalendar) {
-      scopes.push({ id: "calendar.read", label: "Google Calendar", description: "Read calendar events and booking notifications", icon: "calendar", required: true, granted: false });
-    }
+    if (hasCalendar) scopes.push({ id: "calendar.read", label: "Google Calendar", description: "Read calendar events and booking notifications", icon: "calendar", required: true, granted: false });
     if (hasMail) {
       scopes.push({ id: "email.send", label: "Email (Send)", description: "Send emails on your behalf with attachments", icon: "mail", required: true, granted: false });
       scopes.push({ id: "email.read", label: "Email (Read)", description: "Read inbox to detect replies and thread context", icon: "mail", required: false, granted: false });
@@ -79,11 +70,8 @@ export function WorkflowBuilderView({ onBack }: WorkflowBuilderViewProps) {
       scopes.push({ id: "drive.write", label: "Google Drive", description: "Create and store generated presentations", icon: "file", required: true, granted: false });
       scopes.push({ id: "research.web", label: "Web Research", description: "Search the web to enrich slide content", icon: "file", required: true, granted: false });
     }
-    if (hasSlack) {
-      scopes.push({ id: "slack.post", label: "Slack (Post)", description: "Send messages and attachments to Slack channels", icon: "bell", required: true, granted: false });
-    }
+    if (hasSlack) scopes.push({ id: "slack.post", label: "Slack (Post)", description: "Send messages and attachments to Slack channels", icon: "bell", required: true, granted: false });
     scopes.push({ id: "agent.autonomous", label: "Autonomous Execution", description: "Run this workflow without manual approval each time", icon: "bell", required: true, granted: false });
-
     return scopes;
   };
 
@@ -96,11 +84,11 @@ export function WorkflowBuilderView({ onBack }: WorkflowBuilderViewProps) {
       icon: "bell",
       connected: true,
     };
-    setNodes((prev) => [...prev, newNode]);
+    saveNodes([...nodes, newNode]);
   };
 
   const removeNode = (id: string) => {
-    setNodes((prev) => prev.filter((n) => n.id !== id));
+    saveNodes(nodes.filter((n) => n.id !== id));
   };
 
   const startEdit = (id: string, desc: string) => {
@@ -110,9 +98,7 @@ export function WorkflowBuilderView({ onBack }: WorkflowBuilderViewProps) {
 
   const saveEdit = () => {
     if (!editingNode) return;
-    setNodes((prev) =>
-      prev.map((n) => (n.id === editingNode ? { ...n, description: editValue } : n))
-    );
+    saveNodes(nodes.map((n) => (n.id === editingNode ? { ...n, description: editValue } : n)));
     setEditingNode(null);
   };
 
@@ -122,20 +108,15 @@ export function WorkflowBuilderView({ onBack }: WorkflowBuilderViewProps) {
   };
 
   const toggleScope = (id: string) => {
-    setPermissionScopes((prev) =>
-      prev.map((s) => (s.id === id ? { ...s, granted: !s.granted } : s))
-    );
+    setPermissionScopes((prev) => prev.map((s) => (s.id === id ? { ...s, granted: !s.granted } : s)));
   };
 
   const allRequiredGranted = permissionScopes.filter((s) => s.required).every((s) => s.granted);
 
   const confirmDeploy = () => {
     setShowPermissions(false);
-    setIsDeployed(true);
-    toast({
-      title: "Workflow deployed!",
-      description: "All permissions granted. Your automation is now active.",
-    });
+    deploy();
+    toast({ title: "Workflow deployed!", description: "All permissions granted. Your automation is now active." });
   };
 
   const handleChat = async () => {
@@ -145,20 +126,10 @@ export function WorkflowBuilderView({ onBack }: WorkflowBuilderViewProps) {
     setChatInput("");
     setIsLoading(true);
 
-    // Check for common modifications
     const lower = chatInput.toLowerCase();
     if (lower.includes("slack") || lower.includes("ping")) {
-      setNodes((prev) => [
-        ...prev,
-        {
-          id: Date.now().toString(),
-          type: "action",
-          label: "Slack Notification",
-          description: "Ping me on Slack with the presentation attached",
-          icon: "bell",
-          connected: true,
-        },
-      ]);
+      const slackNode: WorkflowNode = { id: Date.now().toString(), type: "action", label: "Slack Notification", description: "Ping me on Slack with the presentation attached", icon: "bell", connected: true };
+      saveNodes([...nodes, slackNode]);
     }
 
     setChatMessages((prev) => [...prev, { role: "assistant", content: "" }]);
@@ -167,24 +138,16 @@ export function WorkflowBuilderView({ onBack }: WorkflowBuilderViewProps) {
     try {
       await streamChat({
         messages: [
-          { role: "user", content: `You are Carson helping build a workflow automation. Current nodes: ${nodes.map(n => n.description).join(" → ")}. User request: ${chatInput}. Respond concisely about what you changed in the workflow.` },
+          { role: "user", content: `You are Carson helping build a workflow automation. Current nodes: ${nodes.map(n => n.description).join(" → ")}. User request: ${chatInput}. Respond concisely.` },
         ],
         onDelta: (chunk) => {
           fullContent += chunk;
-          setChatMessages((prev) => {
-            const msgs = [...prev];
-            msgs[msgs.length - 1] = { role: "assistant", content: fullContent };
-            return msgs;
-          });
+          setChatMessages((prev) => { const msgs = [...prev]; msgs[msgs.length - 1] = { role: "assistant", content: fullContent }; return msgs; });
         },
         onDone: () => {},
       });
     } catch {
-      setChatMessages((prev) => {
-        const msgs = [...prev];
-        msgs[msgs.length - 1] = { role: "assistant", content: "I've updated the workflow based on your feedback." };
-        return msgs;
-      });
+      setChatMessages((prev) => { const msgs = [...prev]; msgs[msgs.length - 1] = { role: "assistant", content: "I've updated the workflow based on your feedback." }; return msgs; });
     } finally {
       setIsLoading(false);
     }
@@ -206,106 +169,60 @@ export function WorkflowBuilderView({ onBack }: WorkflowBuilderViewProps) {
             </span>
           )}
         </div>
-        <button
-          onClick={handleDeployClick}
-          disabled={isDeployed}
-          className="h-8 px-4 rounded-lg bg-primary text-primary-foreground text-xs font-medium hover:bg-primary/90 transition-colors disabled:opacity-50 flex items-center gap-2"
-        >
-          {isDeployed ? (
-            <>Deployed</>
-          ) : (
-            <>
-              <Play className="h-3.5 w-3.5" />
-              Deploy Workflow
-            </>
-          )}
+        <button onClick={handleDeployClick} disabled={isDeployed} className="h-8 px-4 rounded-lg bg-primary text-primary-foreground text-xs font-medium hover:bg-primary/90 transition-colors disabled:opacity-50 flex items-center gap-2">
+          {isDeployed ? <>Deployed</> : <><Play className="h-3.5 w-3.5" />Deploy Workflow</>}
         </button>
       </header>
 
       <div className="flex-1 flex min-h-0">
-        {/* Workflow Canvas */}
         <div className="flex-1 p-8 overflow-y-auto flex flex-col items-center">
           <div className="space-y-0 w-full max-w-lg">
             {nodes.map((node, i) => {
               const Icon = iconMap[node.icon] || Bell;
               return (
                 <div key={node.id}>
-                  <div
-                    className={`group relative border-2 rounded-xl p-4 transition-all ${
-                      isDeployed
-                        ? "border-success/30 bg-success/5"
-                        : "border-border hover:border-primary/40 hover:shadow-md bg-background"
-                    }`}
-                  >
+                  <div className={`group relative border-2 rounded-xl p-4 transition-all ${isDeployed ? "border-success/30 bg-success/5" : "border-border hover:border-primary/40 hover:shadow-md bg-background"}`}>
                     {!isDeployed && (
-                      <button
-                        onClick={() => removeNode(node.id)}
-                        className="absolute -top-2 -right-2 h-5 w-5 rounded-full bg-destructive text-destructive-foreground flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
-                      >
+                      <button onClick={() => removeNode(node.id)} className="absolute -top-2 -right-2 h-5 w-5 rounded-full bg-destructive text-destructive-foreground flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                         <X className="h-3 w-3" />
                       </button>
                     )}
                     <div className="flex items-start gap-3">
                       <div className="flex items-center gap-2 shrink-0">
                         {!isDeployed && <GripVertical className="h-4 w-4 text-muted-foreground/40" />}
-                        <div className={`h-9 w-9 rounded-lg flex items-center justify-center ${
-                          node.type === "trigger" ? "bg-amber-500/10 text-amber-600" :
-                          "bg-primary/10 text-primary"
-                        }`}>
+                        <div className={`h-9 w-9 rounded-lg flex items-center justify-center ${node.type === "trigger" ? "bg-amber-500/10 text-amber-600" : "bg-primary/10 text-primary"}`}>
                           <Icon className="h-4 w-4" />
                         </div>
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2">
-                          <span className="text-[10px] uppercase tracking-wider font-semibold text-muted-foreground">
-                            {node.type}
-                          </span>
+                          <span className="text-[10px] uppercase tracking-wider font-semibold text-muted-foreground">{node.type}</span>
                           <span className="text-xs font-medium text-foreground">{node.label}</span>
                         </div>
                         {editingNode === node.id ? (
-                          <input
-                            value={editValue}
-                            onChange={(e) => setEditValue(e.target.value)}
-                            onBlur={saveEdit}
-                            onKeyDown={(e) => e.key === "Enter" && saveEdit()}
-                            autoFocus
-                            className="w-full text-xs text-foreground mt-1 bg-transparent border-b border-primary focus:outline-none"
-                          />
+                          <input value={editValue} onChange={(e) => setEditValue(e.target.value)} onBlur={saveEdit} onKeyDown={(e) => e.key === "Enter" && saveEdit()} autoFocus className="w-full text-xs text-foreground mt-1 bg-transparent border-b border-primary focus:outline-none" />
                         ) : (
-                          <p
-                            onClick={() => !isDeployed && startEdit(node.id, node.description)}
-                            className={`text-xs text-muted-foreground mt-0.5 ${!isDeployed ? "cursor-pointer hover:text-foreground" : ""}`}
-                          >
+                          <p onClick={() => !isDeployed && startEdit(node.id, node.description)} className={`text-xs text-muted-foreground mt-0.5 ${!isDeployed ? "cursor-pointer hover:text-foreground" : ""}`}>
                             {node.description}
                           </p>
                         )}
                       </div>
                     </div>
                   </div>
-                  {i < nodes.length - 1 && (
-                    <div className="flex justify-center py-1">
-                      <div className="w-0.5 h-6 bg-border" />
-                    </div>
-                  )}
+                  {i < nodes.length - 1 && <div className="flex justify-center py-1"><div className="w-0.5 h-6 bg-border" /></div>}
                 </div>
               );
             })}
-
             {!isDeployed && (
               <div className="flex justify-center pt-2">
-                <button
-                  onClick={addNode}
-                  className="flex items-center gap-2 text-xs text-muted-foreground hover:text-foreground border border-dashed border-border rounded-lg px-4 py-2 transition-colors hover:border-primary/40"
-                >
-                  <Plus className="h-3.5 w-3.5" />
-                  Add step
+                <button onClick={addNode} className="flex items-center gap-2 text-xs text-muted-foreground hover:text-foreground border border-dashed border-border rounded-lg px-4 py-2 transition-colors hover:border-primary/40">
+                  <Plus className="h-3.5 w-3.5" />Add step
                 </button>
               </div>
             )}
           </div>
         </div>
 
-        {/* Chat panel */}
         <div className="w-[300px] border-l flex flex-col shrink-0">
           <div className="px-4 py-2.5 border-b flex items-center gap-2">
             <Sparkles className="h-3.5 w-3.5 text-primary" />
@@ -313,17 +230,8 @@ export function WorkflowBuilderView({ onBack }: WorkflowBuilderViewProps) {
           </div>
           <div className="flex-1 overflow-y-auto p-3 space-y-2">
             {chatMessages.map((msg, i) => (
-              <div
-                key={i}
-                className={`${msg.role === "user" ? "ml-6" : ""}`}
-              >
-                <div
-                  className={`rounded-xl px-3 py-2 text-xs leading-relaxed ${
-                    msg.role === "user"
-                      ? "bg-primary text-primary-foreground"
-                      : "bg-secondary text-foreground"
-                  }`}
-                >
+              <div key={i} className={msg.role === "user" ? "ml-6" : ""}>
+                <div className={`rounded-xl px-3 py-2 text-xs leading-relaxed ${msg.role === "user" ? "bg-primary text-primary-foreground" : "bg-secondary text-foreground"}`}>
                   {msg.content || <span className="inline-block w-1 h-3 bg-foreground/40 animate-pulse" />}
                 </div>
               </div>
@@ -331,26 +239,15 @@ export function WorkflowBuilderView({ onBack }: WorkflowBuilderViewProps) {
           </div>
           <div className="border-t p-3">
             <div className="flex items-center gap-2">
-              <input
-                type="text"
-                value={chatInput}
-                onChange={(e) => setChatInput(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && handleChat()}
-                placeholder="Modify the workflow..."
-                disabled={isLoading || isDeployed}
-                className="flex-1 text-xs bg-secondary rounded-md px-2.5 py-1.5 text-foreground placeholder:text-muted-foreground focus:outline-none disabled:opacity-50"
-              />
-              <button
-                onClick={handleChat}
-                disabled={!chatInput.trim() || isLoading || isDeployed}
-                className="h-7 w-7 rounded-md bg-primary text-primary-foreground flex items-center justify-center hover:bg-primary/90 transition-colors disabled:opacity-40"
-              >
+              <input type="text" value={chatInput} onChange={(e) => setChatInput(e.target.value)} onKeyDown={(e) => e.key === "Enter" && handleChat()} placeholder="Modify the workflow..." disabled={isLoading || isDeployed} className="flex-1 text-xs bg-secondary rounded-md px-2.5 py-1.5 text-foreground placeholder:text-muted-foreground focus:outline-none disabled:opacity-50" />
+              <button onClick={handleChat} disabled={!chatInput.trim() || isLoading || isDeployed} className="h-7 w-7 rounded-md bg-primary text-primary-foreground flex items-center justify-center hover:bg-primary/90 transition-colors disabled:opacity-40">
                 {isLoading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Send className="h-3.5 w-3.5" />}
               </button>
             </div>
           </div>
         </div>
       </div>
+
       {/* Permissions Dialog */}
       <Dialog open={showPermissions} onOpenChange={setShowPermissions}>
         <DialogContent className="sm:max-w-md">
@@ -362,7 +259,7 @@ export function WorkflowBuilderView({ onBack }: WorkflowBuilderViewProps) {
               <DialogTitle className="text-base">Authorization Required</DialogTitle>
             </div>
             <DialogDescription className="text-xs">
-              Carson needs the following permissions to run this workflow autonomously. Review and approve each scope.
+              Carson needs the following permissions to run this workflow autonomously.
             </DialogDescription>
           </DialogHeader>
 
@@ -370,32 +267,18 @@ export function WorkflowBuilderView({ onBack }: WorkflowBuilderViewProps) {
             {permissionScopes.map((scope) => {
               const Icon = iconMap[scope.icon] || Bell;
               return (
-                <button
-                  key={scope.id}
-                  onClick={() => toggleScope(scope.id)}
-                  className={`w-full flex items-center gap-3 rounded-xl border-2 px-4 py-3 text-left transition-all ${
-                    scope.granted
-                      ? "border-success bg-success/5"
-                      : "border-border hover:border-muted-foreground/30"
-                  }`}
-                >
-                  <div className={`h-8 w-8 rounded-lg flex items-center justify-center shrink-0 ${
-                    scope.granted ? "bg-success/10 text-success" : "bg-muted text-muted-foreground"
-                  }`}>
+                <button key={scope.id} onClick={() => toggleScope(scope.id)} className={`w-full flex items-center gap-3 rounded-xl border-2 px-4 py-3 text-left transition-all ${scope.granted ? "border-success bg-success/5" : "border-border hover:border-muted-foreground/30"}`}>
+                  <div className={`h-8 w-8 rounded-lg flex items-center justify-center shrink-0 ${scope.granted ? "bg-success/10 text-success" : "bg-muted text-muted-foreground"}`}>
                     {scope.granted ? <Check className="h-4 w-4" /> : <Icon className="h-4 w-4" />}
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
                       <span className="text-sm font-medium text-foreground">{scope.label}</span>
-                      {scope.required && (
-                        <span className="text-[9px] uppercase tracking-wider font-semibold text-destructive">Required</span>
-                      )}
+                      {scope.required && <span className="text-[9px] uppercase tracking-wider font-semibold text-destructive">Required</span>}
                     </div>
                     <p className="text-xs text-muted-foreground mt-0.5">{scope.description}</p>
                   </div>
-                  <div className={`h-5 w-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-colors ${
-                    scope.granted ? "border-success bg-success" : "border-muted-foreground/30"
-                  }`}>
+                  <div className={`h-5 w-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-colors ${scope.granted ? "border-success bg-success" : "border-muted-foreground/30"}`}>
                     {scope.granted && <Check className="h-3 w-3 text-success-foreground" />}
                   </div>
                 </button>
@@ -411,17 +294,10 @@ export function WorkflowBuilderView({ onBack }: WorkflowBuilderViewProps) {
           )}
 
           <DialogFooter className="flex gap-2 sm:gap-2">
-            <button
-              onClick={() => setShowPermissions(false)}
-              className="flex-1 h-9 rounded-lg border text-sm font-medium text-foreground hover:bg-secondary transition-colors"
-            >
+            <button onClick={() => setShowPermissions(false)} className="px-4 py-2 text-sm text-muted-foreground hover:text-foreground transition-colors">
               Cancel
             </button>
-            <button
-              onClick={confirmDeploy}
-              disabled={!allRequiredGranted}
-              className="flex-1 h-9 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 transition-colors disabled:opacity-40 flex items-center justify-center gap-2"
-            >
+            <button onClick={confirmDeploy} disabled={!allRequiredGranted} className="px-4 py-2 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 disabled:opacity-50 flex items-center gap-2 transition-colors">
               <Shield className="h-3.5 w-3.5" />
               Authorize & Deploy
             </button>

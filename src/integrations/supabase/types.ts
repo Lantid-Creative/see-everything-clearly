@@ -38,6 +38,116 @@ export type Database = {
         }
         Relationships: []
       }
+      email_drafts: {
+        Row: {
+          body: string
+          created_at: string
+          id: string
+          is_template: boolean | null
+          lead_id: string | null
+          sent: boolean | null
+          subject: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          body?: string
+          created_at?: string
+          id?: string
+          is_template?: boolean | null
+          lead_id?: string | null
+          sent?: boolean | null
+          subject?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          body?: string
+          created_at?: string
+          id?: string
+          is_template?: boolean | null
+          lead_id?: string | null
+          sent?: boolean | null
+          subject?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "email_drafts_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      leads: {
+        Row: {
+          about: string | null
+          avatar: string | null
+          company: string
+          company_overview: string | null
+          created_at: string
+          email: string
+          experience: Json | null
+          id: string
+          lead_type: string
+          linkedin: string | null
+          name: string
+          personal_interests: Json | null
+          recent_activity: Json | null
+          sent: boolean | null
+          source: string | null
+          status: string | null
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          about?: string | null
+          avatar?: string | null
+          company?: string
+          company_overview?: string | null
+          created_at?: string
+          email?: string
+          experience?: Json | null
+          id?: string
+          lead_type?: string
+          linkedin?: string | null
+          name: string
+          personal_interests?: Json | null
+          recent_activity?: Json | null
+          sent?: boolean | null
+          source?: string | null
+          status?: string | null
+          title?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          about?: string | null
+          avatar?: string | null
+          company?: string
+          company_overview?: string | null
+          created_at?: string
+          email?: string
+          experience?: Json | null
+          id?: string
+          lead_type?: string
+          linkedin?: string | null
+          name?: string
+          personal_interests?: Json | null
+          recent_activity?: Json | null
+          sent?: boolean | null
+          source?: string | null
+          status?: string | null
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       messages: {
         Row: {
           action: string | null
@@ -94,6 +204,36 @@ export type Database = {
           display_name?: string | null
           id?: string
           updated_at?: string
+        }
+        Relationships: []
+      }
+      workflows: {
+        Row: {
+          created_at: string
+          id: string
+          is_deployed: boolean | null
+          name: string
+          nodes: Json
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_deployed?: boolean | null
+          name?: string
+          nodes?: Json
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_deployed?: boolean | null
+          name?: string
+          nodes?: Json
+          updated_at?: string
+          user_id?: string
         }
         Relationships: []
       }
