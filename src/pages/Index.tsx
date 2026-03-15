@@ -21,7 +21,16 @@ const Index = () => {
     addMessage,
     updateLastAssistantMessage,
     setMessageAction,
+    loaded,
   } = useConversations();
+
+  if (!loaded) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="text-muted-foreground text-sm">Loading conversations...</div>
+      </div>
+    );
+  }
 
   const renderView = () => {
     switch (viewMode) {
