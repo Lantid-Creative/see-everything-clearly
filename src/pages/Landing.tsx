@@ -599,7 +599,7 @@ export default function Landing() {
                   </ul>
 
                   <Link
-                    to="/auth"
+                    to="/signup"
                     className={`mt-8 w-full inline-flex items-center justify-center gap-2 font-medium text-sm px-6 py-3 rounded-xl transition-colors ${
                       plan.highlighted
                         ? "bg-primary text-white hover:bg-primary/90"
