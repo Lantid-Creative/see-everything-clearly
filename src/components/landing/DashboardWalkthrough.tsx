@@ -505,7 +505,7 @@ export function DashboardWalkthrough() {
         {/* CTA below mockup */}
         <div className="text-center mt-8">
           <Link
-            to="/auth"
+            to="/signup"
             className="inline-flex items-center gap-2 text-sm font-medium text-primary hover:text-primary/80 transition-colors"
           >
             Try the full dashboard <ChevronRight className="h-3.5 w-3.5" />

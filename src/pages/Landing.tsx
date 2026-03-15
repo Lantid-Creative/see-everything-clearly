@@ -149,13 +149,13 @@ export default function Landing() {
           </div>
           <div className="flex items-center gap-3">
             <Link
-              to="/auth"
+              to="/login"
               className="text-sm text-white/60 hover:text-white transition-colors hidden sm:block"
             >
               Login
             </Link>
             <Link
-              to="/auth"
+              to="/signup"
               className="text-sm font-medium bg-white text-[#0a0a0f] px-4 py-2 rounded-lg hover:bg-white/90 transition-colors"
             >
               Get started
@@ -211,7 +211,7 @@ export default function Landing() {
               className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3"
             >
               <Link
-                to="/auth"
+                to="/signup"
                 className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-white text-[#0a0a0f] font-medium text-sm px-6 py-3 rounded-xl hover:bg-white/90 transition-colors"
               >
                 Get started
@@ -313,7 +313,7 @@ export default function Landing() {
                     {activeTabData.description}
                   </p>
                   <Link
-                    to="/auth"
+                    to="/signup"
                     className="mt-6 inline-flex items-center gap-1.5 text-sm font-medium text-primary hover:text-primary/80 transition-colors"
                   >
                     Try it now <ChevronRight className="h-3.5 w-3.5" />
@@ -599,7 +599,7 @@ export default function Landing() {
                   </ul>
 
                   <Link
-                    to="/auth"
+                    to="/signup"
                     className={`mt-8 w-full inline-flex items-center justify-center gap-2 font-medium text-sm px-6 py-3 rounded-xl transition-colors ${
                       plan.highlighted
                         ? "bg-primary text-white hover:bg-primary/90"
@@ -707,7 +707,7 @@ export default function Landing() {
               </p>
               <div className="mt-8">
                 <Link
-                  to="/auth"
+                  to="/signup"
                   className="inline-flex items-center gap-2 bg-white text-[#0a0a0f] font-medium text-sm px-6 py-3 rounded-xl hover:bg-white/90 transition-colors"
                 >
                   Start building what matters

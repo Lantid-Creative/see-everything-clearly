@@ -5,8 +5,10 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider, useAuth } from "@/hooks/useAuth";
 import { ThemeProvider } from "@/hooks/useTheme";
+import { FloatingThemeToggle } from "@/components/ThemeToggle";
 import Index from "./pages/Index.tsx";
-import Auth from "./pages/Auth.tsx";
+import Login from "./pages/Login.tsx";
+import Signup from "./pages/Signup.tsx";
 import Landing from "./pages/Landing.tsx";
 import NotFound from "./pages/NotFound.tsx";
 import { Loader2 } from "lucide-react";
@@ -34,11 +36,14 @@ const App = () => (
         <Sonner />
         <BrowserRouter>
           <AuthProvider>
+            <FloatingThemeToggle />
             <Routes>
               <Route path="/landing" element={<Landing />} />
-              <Route path="/auth" element={<Auth />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/signup" element={<Signup />} />
+              {/* Legacy route redirect */}
+              <Route path="/auth" element={<Navigate to="/login" replace />} />
               <Route path="/" element={<ProtectedRoute><Index /></ProtectedRoute>} />
-              
               <Route path="*" element={<NotFound />} />
             </Routes>
           </AuthProvider>
