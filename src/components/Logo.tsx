@@ -5,15 +5,16 @@ import logoLight from "@/assets/logo-light.png";
 interface LogoProps {
   className?: string;
   iconOnly?: boolean;
-  size?: "sm" | "md" | "lg";
+  size?: "sm" | "md" | "lg" | "xl";
   /** Force a specific variant regardless of theme */
   variant?: "light" | "dark";
 }
 
 const sizeMap = {
-  sm: "h-6",
-  md: "h-8",
-  lg: "h-10",
+  sm: "h-8",
+  md: "h-10",
+  lg: "h-14",
+  xl: "h-20",
 };
 
 export function Logo({ className = "", iconOnly = false, size = "md", variant }: LogoProps) {

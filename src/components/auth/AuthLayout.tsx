@@ -24,7 +24,7 @@ export function AuthLayout({ children }: { children: React.ReactNode }) {
 
         {/* Logo */}
         <Link to="/" className="relative flex items-center gap-3">
-          <Logo size="lg" variant="light" />
+          <Logo size="xl" variant="light" />
         </Link>
 
         {/* Hero copy */}

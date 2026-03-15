@@ -3,6 +3,7 @@ import { DashboardWalkthrough } from "@/components/landing/DashboardWalkthrough"
 import { motion, AnimatePresence } from "framer-motion";
 import { Link } from "react-router-dom";
 import { Logo } from "@/components/Logo";
+import { ThemeToggle } from "@/components/ThemeToggle";
 import {
   ArrowRight,
   MessageSquare,
@@ -146,6 +147,7 @@ export default function Landing() {
             <a href="#pricing" className="hover:text-white transition-colors">Pricing</a>
           </div>
           <div className="flex items-center gap-3">
+            <ThemeToggle />
             <Link
               to="/login"
               className="text-sm text-white/60 hover:text-white transition-colors hidden sm:block"
