@@ -351,6 +351,83 @@ export function WorkflowBuilderView({ onBack }: WorkflowBuilderViewProps) {
           </div>
         </div>
       </div>
+      {/* Permissions Dialog */}
+      <Dialog open={showPermissions} onOpenChange={setShowPermissions}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <div className="flex items-center gap-2 mb-1">
+              <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center">
+                <Shield className="h-4 w-4 text-primary" />
+              </div>
+              <DialogTitle className="text-base">Authorization Required</DialogTitle>
+            </div>
+            <DialogDescription className="text-xs">
+              Carson needs the following permissions to run this workflow autonomously. Review and approve each scope.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-2 my-2">
+            {permissionScopes.map((scope) => {
+              const Icon = iconMap[scope.icon] || Bell;
+              return (
+                <button
+                  key={scope.id}
+                  onClick={() => toggleScope(scope.id)}
+                  className={`w-full flex items-center gap-3 rounded-xl border-2 px-4 py-3 text-left transition-all ${
+                    scope.granted
+                      ? "border-success bg-success/5"
+                      : "border-border hover:border-muted-foreground/30"
+                  }`}
+                >
+                  <div className={`h-8 w-8 rounded-lg flex items-center justify-center shrink-0 ${
+                    scope.granted ? "bg-success/10 text-success" : "bg-muted text-muted-foreground"
+                  }`}>
+                    {scope.granted ? <Check className="h-4 w-4" /> : <Icon className="h-4 w-4" />}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm font-medium text-foreground">{scope.label}</span>
+                      {scope.required && (
+                        <span className="text-[9px] uppercase tracking-wider font-semibold text-destructive">Required</span>
+                      )}
+                    </div>
+                    <p className="text-xs text-muted-foreground mt-0.5">{scope.description}</p>
+                  </div>
+                  <div className={`h-5 w-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-colors ${
+                    scope.granted ? "border-success bg-success" : "border-muted-foreground/30"
+                  }`}>
+                    {scope.granted && <Check className="h-3 w-3 text-success-foreground" />}
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+
+          {!allRequiredGranted && (
+            <div className="flex items-center gap-2 text-xs text-amber-600 bg-amber-500/10 rounded-lg px-3 py-2">
+              <AlertTriangle className="h-3.5 w-3.5 shrink-0" />
+              <span>All required permissions must be granted before deployment.</span>
+            </div>
+          )}
+
+          <DialogFooter className="flex gap-2 sm:gap-2">
+            <button
+              onClick={() => setShowPermissions(false)}
+              className="flex-1 h-9 rounded-lg border text-sm font-medium text-foreground hover:bg-secondary transition-colors"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={confirmDeploy}
+              disabled={!allRequiredGranted}
+              className="flex-1 h-9 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 transition-colors disabled:opacity-40 flex items-center justify-center gap-2"
+            >
+              <Shield className="h-3.5 w-3.5" />
+              Authorize & Deploy
+            </button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
