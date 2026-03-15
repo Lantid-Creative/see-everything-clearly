@@ -283,9 +283,14 @@ export default function Landing() {
                         <Sparkles className="h-3.5 w-3.5 text-white" />
                       </div>
                       <div className="bg-white/[0.04] border border-white/[0.06] rounded-2xl rounded-tl-sm px-4 py-3 text-sm text-white/70 leading-relaxed max-w-md">
-                        <pre className="whitespace-pre-wrap font-sans text-[13px]">
-                          {activeTabData.mockup.aiResponse}
-                        </pre>
+                        <div
+                          className="whitespace-pre-wrap font-sans text-[13px] [&_strong]:text-white [&_strong]:font-semibold [&_code]:bg-white/10 [&_code]:px-1.5 [&_code]:py-0.5 [&_code]:rounded [&_code]:text-primary [&_code]:text-xs"
+                          dangerouslySetInnerHTML={{
+                            __html: activeTabData.mockup.aiResponse
+                              .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
+                              .replace(/`([^`]+)`/g, "<code>$1</code>"),
+                          }}
+                        />
                       </div>
                     </div>
                   </div>
