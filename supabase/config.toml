@@ -1,1 +1,4 @@
 project_id = "duqpnawfzihqbyttcrvk"
+
+[functions.carson-chat]
+verify_jwt = false
