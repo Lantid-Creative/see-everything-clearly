@@ -19,6 +19,7 @@ import {
   Loader2,
 } from "lucide-react";
 import { useState } from "react";
+import { Logo } from "@/components/Logo";
 import { useAuth } from "@/hooks/useAuth";
 import { useTheme } from "@/hooks/useTheme";
 import { useGlobalSearch, type SearchResult } from "@/hooks/useGlobalSearch";
