@@ -83,6 +83,7 @@ export function useConversations() {
               role: m.role as "user" | "assistant",
               content: m.content,
               action: m.action || undefined,
+              attachments: (m.attachments as FileAttachment[] | null) || undefined,
             })),
             createdAt: new Date(conv.created_at),
           });
