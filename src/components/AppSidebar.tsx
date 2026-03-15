@@ -45,13 +45,7 @@ const mainNav = [
   { title: "Workflows", icon: Workflow, id: "workflows" },
 ];
 
-const teamMembers = [
-  { name: "Zinny Weli", initials: "ZW", color: "bg-blue-500" },
-  { name: "Sid", initials: "S", color: "bg-emerald-500", tag: "(you)" },
-  { name: "Alex", initials: "A", color: "bg-violet-500" },
-  { name: "Ketan", initials: "K", color: "bg-amber-500" },
-  { name: "Milan", initials: "M", color: "bg-rose-500" },
-];
+// Team members are now loaded dynamically from the database
 
 const iconForConversation = (title: string) => {
   if (title.toLowerCase().includes("present")) return Presentation;
