@@ -1,13 +1,27 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+import { useState } from "react";
+import { AppSidebar } from "@/components/AppSidebar";
+import { ChatView } from "@/components/ChatView";
+import { WorkspaceView } from "@/components/WorkspaceView";
+import { SidebarProvider } from "@/components/ui/sidebar";
+
+export type ViewMode = "chat" | "workspace";
 
 const Index = () => {
+  const [viewMode, setViewMode] = useState<ViewMode>("chat");
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background">
-      <div className="text-center">
-        <h1 className="mb-4 text-4xl font-bold">Welcome to Your Blank App</h1>
-        <p className="text-xl text-muted-foreground">Start building your amazing project here!</p>
+    <SidebarProvider>
+      <div className="min-h-screen flex w-full">
+        <AppSidebar onSwitchView={setViewMode} currentView={viewMode} />
+        <main className="flex-1 flex flex-col min-w-0">
+          {viewMode === "chat" ? (
+            <ChatView onOpenWorkspace={() => setViewMode("workspace")} />
+          ) : (
+            <WorkspaceView onBack={() => setViewMode("chat")} />
+          )}
+        </main>
       </div>
-    </div>
+    </SidebarProvider>
   );
 };
 
