@@ -29,11 +29,11 @@ type Scene = {
 };
 
 const SCENES: Scene[] = [
-  { id: "chat", label: "AI Chat", sidebarActive: "home", duration: 6000 },
-  { id: "research", label: "Lead Research", sidebarActive: "leads", duration: 5000 },
-  { id: "email", label: "Email Outreach", sidebarActive: "email", duration: 5000 },
-  { id: "workflow", label: "Workflow Builder", sidebarActive: "workflows", duration: 5000 },
-  { id: "team", label: "Team Collaboration", sidebarActive: "team", duration: 5000 },
+  { id: "chat", label: "PRD Generation", sidebarActive: "home", duration: 6000 },
+  { id: "research", label: "Feedback Synthesis", sidebarActive: "leads", duration: 5000 },
+  { id: "email", label: "Roadmap Prioritization", sidebarActive: "email", duration: 5000 },
+  { id: "workflow", label: "Automation Workflows", sidebarActive: "workflows", duration: 5000 },
+  { id: "team", label: "Team Alignment", sidebarActive: "team", duration: 5000 },
 ];
 
 const SIDEBAR_ITEMS = [
