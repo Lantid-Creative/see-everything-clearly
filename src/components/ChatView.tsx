@@ -73,7 +73,7 @@ export function ChatView({
     if ((!text && pendingFiles.length === 0) || isLoading) return;
 
     const userMsg: ChatMessage = {
-      id: `user-${Date.now()}`,
+      id: crypto.randomUUID(),
       role: "user",
       content: text || (pendingFiles.length > 0 ? `[Attached ${pendingFiles.length} file(s)]` : ""),
       attachments: pendingFiles.length > 0 ? [...pendingFiles] : undefined,
