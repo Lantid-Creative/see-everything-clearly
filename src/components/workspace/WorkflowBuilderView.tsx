@@ -38,9 +38,20 @@ interface WorkflowBuilderViewProps {
   onBack: () => void;
 }
 
+interface PermissionScope {
+  id: string;
+  label: string;
+  description: string;
+  icon: string;
+  required: boolean;
+  granted: boolean;
+}
+
 export function WorkflowBuilderView({ onBack }: WorkflowBuilderViewProps) {
   const [nodes, setNodes] = useState<WorkflowNode[]>(defaultNodes);
   const [isDeployed, setIsDeployed] = useState(false);
+  const [showPermissions, setShowPermissions] = useState(false);
+  const [permissionScopes, setPermissionScopes] = useState<PermissionScope[]>([]);
   const [chatInput, setChatInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [editingNode, setEditingNode] = useState<string | null>(null);
@@ -49,6 +60,32 @@ export function WorkflowBuilderView({ onBack }: WorkflowBuilderViewProps) {
     { role: "assistant", content: "I've set up your automation workflow. Each node describes a step in plain English. You can edit any node, add new ones, or ask me to modify the flow." },
   ]);
   const { toast } = useToast();
+
+  const deriveScopes = (): PermissionScope[] => {
+    const scopes: PermissionScope[] = [];
+    const hasCalendar = nodes.some((n) => n.icon === "calendar");
+    const hasMail = nodes.some((n) => n.icon === "mail");
+    const hasSlides = nodes.some((n) => n.icon === "file");
+    const hasSlack = nodes.some((n) => n.label.toLowerCase().includes("slack"));
+
+    if (hasCalendar) {
+      scopes.push({ id: "calendar.read", label: "Google Calendar", description: "Read calendar events and booking notifications", icon: "calendar", required: true, granted: false });
+    }
+    if (hasMail) {
+      scopes.push({ id: "email.send", label: "Email (Send)", description: "Send emails on your behalf with attachments", icon: "mail", required: true, granted: false });
+      scopes.push({ id: "email.read", label: "Email (Read)", description: "Read inbox to detect replies and thread context", icon: "mail", required: false, granted: false });
+    }
+    if (hasSlides) {
+      scopes.push({ id: "drive.write", label: "Google Drive", description: "Create and store generated presentations", icon: "file", required: true, granted: false });
+      scopes.push({ id: "research.web", label: "Web Research", description: "Search the web to enrich slide content", icon: "file", required: true, granted: false });
+    }
+    if (hasSlack) {
+      scopes.push({ id: "slack.post", label: "Slack (Post)", description: "Send messages and attachments to Slack channels", icon: "bell", required: true, granted: false });
+    }
+    scopes.push({ id: "agent.autonomous", label: "Autonomous Execution", description: "Run this workflow without manual approval each time", icon: "bell", required: true, granted: false });
+
+    return scopes;
+  };
 
   const addNode = () => {
     const newNode: WorkflowNode = {
