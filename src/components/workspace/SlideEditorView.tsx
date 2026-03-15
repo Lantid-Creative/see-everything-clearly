@@ -191,30 +191,32 @@ export function SlideEditorView({ onBack }: SlideEditorViewProps) {
       </header>
 
       <div className="flex-1 flex min-h-0">
-        {/* Slide thumbnails */}
-        <div className="w-[140px] border-r overflow-y-auto p-2 space-y-2 shrink-0">
-          {slides.map((s, i) => (
-            <button
-              key={s.id}
-              onClick={() => setCurrentSlide(i)}
-              className={`w-full aspect-[16/9] rounded-lg border-2 p-2 text-left transition-colors ${
-                i === currentSlide ? "border-primary bg-primary/5" : "border-border hover:border-muted-foreground/30"
-              }`}
-            >
-              <p className="text-[7px] font-semibold text-foreground truncate">{s.title}</p>
-              {s.subtitle && <p className="text-[6px] text-muted-foreground truncate">{s.subtitle}</p>}
-              {s.comments && s.comments.length > 0 && (
-                <div className="mt-1 flex items-center gap-0.5">
-                  <MessageSquare className="h-2 w-2 text-primary" />
-                  <span className="text-[6px] text-primary">{s.comments.length}</span>
-                </div>
-              )}
+        {/* Slide thumbnails - hidden on mobile */}
+        {!isMobile && (
+          <div className="w-[140px] border-r overflow-y-auto p-2 space-y-2 shrink-0">
+            {slides.map((s, i) => (
+              <button
+                key={s.id}
+                onClick={() => setCurrentSlide(i)}
+                className={`w-full aspect-[16/9] rounded-lg border-2 p-2 text-left transition-colors ${
+                  i === currentSlide ? "border-primary bg-primary/5" : "border-border hover:border-muted-foreground/30"
+                }`}
+              >
+                <p className="text-[7px] font-semibold text-foreground truncate">{s.title}</p>
+                {s.subtitle && <p className="text-[6px] text-muted-foreground truncate">{s.subtitle}</p>}
+                {s.comments && s.comments.length > 0 && (
+                  <div className="mt-1 flex items-center gap-0.5">
+                    <MessageSquare className="h-2 w-2 text-primary" />
+                    <span className="text-[6px] text-primary">{s.comments.length}</span>
+                  </div>
+                )}
+              </button>
+            ))}
+            <button className="w-full aspect-[16/9] rounded-lg border-2 border-dashed border-border hover:border-muted-foreground/30 flex items-center justify-center transition-colors">
+              <Plus className="h-4 w-4 text-muted-foreground" />
             </button>
-          ))}
-          <button className="w-full aspect-[16/9] rounded-lg border-2 border-dashed border-border hover:border-muted-foreground/30 flex items-center justify-center transition-colors">
-            <Plus className="h-4 w-4 text-muted-foreground" />
-          </button>
-        </div>
+          </div>
+        )}
 
         {/* Main slide view */}
         <div className="flex-1 flex flex-col items-center justify-center p-8 bg-muted/30">
