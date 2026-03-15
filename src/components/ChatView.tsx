@@ -1,11 +1,13 @@
 import { useState, useRef, useEffect, useCallback } from "react";
-import { Send, Sparkles, ArrowRight, Loader2, LayoutGrid, Presentation, GitBranch, Table } from "lucide-react";
+import { Send, Sparkles, ArrowRight, Loader2, LayoutGrid, Presentation, GitBranch, Table, Paperclip } from "lucide-react";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { streamChat } from "@/lib/streamChat";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import type { ChatMessage, Conversation } from "@/hooks/useConversations";
 import { useToast } from "@/hooks/use-toast";
+import { useFileUpload } from "@/hooks/useFileUpload";
+import { FilePreviewBar, MessageAttachments } from "@/components/FilePreview";
 import type { ViewMode } from "@/pages/Index";
 
 interface ChatViewProps {
@@ -28,6 +30,7 @@ export function ChatView({
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const abortRef = useRef<AbortController | null>(null);
   const { toast } = useToast();
+  const { uploading, pendingFiles, uploadFiles, removePending, clearPending, openFilePicker, inputRef } = useFileUpload();
 
   const scrollToBottom = useCallback(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -39,7 +42,6 @@ export function ChatView({
 
   const detectWorkspaceType = (content: string): { action: string; type: ViewMode } | null => {
     const lower = content.toLowerCase();
-    // Check outreach/workspace first (most common)
     if (
       lower.includes("outreach") ||
       lower.includes("email template") ||
@@ -68,15 +70,17 @@ export function ChatView({
 
   const handleSend = async () => {
     const text = input.trim();
-    if (!text || isLoading) return;
+    if ((!text && pendingFiles.length === 0) || isLoading) return;
 
     const userMsg: ChatMessage = {
       id: `user-${Date.now()}`,
       role: "user",
-      content: text,
+      content: text || (pendingFiles.length > 0 ? `[Attached ${pendingFiles.length} file(s)]` : ""),
+      attachments: pendingFiles.length > 0 ? [...pendingFiles] : undefined,
     };
     onAddMessage(userMsg);
     setInput("");
+    clearPending();
     setIsLoading(true);
 
     const assistantId = `assistant-${Date.now()}`;
@@ -106,7 +110,6 @@ export function ChatView({
         onDone: () => {
           onUpdateLastAssistant(fullContent, false);
 
-          // Detect workspace type from response
           const ws = detectWorkspaceType(fullContent);
           if (ws) {
             setTimeout(() => {
@@ -114,7 +117,6 @@ export function ChatView({
             }, 300);
           }
 
-          // Detect research action
           const lower = fullContent.toLowerCase();
           if (
             lower.includes("research") &&
@@ -142,6 +144,13 @@ export function ChatView({
     } finally {
       setIsLoading(false);
       abortRef.current = null;
+    }
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 0) {
+      uploadFiles(e.target.files);
+      e.target.value = "";
     }
   };
 
@@ -196,6 +205,7 @@ export function ChatView({
                 ) : (
                   <p>{msg.content}</p>
                 )}
+                {msg.attachments && <MessageAttachments attachments={msg.attachments} />}
                 {msg.action === "Used spreadsheet research" && (
                   <div className="mt-2 text-xs opacity-70 flex items-center gap-1">
                     <Sparkles className="h-3 w-3" />
@@ -222,10 +232,35 @@ export function ChatView({
         </div>
       </div>
 
+      {/* File preview bar */}
+      {pendingFiles.length > 0 && (
+        <FilePreviewBar files={pendingFiles} onRemove={removePending} />
+      )}
+
       {/* Input */}
       <div className="border-t px-4 py-3 shrink-0">
         <div className="max-w-2xl mx-auto">
           <div className="flex items-center gap-2 bg-secondary rounded-xl px-4 py-2">
+            <input
+              ref={inputRef}
+              type="file"
+              multiple
+              onChange={handleFileChange}
+              className="hidden"
+              accept="image/*,.pdf,.doc,.docx,.txt,.csv,.xlsx"
+            />
+            <button
+              onClick={openFilePicker}
+              disabled={uploading || isLoading}
+              className="h-8 w-8 rounded-lg flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-foreground/5 transition-colors disabled:opacity-40 shrink-0"
+              title="Attach file"
+            >
+              {uploading ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Paperclip className="h-4 w-4" />
+              )}
+            </button>
             <input
               type="text"
               value={input}
@@ -237,7 +272,7 @@ export function ChatView({
             />
             <button
               onClick={handleSend}
-              disabled={!input.trim() || isLoading}
+              disabled={(!input.trim() && pendingFiles.length === 0) || isLoading}
               className="h-8 w-8 rounded-lg bg-primary text-primary-foreground flex items-center justify-center disabled:opacity-40 hover:bg-primary/90 transition-colors"
             >
               {isLoading ? (
