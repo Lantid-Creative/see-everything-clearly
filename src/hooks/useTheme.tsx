@@ -12,7 +12,7 @@ const ThemeContext = createContext<ThemeContext | undefined>(undefined);
 export function ThemeProvider({ children }: { children: ReactNode }) {
   const [theme, setTheme] = useState<Theme>(() => {
     if (typeof window !== "undefined") {
-      return (localStorage.getItem("carson-theme") as Theme) || "light";
+      return (localStorage.getItem("lantid-theme") as Theme) || "light";
     }
     return "light";
   });
@@ -21,7 +21,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     const root = document.documentElement;
     root.classList.remove("light", "dark");
     root.classList.add(theme);
-    localStorage.setItem("carson-theme", theme);
+    localStorage.setItem("lantid-theme", theme);
   }, [theme]);
 
   const toggleTheme = () => setTheme((t) => (t === "light" ? "dark" : "light"));

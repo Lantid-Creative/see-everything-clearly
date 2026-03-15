@@ -1,6 +1,6 @@
 type Msg = { role: "user" | "assistant" | "system"; content: string };
 
-const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/carson-chat`;
+const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/lantid-chat`;
 
 export async function streamChat({
   messages,

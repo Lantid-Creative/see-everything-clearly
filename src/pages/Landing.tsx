@@ -40,7 +40,7 @@ const TABS = [
     label: "Discovery",
     icon: Search,
     title: "Ask what to build next",
-    description: "Upload customer interviews, NPS data, and support tickets. Carson synthesizes everything and surfaces the opportunities worth pursuing.",
+    description: "Upload customer interviews, NPS data, and support tickets. Lantid synthesizes everything and surfaces the opportunities worth pursuing.",
     mockup: {
       userMessage: "Based on our last 50 customer interviews, what's the #1 feature we should build?",
       aiResponse: `**Top Priority: Collaborative Workspaces**\n\n📊 Mentioned by **34 of 50** customers (68%)\n\n**Key Signals:**\n• "I need to share findings with my team" — 23 mentions\n• "We waste time re-doing the same research" — 18 mentions\n• "No single source of truth for product decisions" — 15 mentions\n\n**Impact Score: 9.2/10**\nHigh user demand + low implementation complexity + strong retention signal`,
@@ -51,7 +51,7 @@ const TABS = [
     label: "PRD Generation",
     icon: FileText,
     title: "From insight to spec in seconds",
-    description: "Carson drafts product requirements, user stories, acceptance criteria, and UI proposals — structured for your coding agent to execute.",
+    description: "Lantid drafts product requirements, user stories, acceptance criteria, and UI proposals — structured for your coding agent to execute.",
     mockup: {
       userMessage: "Generate a PRD for the collaborative workspaces feature",
       aiResponse: `**PRD: Collaborative Workspaces** v0.1\n\n**Problem Statement**\nTeams lack a shared context for product decisions, leading to duplicated research and misaligned priorities.\n\n**User Stories**\n✅ As a PM, I can invite team members to a shared workspace\n✅ As a team lead, I can see all research and decisions in one feed\n✅ As a designer, I can access customer quotes relevant to my work\n\n**Data Model Changes**\n\`workspaces\`, \`workspace_members\`, \`shared_artifacts\`\n\n**Dev Tasks (5)** → Ready for Cursor / Claude Code`,
@@ -132,14 +132,14 @@ export default function Landing() {
         <div className="max-w-6xl mx-auto flex items-center justify-between px-6 h-16">
           <div className="flex items-center gap-2.5">
             <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-primary to-orange-400 flex items-center justify-center">
-              <span className="text-white font-bold text-sm">C</span>
+              <span className="text-white font-bold text-sm">L</span>
             </div>
-            <span className="font-semibold text-white text-lg">Carson</span>
+            <span className="font-semibold text-white text-lg">Lantid</span>
           </div>
           <div className="hidden md:flex items-center gap-8 text-sm text-white/50">
             <a href="#features" className="hover:text-white transition-colors">Features</a>
             <a href="#how-it-works" className="hover:text-white transition-colors">How It Works</a>
-            <a href="#why" className="hover:text-white transition-colors">Why Carson</a>
+            <a href="#why" className="hover:text-white transition-colors">Why Lantid</a>
           </div>
           <div className="flex items-center gap-3">
             <Link
@@ -193,7 +193,7 @@ export default function Landing() {
               custom={2}
               className="mt-6 md:mt-8 text-base md:text-lg text-white/50 max-w-2xl mx-auto leading-relaxed"
             >
-              AI tools write code. Carson tells them{" "}
+              AI tools write code. Lantid tells them{" "}
               <span className="text-white font-medium">what code to write</span>.
               Upload customer signals, discover opportunities, and generate specs
               your coding agent can ship.
@@ -344,7 +344,7 @@ export default function Landing() {
                 and defining <span className="text-white font-medium">how it should work</span>.
               </p>
               <p className="text-white/50 leading-relaxed">
-                Carson is the missing layer — the AI that turns raw customer signal into
+                Lantid is the missing layer — the AI that turns raw customer signal into
                 actionable specs your coding agent can execute.
               </p>
             </motion.div>
@@ -470,7 +470,7 @@ export default function Landing() {
                 becomes everything.
               </h2>
               <p className="mt-6 text-white/50 max-w-lg mx-auto leading-relaxed text-sm md:text-base">
-                PRDs and Jira tickets were designed for human engineers. Carson creates specs
+                PRDs and Jira tickets were designed for human engineers. Lantid creates specs
                 that AI agents can execute and humans can trust.
               </p>
               <div className="mt-8">
@@ -492,12 +492,12 @@ export default function Landing() {
         <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2">
             <div className="h-7 w-7 rounded-lg bg-gradient-to-br from-primary to-orange-400 flex items-center justify-center">
-              <span className="text-white font-bold text-xs">C</span>
+              <span className="text-white font-bold text-xs">L</span>
             </div>
-            <span className="text-sm font-medium text-white">Carson</span>
+            <span className="text-sm font-medium text-white">Lantid</span>
           </div>
           <p className="text-xs text-white/30">
-            © {new Date().getFullYear()} Carson AI. The product discovery platform.
+            © {new Date().getFullYear()} Lantid AI. The product discovery platform.
           </p>
           <div className="flex gap-6 text-xs text-white/30">
             <a href="#" className="hover:text-white transition-colors">Privacy</a>

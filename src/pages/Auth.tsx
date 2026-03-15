@@ -45,9 +45,9 @@ const Auth = () => {
         {/* Logo */}
         <div className="flex items-center justify-center gap-2 mb-8">
           <div className="h-10 w-10 rounded-xl bg-primary flex items-center justify-center">
-            <span className="text-primary-foreground font-bold text-lg">C</span>
+            <span className="text-primary-foreground font-bold text-lg">L</span>
           </div>
-          <span className="font-semibold text-xl text-foreground">Carson</span>
+          <span className="font-semibold text-xl text-foreground">Lantid</span>
         </div>
 
         <div className="bg-card border border-border rounded-2xl p-6 shadow-sm">
@@ -55,7 +55,7 @@ const Auth = () => {
             {isSignUp ? "Create your account" : "Welcome back"}
           </h1>
           <p className="text-sm text-muted-foreground text-center mb-6">
-            {isSignUp ? "Start using Carson AI" : "Sign in to continue"}
+            {isSignUp ? "Start using Lantid AI" : "Sign in to continue"}
           </p>
 
           <form onSubmit={handleSubmit} className="space-y-4">

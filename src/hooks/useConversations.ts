@@ -23,7 +23,7 @@ const welcomeMessage: ChatMessage = {
   id: "welcome",
   role: "assistant",
   content:
-    "Hi! I'm Carson, your adaptive assistant. I can help you with sales outreach, research, email campaigns, and more. What would you like to work on today?",
+    "Hi! I'm Lantid, your AI product management assistant. I can help you with product discovery, research, specs, workflows, and more. What would you like to work on today?",
 };
 
 export function useConversations() {

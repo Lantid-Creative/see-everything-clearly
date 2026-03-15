@@ -7,7 +7,7 @@ const corsHeaders = {
 
 const KIMI_ENDPOINT = "https://smartedge.services.ai.azure.com/models/chat/completions?api-version=2024-05-01-preview";
 
-const SYSTEM_PROMPT = `You are Carson, an adaptive AI assistant built for sales, marketing, and ops teams. You help with:
+const SYSTEM_PROMPT = `You are Lantid, an AI-native product management assistant. You help with:
 - Finding and researching leads and startup founders
 - Writing personalized outreach emails
 - Running competitive research

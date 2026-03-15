@@ -127,7 +127,7 @@ export function SlideEditorView({ onBack }: SlideEditorViewProps) {
       )
     );
     setCommentInput("");
-    toast({ title: "Comment added", description: "Carson will address your feedback." });
+    toast({ title: "Comment added", description: "Lantid will address your feedback." });
   };
 
   const handleChat = async () => {
@@ -143,7 +143,7 @@ export function SlideEditorView({ onBack }: SlideEditorViewProps) {
     try {
       await streamChat({
         messages: [
-          { role: "user", content: `You are Carson helping edit a slide deck. Current slide ${currentSlide + 1}/${slides.length}: "${slide.title}". User request: ${chatInput}. Respond concisely about what you changed.` },
+          { role: "user", content: `You are Lantid helping edit a slide deck. Current slide ${currentSlide + 1}/${slides.length}: "${slide.title}". User request: ${chatInput}. Respond concisely about what you changed.` },
         ],
         onDelta: (chunk) => {
           fullContent += chunk;
@@ -386,7 +386,7 @@ export function SlideEditorView({ onBack }: SlideEditorViewProps) {
             value={chatInput}
             onChange={(e) => setChatInput(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && handleChat()}
-            placeholder="Ask Carson to edit slides..."
+            placeholder="Ask Lantid to edit slides..."
             disabled={isGenerating}
             className="flex-1 text-sm bg-transparent text-foreground placeholder:text-muted-foreground focus:outline-none disabled:opacity-60"
           />
