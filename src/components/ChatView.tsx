@@ -32,6 +32,7 @@ export function ChatView({
   const abortRef = useRef<AbortController | null>(null);
   const { toast } = useToast();
   const { uploading, pendingFiles, uploadFiles, removePending, clearPending, openFilePicker, inputRef } = useFileUpload();
+  const profile = useUserProfile();
 
   const scrollToBottom = useCallback(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
