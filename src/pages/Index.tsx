@@ -72,6 +72,7 @@ const Index = () => {
     <SidebarProvider>
       <WelcomeModal />
       <GettingStartedTour onNavigate={setViewMode} />
+      <OnboardingChecklist />
       <div className="min-h-screen flex w-full">
         <AppSidebar
           onSwitchView={setViewMode}
