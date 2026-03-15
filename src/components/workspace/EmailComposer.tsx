@@ -45,18 +45,15 @@ export function EmailComposer({ lead, onSend, isTemplateMode, onTemplateCreated 
       const textarea = bodyRef.current;
       if (!textarea) return;
 
-      const fullText = subject + "\n" + body;
       const markers = TEMPLATE_MARKERS.map((m) => m.key);
       const positions: { marker: string; start: number; inSubject: boolean }[] = [];
 
       markers.forEach((marker) => {
-        // Check subject
         let idx = subject.indexOf(marker);
         while (idx !== -1) {
           positions.push({ marker, start: idx, inSubject: true });
           idx = subject.indexOf(marker, idx + 1);
         }
-        // Check body
         idx = body.indexOf(marker);
         while (idx !== -1) {
           positions.push({ marker, start: idx, inSubject: false });
@@ -85,31 +82,12 @@ export function EmailComposer({ lead, onSend, isTemplateMode, onTemplateCreated 
     setIsSending(false);
   };
 
-  // Highlight template markers in display
-  const renderTemplateBody = () => {
-    if (!isTemplateMode) return null;
-    const parts = body.split(/({{[^}]+}})/g);
-    return (
-      <div className="text-xs text-foreground leading-relaxed whitespace-pre-wrap pointer-events-none absolute inset-0 p-0">
-        {parts.map((part, i) =>
-          part.startsWith("{{") && part.endsWith("}}") ? (
-            <span key={i} className="bg-primary/20 text-primary rounded px-0.5 font-medium">
-              {part}
-            </span>
-          ) : (
-            <span key={i}>{part}</span>
-          )
-        )}
-      </div>
-    );
-  };
-
   return (
-    <div className="flex-1 border-r flex flex-col min-w-[240px]" onKeyDown={handleKeyDown}>
+    <div className="flex-1 md:border-r flex flex-col md:min-w-[240px] min-w-0" onKeyDown={handleKeyDown}>
       <div className="px-4 py-2.5 border-b flex items-center justify-between">
         <h2 className="text-xs font-semibold text-foreground uppercase tracking-wider">Compose Email</h2>
         {isTemplateMode && (
-          <span className="text-[10px] bg-primary/10 text-primary px-2 py-0.5 rounded-full font-medium">
+          <span className="text-[10px] bg-primary/10 text-primary px-2 py-0.5 rounded-full font-medium hidden sm:inline">
             Template Mode · Tab to navigate
           </span>
         )}

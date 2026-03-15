@@ -1,5 +1,6 @@
 import { useState, useCallback } from "react";
 import { ArrowLeft, Plus, Play, Loader2, Sparkles, X, GripVertical, Mail, Bell, FileText, Calendar, Send, Shield, Check, AlertTriangle } from "lucide-react";
+import { useIsMobile } from "@/hooks/use-mobile";
 import {
   Dialog,
   DialogContent,
@@ -35,6 +36,7 @@ interface PermissionScope {
 
 export function WorkflowBuilderView({ onBack }: WorkflowBuilderViewProps) {
   const { nodes, setNodes: saveNodes, isDeployed, deploy, loaded } = useWorkflow();
+  const isMobile = useIsMobile();
   const [showPermissions, setShowPermissions] = useState(false);
   const [permissionScopes, setPermissionScopes] = useState<PermissionScope[]>([]);
   const [chatInput, setChatInput] = useState("");
@@ -223,29 +225,31 @@ export function WorkflowBuilderView({ onBack }: WorkflowBuilderViewProps) {
           </div>
         </div>
 
-        <div className="w-[300px] border-l flex flex-col shrink-0">
-          <div className="px-4 py-2.5 border-b flex items-center gap-2">
-            <Sparkles className="h-3.5 w-3.5 text-primary" />
-            <h2 className="text-xs font-semibold text-foreground uppercase tracking-wider">Carson</h2>
-          </div>
-          <div className="flex-1 overflow-y-auto p-3 space-y-2">
-            {chatMessages.map((msg, i) => (
-              <div key={i} className={msg.role === "user" ? "ml-6" : ""}>
-                <div className={`rounded-xl px-3 py-2 text-xs leading-relaxed ${msg.role === "user" ? "bg-primary text-primary-foreground" : "bg-secondary text-foreground"}`}>
-                  {msg.content || <span className="inline-block w-1 h-3 bg-foreground/40 animate-pulse" />}
+        {!isMobile && (
+          <div className="w-[300px] border-l flex flex-col shrink-0">
+            <div className="px-4 py-2.5 border-b flex items-center gap-2">
+              <Sparkles className="h-3.5 w-3.5 text-primary" />
+              <h2 className="text-xs font-semibold text-foreground uppercase tracking-wider">Carson</h2>
+            </div>
+            <div className="flex-1 overflow-y-auto p-3 space-y-2">
+              {chatMessages.map((msg, i) => (
+                <div key={i} className={msg.role === "user" ? "ml-6" : ""}>
+                  <div className={`rounded-xl px-3 py-2 text-xs leading-relaxed ${msg.role === "user" ? "bg-primary text-primary-foreground" : "bg-secondary text-foreground"}`}>
+                    {msg.content || <span className="inline-block w-1 h-3 bg-foreground/40 animate-pulse" />}
+                  </div>
                 </div>
+              ))}
+            </div>
+            <div className="border-t p-3">
+              <div className="flex items-center gap-2">
+                <input type="text" value={chatInput} onChange={(e) => setChatInput(e.target.value)} onKeyDown={(e) => e.key === "Enter" && handleChat()} placeholder="Modify the workflow..." disabled={isLoading || isDeployed} className="flex-1 text-xs bg-secondary rounded-md px-2.5 py-1.5 text-foreground placeholder:text-muted-foreground focus:outline-none disabled:opacity-50" />
+                <button onClick={handleChat} disabled={!chatInput.trim() || isLoading || isDeployed} className="h-7 w-7 rounded-md bg-primary text-primary-foreground flex items-center justify-center hover:bg-primary/90 transition-colors disabled:opacity-40">
+                  {isLoading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Send className="h-3.5 w-3.5" />}
+                </button>
               </div>
-            ))}
-          </div>
-          <div className="border-t p-3">
-            <div className="flex items-center gap-2">
-              <input type="text" value={chatInput} onChange={(e) => setChatInput(e.target.value)} onKeyDown={(e) => e.key === "Enter" && handleChat()} placeholder="Modify the workflow..." disabled={isLoading || isDeployed} className="flex-1 text-xs bg-secondary rounded-md px-2.5 py-1.5 text-foreground placeholder:text-muted-foreground focus:outline-none disabled:opacity-50" />
-              <button onClick={handleChat} disabled={!chatInput.trim() || isLoading || isDeployed} className="h-7 w-7 rounded-md bg-primary text-primary-foreground flex items-center justify-center hover:bg-primary/90 transition-colors disabled:opacity-40">
-                {isLoading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Send className="h-3.5 w-3.5" />}
-              </button>
             </div>
           </div>
-        </div>
+        )}
       </div>
 
       {/* Permissions Dialog */}

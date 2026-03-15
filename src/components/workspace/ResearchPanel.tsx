@@ -39,7 +39,7 @@ export function ResearchPanel({ lead, chatMessages = [] }: ResearchPanelProps) {
   }, [chatMessages.length]);
 
   return (
-    <div className="w-[300px] shrink-0 flex flex-col bg-card">
+    <div className="w-full md:w-[300px] shrink-0 flex flex-col bg-card">
       <div className="px-4 py-2.5 border-b flex items-center gap-2">
         <Sparkles className="h-3.5 w-3.5 text-primary" />
         <h2 className="text-xs font-semibold text-foreground uppercase tracking-wider">Deep Research</h2>

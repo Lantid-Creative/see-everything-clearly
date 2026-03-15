@@ -1,5 +1,5 @@
 import { useState, useRef } from "react";
-import { ArrowLeft, Send, Loader2, Sparkles } from "lucide-react";
+import { ArrowLeft, Send, Loader2, Sparkles, Users, Mail, User, Search as SearchIcon } from "lucide-react";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { EmailComposer } from "@/components/workspace/EmailComposer";
 import { ProfileViewer } from "@/components/workspace/ProfileViewer";
@@ -8,6 +8,7 @@ import { OutreachList } from "@/components/workspace/OutreachList";
 import { useToast } from "@/hooks/use-toast";
 import { streamChat } from "@/lib/streamChat";
 import { useOutreachLeads } from "@/hooks/useWorkspaceData";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 export interface Lead {
   id: string;
@@ -29,6 +30,15 @@ interface WorkspaceViewProps {
   onBack: () => void;
 }
 
+type MobileTab = "leads" | "email" | "profile" | "research";
+
+const mobileTabs: { id: MobileTab; label: string; icon: typeof Users }[] = [
+  { id: "leads", label: "Leads", icon: Users },
+  { id: "email", label: "Email", icon: Mail },
+  { id: "profile", label: "Profile", icon: User },
+  { id: "research", label: "Research", icon: SearchIcon },
+];
+
 export function WorkspaceView({ onBack }: WorkspaceViewProps) {
   const { leads, markSent, loaded } = useOutreachLeads();
   const [selectedLeadId, setSelectedLeadId] = useState<string | null>(null);
@@ -38,8 +48,10 @@ export function WorkspaceView({ onBack }: WorkspaceViewProps) {
   const [workspaceChatMessages, setWorkspaceChatMessages] = useState<
     { role: "user" | "assistant"; content: string; action?: string }[]
   >([]);
+  const [mobileTab, setMobileTab] = useState<MobileTab>("email");
   const { toast } = useToast();
   const abortRef = useRef<AbortController | null>(null);
+  const isMobile = useIsMobile();
 
   const selectedLead = leads.find((l) => l.id === selectedLeadId) || leads[0];
   const sentCount = leads.filter((l) => l.sent).length;
@@ -111,6 +123,29 @@ export function WorkspaceView({ onBack }: WorkspaceViewProps) {
     }
   };
 
+  const renderMobilePanel = () => {
+    if (!selectedLead) return null;
+    switch (mobileTab) {
+      case "leads":
+        return (
+          <OutreachList
+            leads={leads}
+            selectedLead={selectedLead}
+            onSelectLead={(l) => {
+              setSelectedLeadId(l.id);
+              setMobileTab("email");
+            }}
+          />
+        );
+      case "email":
+        return <EmailComposer lead={selectedLead} onSend={handleSendEmail} isTemplateMode={isTemplateMode} onTemplateCreated={() => setIsTemplateMode(true)} />;
+      case "profile":
+        return <ProfileViewer lead={selectedLead} />;
+      case "research":
+        return <ResearchPanel lead={selectedLead} chatMessages={workspaceChatMessages} />;
+    }
+  };
+
   return (
     <div className="flex flex-col h-screen">
       <header className="h-12 flex items-center px-4 border-b shrink-0 justify-between">
@@ -123,7 +158,7 @@ export function WorkspaceView({ onBack }: WorkspaceViewProps) {
           <span className="text-xs text-muted-foreground bg-secondary px-2 py-0.5 rounded-full">
             {sentCount}/{leads.length} sent
           </span>
-          {isTemplateMode && (
+          {isTemplateMode && !isMobile && (
             <span className="text-xs bg-primary/10 text-primary px-2 py-0.5 rounded-full font-medium">
               Template Active
             </span>
@@ -131,14 +166,40 @@ export function WorkspaceView({ onBack }: WorkspaceViewProps) {
         </div>
       </header>
 
+      {/* Mobile tab bar */}
+      {isMobile && (
+        <div className="flex border-b shrink-0">
+          {mobileTabs.map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => setMobileTab(tab.id)}
+              className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 text-xs font-medium transition-colors ${
+                mobileTab === tab.id
+                  ? "text-primary border-b-2 border-primary"
+                  : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              <tab.icon className="h-3.5 w-3.5" />
+              <span>{tab.label}</span>
+            </button>
+          ))}
+        </div>
+      )}
+
       <div className="flex-1 flex min-h-0">
-        {selectedLead && (
-          <>
-            <OutreachList leads={leads} selectedLead={selectedLead} onSelectLead={(l) => setSelectedLeadId(l.id)} />
-            <EmailComposer lead={selectedLead} onSend={handleSendEmail} isTemplateMode={isTemplateMode} onTemplateCreated={() => setIsTemplateMode(true)} />
-            <ProfileViewer lead={selectedLead} />
-            <ResearchPanel lead={selectedLead} chatMessages={workspaceChatMessages} />
-          </>
+        {isMobile ? (
+          <div className="flex-1 flex flex-col min-h-0">
+            {renderMobilePanel()}
+          </div>
+        ) : (
+          selectedLead && (
+            <>
+              <OutreachList leads={leads} selectedLead={selectedLead} onSelectLead={(l) => setSelectedLeadId(l.id)} />
+              <EmailComposer lead={selectedLead} onSend={handleSendEmail} isTemplateMode={isTemplateMode} onTemplateCreated={() => setIsTemplateMode(true)} />
+              <ProfileViewer lead={selectedLead} />
+              <ResearchPanel lead={selectedLead} chatMessages={workspaceChatMessages} />
+            </>
+          )
         )}
       </div>
 
