@@ -66,6 +66,7 @@ const Index = () => {
 
   return (
     <SidebarProvider>
+      <WelcomeModal />
       <div className="min-h-screen flex w-full">
         <AppSidebar
           onSwitchView={setViewMode}
