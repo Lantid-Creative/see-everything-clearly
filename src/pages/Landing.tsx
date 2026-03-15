@@ -132,9 +132,9 @@ export default function Landing() {
         <div className="max-w-6xl mx-auto flex items-center justify-between px-6 h-16">
           <div className="flex items-center gap-2.5">
             <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-primary to-orange-400 flex items-center justify-center">
-              <span className="text-white font-bold text-sm">C</span>
+              <span className="text-white font-bold text-sm">L</span>
             </div>
-            <span className="font-semibold text-white text-lg">Carson</span>
+            <span className="font-semibold text-white text-lg">Lantid</span>
           </div>
           <div className="hidden md:flex items-center gap-8 text-sm text-white/50">
             <a href="#features" className="hover:text-white transition-colors">Features</a>
