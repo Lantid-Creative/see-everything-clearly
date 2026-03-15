@@ -131,7 +131,7 @@ export function AppSidebar({
       <SidebarHeader className="p-3">
         <div className="flex items-center gap-2">
           <div className="h-8 w-8 rounded-lg bg-primary flex items-center justify-center shrink-0">
-            <span className="text-primary-foreground font-bold text-sm">C</span>
+            <span className="text-primary-foreground font-bold text-sm">L</span>
           </div>
           {!collapsed && (
             <span className="font-semibold text-sidebar-primary text-sm">Lantid</span>
