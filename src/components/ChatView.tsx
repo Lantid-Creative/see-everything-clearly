@@ -161,6 +161,76 @@ export function ChatView({
     open_spreadsheet: { label: "Open spreadsheet", icon: Table, type: "spreadsheet" },
   };
 
+  const starterSuggestions = [
+    { icon: Search, label: "Validate a product idea", prompt: "I have a product idea and I want to validate it. Can you help me structure a discovery process — who to talk to, what to ask, and how to evaluate if it's worth building?" },
+    { icon: FileText, label: "Write a PRD", prompt: "Help me write a PRD for a new feature. I'll describe the problem and you help me structure it with goals, user stories, success metrics, and scope." },
+    { icon: BarChart3, label: "Prioritize my backlog", prompt: "I have a list of features to prioritize. Can you help me apply RICE scoring and figure out what to build first?" },
+    { icon: Zap, label: "Create a workflow", prompt: "Help me create an automated workflow for my product process — like turning NPS responses into categorized insights." },
+    { icon: MessageSquare, label: "Draft outreach emails", prompt: "Help me draft customer discovery outreach emails to schedule interviews with potential users." },
+    { icon: Presentation, label: "Build a strategy deck", prompt: "Help me create a product strategy presentation covering vision, market opportunity, competitive landscape, and roadmap." },
+  ];
+
+  const isNewConversation = conversation.messages.length <= 1 || 
+    (conversation.messages.length === 1 && conversation.messages[0].id === "welcome");
+
+  const handleSuggestionClick = (prompt: string) => {
+    setInput(prompt);
+    setTimeout(() => {
+      const fakeEvent = { key: "Enter", shiftKey: false } as React.KeyboardEvent;
+      // Trigger send directly
+      const text = prompt.trim();
+      if (!text || isLoading) return;
+      const userMsg: ChatMessage = {
+        id: crypto.randomUUID(),
+        role: "user",
+        content: text,
+      };
+      onAddMessage(userMsg);
+      setInput("");
+      setIsLoading(true);
+
+      const asstId = crypto.randomUUID();
+      const asstMsg: ChatMessage = { id: asstId, role: "assistant", content: "", isStreaming: true };
+      onAddMessage(asstMsg);
+
+      let fullContent = "";
+      const controller = new AbortController();
+      abortRef.current = controller;
+
+      const apiMessages = [...conversation.messages, userMsg]
+        .filter((m) => !m.isStreaming)
+        .map((m) => ({ role: m.role, content: m.content }));
+
+      streamChat({
+        messages: apiMessages,
+        onDelta: (chunk) => {
+          fullContent += chunk;
+          onUpdateLastAssistant(fullContent, true);
+        },
+        onDone: () => {
+          onUpdateLastAssistant(fullContent, false);
+          const ws = detectWorkspaceType(fullContent);
+          if (ws) {
+            setTimeout(() => onSetAction(asstId, ws.action), 300);
+          }
+          setIsLoading(false);
+          abortRef.current = null;
+        },
+        signal: controller.signal,
+      }).catch((err) => {
+        if (err.name === "AbortError") return;
+        console.error("Chat error:", err);
+        onUpdateLastAssistant(
+          fullContent || "Sorry, I encountered an error. Please try again.",
+          false
+        );
+        toast({ title: "Error", description: err.message || "Failed to get response", variant: "destructive" });
+        setIsLoading(false);
+        abortRef.current = null;
+      });
+    }, 0);
+  };
+
   return (
     <div className="flex flex-col h-screen">
       {/* Header */}
@@ -228,6 +298,29 @@ export function ChatView({
               </div>
             </div>
           ))}
+
+          {/* Starter Suggestions */}
+          {isNewConversation && !isLoading && (
+            <div className="animate-in fade-in slide-in-from-bottom-3 duration-500 delay-300">
+              <div className="grid grid-cols-2 gap-2 mt-4">
+                {starterSuggestions.map((suggestion, idx) => (
+                  <button
+                    key={idx}
+                    onClick={() => handleSuggestionClick(suggestion.prompt)}
+                    className="flex items-start gap-3 p-3 rounded-xl border border-border/60 bg-card hover:bg-accent/50 hover:border-accent transition-all duration-200 text-left group"
+                  >
+                    <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0 group-hover:bg-primary/20 transition-colors">
+                      <suggestion.icon className="h-4 w-4 text-primary" />
+                    </div>
+                    <span className="text-sm font-medium text-foreground/80 group-hover:text-foreground transition-colors leading-tight pt-1">
+                      {suggestion.label}
+                    </span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
           <div ref={messagesEndRef} />
         </div>
       </div>
