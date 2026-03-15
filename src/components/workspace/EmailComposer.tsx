@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect, useCallback, KeyboardEvent } from "react";
-import { Send, Mail, Check, Loader2, ArrowRight } from "lucide-react";
+import { Send, Mail, Check, Loader2, ArrowRight, Paperclip, X, FileIcon } from "lucide-react";
 import type { Lead } from "@/components/WorkspaceView";
+import { useFileUpload, formatFileSize, isImageFile, type FileAttachment } from "@/hooks/useFileUpload";
 
 interface EmailComposerProps {
   lead: Lead;
@@ -9,7 +10,6 @@ interface EmailComposerProps {
   onTemplateCreated: () => void;
 }
 
-// Fields that can be personalized via tab
 const TEMPLATE_MARKERS = [
   { key: "{{company}}", label: "Company" },
   { key: "{{first_name}}", label: "First Name" },
@@ -23,8 +23,8 @@ export function EmailComposer({ lead, onSend, isTemplateMode, onTemplateCreated 
   const [isSending, setIsSending] = useState(false);
   const [activeField, setActiveField] = useState(-1);
   const bodyRef = useRef<HTMLTextAreaElement>(null);
+  const { uploading, pendingFiles, uploadFiles, removePending, clearPending, openFilePicker, inputRef } = useFileUpload();
 
-  // Reset when lead changes
   useEffect(() => {
     if (!lead.sent) {
       if (isTemplateMode) {
@@ -36,9 +36,9 @@ export function EmailComposer({ lead, onSend, isTemplateMode, onTemplateCreated 
       }
     }
     setActiveField(-1);
+    clearPending();
   }, [lead, isTemplateMode]);
 
-  // Tab navigation between template fields
   const handleKeyDown = (e: KeyboardEvent) => {
     if (e.key === "Tab" && isTemplateMode && !lead.sent) {
       e.preventDefault();
@@ -79,7 +79,15 @@ export function EmailComposer({ lead, onSend, isTemplateMode, onTemplateCreated 
     setIsSending(true);
     await new Promise((r) => setTimeout(r, 600));
     onSend(subject, body);
+    clearPending();
     setIsSending(false);
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 0) {
+      uploadFiles(e.target.files);
+      e.target.value = "";
+    }
   };
 
   return (
@@ -118,8 +126,62 @@ export function EmailComposer({ lead, onSend, isTemplateMode, onTemplateCreated 
             className="w-full h-full text-xs text-foreground mt-1 bg-transparent resize-none focus:outline-none leading-relaxed disabled:opacity-50"
           />
         </div>
+
+        {/* Attachments */}
+        {pendingFiles.length > 0 && (
+          <div>
+            <label className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">
+              Attachments ({pendingFiles.length})
+            </label>
+            <div className="mt-1.5 space-y-1">
+              {pendingFiles.map((file, i) => (
+                <div key={i} className="flex items-center gap-2 bg-muted/50 rounded-lg px-2.5 py-1.5 text-xs group">
+                  {isImageFile(file.type) ? (
+                    <img src={file.url} alt={file.name} className="h-6 w-6 rounded object-cover shrink-0" />
+                  ) : (
+                    <FileIcon className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+                  )}
+                  <span className="truncate flex-1 text-foreground">{file.name}</span>
+                  <span className="text-[10px] text-muted-foreground shrink-0">{formatFileSize(file.size)}</span>
+                  <button
+                    onClick={() => removePending(i)}
+                    className="h-4 w-4 rounded-full hover:bg-destructive/10 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shrink-0"
+                  >
+                    <X className="h-2.5 w-2.5 text-destructive" />
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
       <div className="px-4 py-3 border-t space-y-2">
+        {/* Attach button */}
+        {!lead.sent && (
+          <div className="flex items-center gap-2">
+            <input
+              ref={inputRef}
+              type="file"
+              multiple
+              onChange={handleFileChange}
+              className="hidden"
+              accept="image/*,.pdf,.doc,.docx,.txt,.csv,.xlsx"
+            />
+            <button
+              onClick={openFilePicker}
+              disabled={uploading}
+              className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors disabled:opacity-40"
+            >
+              {uploading ? (
+                <Loader2 className="h-3.5 w-3.5 animate-spin" />
+              ) : (
+                <Paperclip className="h-3.5 w-3.5" />
+              )}
+              <span>Attach file</span>
+            </button>
+          </div>
+        )}
+
         {!isTemplateMode && !lead.sent && (
           <button
             onClick={onTemplateCreated}
@@ -149,7 +211,9 @@ export function EmailComposer({ lead, onSend, isTemplateMode, onTemplateCreated 
               <>
                 <Send className="h-3.5 w-3.5" />
                 <span>Send Email</span>
-                <Mail className="h-3.5 w-3.5 ml-1 opacity-60" />
+                {pendingFiles.length > 0 && (
+                  <span className="text-[10px] opacity-70">({pendingFiles.length} files)</span>
+                )}
               </>
             )}
           </button>
