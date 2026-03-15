@@ -48,6 +48,8 @@ const Index = () => {
         return <SpreadsheetView onBack={() => setViewMode("chat")} />;
       case "team":
         return <TeamPanel onBack={() => setViewMode("chat")} />;
+      case "settings":
+        return <SettingsView onBack={() => setViewMode("chat")} />;
       default:
         return (
           <ChatView
