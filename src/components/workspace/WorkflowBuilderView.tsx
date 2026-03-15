@@ -207,7 +207,7 @@ export function WorkflowBuilderView({ onBack }: WorkflowBuilderViewProps) {
           )}
         </div>
         <button
-          onClick={handleDeploy}
+          onClick={handleDeployClick}
           disabled={isDeployed}
           className="h-8 px-4 rounded-lg bg-primary text-primary-foreground text-xs font-medium hover:bg-primary/90 transition-colors disabled:opacity-50 flex items-center gap-2"
         >
