@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { WelcomeModal } from "@/components/WelcomeModal";
 import { AppSidebar } from "@/components/AppSidebar";
 import { ChatView } from "@/components/ChatView";
 import { WorkspaceView } from "@/components/WorkspaceView";
