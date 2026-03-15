@@ -1,6 +1,7 @@
 import { useState, useCallback, useEffect, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import type { FileAttachment } from "@/hooks/useFileUpload";
 
 export interface ChatMessage {
   id: string;
@@ -8,6 +9,7 @@ export interface ChatMessage {
   content: string;
   action?: string;
   isStreaming?: boolean;
+  attachments?: FileAttachment[];
 }
 
 export interface Conversation {
