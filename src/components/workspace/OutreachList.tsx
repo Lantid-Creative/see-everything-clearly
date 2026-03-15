@@ -20,7 +20,7 @@ const avatarColors = [
 
 export function OutreachList({ leads, selectedLead, onSelectLead }: OutreachListProps) {
   return (
-    <div className="w-[200px] border-r shrink-0 flex flex-col">
+    <div className="w-full md:w-[200px] border-r shrink-0 flex flex-col">
       <div className="px-3 py-2.5 border-b">
         <h2 className="text-xs font-semibold text-foreground">Outreach</h2>
         <p className="text-[10px] text-muted-foreground mt-0.5">

@@ -8,7 +8,7 @@ interface ProfileViewerProps {
 
 export function ProfileViewer({ lead }: ProfileViewerProps) {
   return (
-    <div className="flex-1 border-r flex flex-col min-w-[260px] overflow-y-auto">
+    <div className="flex-1 md:border-r flex flex-col md:min-w-[260px] min-w-0 overflow-y-auto">
       <div className="px-4 py-2.5 border-b">
         <h2 className="text-xs font-semibold text-foreground uppercase tracking-wider">Profile</h2>
       </div>
