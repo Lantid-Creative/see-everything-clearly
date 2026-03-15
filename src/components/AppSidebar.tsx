@@ -1,5 +1,6 @@
-import { useEffect } from "react";
+import { useState, useEffect } from "react";
 import {
+  Home,
   Inbox,
   Workflow,
   Settings,
@@ -20,7 +21,6 @@ import {
   LayoutGrid,
   Table,
 } from "lucide-react";
-import { useState } from "react";
 import { Logo } from "@/components/Logo";
 import { useAuth } from "@/hooks/useAuth";
 import { useTheme } from "@/hooks/useTheme";
