@@ -51,7 +51,7 @@ const TABS = [
     label: "PRD Generation",
     icon: FileText,
     title: "From insight to spec in seconds",
-    description: "Carson drafts product requirements, user stories, acceptance criteria, and UI proposals — structured for your coding agent to execute.",
+    description: "Lantid drafts product requirements, user stories, acceptance criteria, and UI proposals — structured for your coding agent to execute.",
     mockup: {
       userMessage: "Generate a PRD for the collaborative workspaces feature",
       aiResponse: `**PRD: Collaborative Workspaces** v0.1\n\n**Problem Statement**\nTeams lack a shared context for product decisions, leading to duplicated research and misaligned priorities.\n\n**User Stories**\n✅ As a PM, I can invite team members to a shared workspace\n✅ As a team lead, I can see all research and decisions in one feed\n✅ As a designer, I can access customer quotes relevant to my work\n\n**Data Model Changes**\n\`workspaces\`, \`workspace_members\`, \`shared_artifacts\`\n\n**Dev Tasks (5)** → Ready for Cursor / Claude Code`,
