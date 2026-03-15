@@ -24,12 +24,12 @@ export function ThemeToggle({ className = "" }: { className?: string }) {
   );
 }
 
-/** Fixed-position toggle that floats on every page except landing */
+/** Fixed-position toggle that floats on every page except landing and app */
 export function FloatingThemeToggle() {
   try {
     const { pathname } = useLocation();
-    // Landing page has its own theme toggle in the nav
-    if (pathname === "/") return null;
+    // Landing page has its own theme toggle; App has sidebar toggle
+    if (pathname === "/" || pathname.startsWith("/app")) return null;
   } catch {
     // useLocation may fail outside Router — show toggle as fallback
   }
