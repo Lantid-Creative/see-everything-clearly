@@ -5,7 +5,7 @@ import logoLight from "@/assets/logo-light.png";
 interface LogoProps {
   className?: string;
   iconOnly?: boolean;
-  size?: "sm" | "md" | "lg";
+  size?: "sm" | "md" | "lg" | "xl";
   /** Force a specific variant regardless of theme */
   variant?: "light" | "dark";
 }
