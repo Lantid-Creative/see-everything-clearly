@@ -22,7 +22,7 @@ export function AuthLayout({ children }: { children: React.ReactNode }) {
         </div>
 
         {/* Logo */}
-        <Link to="/landing" className="relative flex items-center gap-3">
+        <Link to="/" className="relative flex items-center gap-3">
           <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center shadow-lg shadow-primary/20">
             <span className="text-primary-foreground font-bold text-lg">L</span>
           </div>
