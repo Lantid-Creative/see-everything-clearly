@@ -19,6 +19,9 @@ import {
   GitBranch,
   Bot,
   ChevronRight,
+  Check,
+  Plug,
+  LayoutDashboard,
 } from "lucide-react";
 
 const fadeUp = {
