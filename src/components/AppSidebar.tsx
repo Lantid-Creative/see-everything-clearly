@@ -325,7 +325,10 @@ export function AppSidebar({
             </SidebarMenuButton>
           </SidebarMenuItem>
           <SidebarMenuItem>
-            <SidebarMenuButton className="text-sidebar-foreground hover:text-sidebar-primary hover:bg-sidebar-accent">
+            <SidebarMenuButton
+              onClick={() => onSwitchView("settings" as any)}
+              className="text-sidebar-foreground hover:text-sidebar-primary hover:bg-sidebar-accent"
+            >
               <Settings className="h-4 w-4" />
               {!collapsed && <span>Settings</span>}
             </SidebarMenuButton>
