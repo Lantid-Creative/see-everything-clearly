@@ -44,6 +44,8 @@ const Index = () => {
         return <WorkflowBuilderView onBack={() => setViewMode("chat")} />;
       case "spreadsheet":
         return <SpreadsheetView onBack={() => setViewMode("chat")} />;
+      case "team":
+        return <TeamPanel onBack={() => setViewMode("chat")} />;
       default:
         return (
           <ChatView
