@@ -143,47 +143,48 @@ function ChatScene({ active }: { active: boolean }) {
   );
 }
 
-/* ─── Scene: Lead Research ─── */
+/* ─── Scene: Feedback Synthesis ─── */
 function ResearchScene({ active }: { active: boolean }) {
-  const leads = [
-    { name: "Sarah Chen", company: "Acme AI", title: "CEO & Co-founder", status: "verified", score: 92 },
-    { name: "James Park", company: "DataFlow", title: "Founder", status: "verified", score: 87 },
-    { name: "Maria Torres", company: "CloudSync", title: "CEO", status: "new", score: 85 },
-    { name: "David Kim", company: "NexGen", title: "CTO", status: "contacted", score: 78 },
-    { name: "Lisa Wang", company: "Synthia", title: "Co-founder", status: "verified", score: 91 },
+  const themes = [
+    { theme: "Real-time collaboration", mentions: 34, sentiment: "positive", trend: "+12", sources: "Interviews, NPS" },
+    { theme: "Slow spec approval cycles", mentions: 28, sentiment: "negative", trend: "+8", sources: "Support, Interviews" },
+    { theme: "Better Jira integration", mentions: 22, sentiment: "neutral", trend: "+5", sources: "Slack, Surveys" },
+    { theme: "Mobile editing support", mentions: 19, sentiment: "positive", trend: "+3", sources: "NPS, App reviews" },
+    { theme: "Confusing permissions model", mentions: 15, sentiment: "negative", trend: "+6", sources: "Support tickets" },
   ];
 
   return (
     <div className="flex-1 flex flex-col p-4 overflow-hidden">
       <div className="flex items-center justify-between pb-3 border-b border-white/[0.06] mb-3">
-        <span className="text-xs font-medium text-white/70">Lead Research</span>
-        <span className="text-[10px] text-white/30">{leads.length} results</span>
+        <div className="flex items-center gap-2">
+          <Sparkles className="h-3.5 w-3.5 text-primary" />
+          <span className="text-xs font-medium text-white/70">AI Feedback Synthesis</span>
+        </div>
+        <span className="text-[10px] text-white/30">118 sources analyzed</span>
       </div>
 
       <div className="space-y-1">
-        {leads.map((lead, i) => (
+        {themes.map((t, i) => (
           <motion.div
-            key={lead.name}
+            key={t.theme}
             initial={{ opacity: 0, x: -10 }}
             animate={{ opacity: active ? 1 : 0, x: active ? 0 : -10 }}
             transition={{ delay: i * 0.15, duration: 0.3 }}
-            className={`flex items-center gap-3 px-3 py-2 rounded-lg ${i === 0 ? "bg-primary/10 border border-primary/20" : "hover:bg-white/[0.03]"}`}
+            className={`flex items-center gap-3 px-3 py-2.5 rounded-lg ${i === 0 ? "bg-primary/10 border border-primary/20" : "hover:bg-white/[0.03]"}`}
           >
-            <div className="h-7 w-7 rounded-full bg-gradient-to-br from-violet-500/40 to-blue-500/40 flex items-center justify-center text-[9px] font-bold text-white/80">
-              {lead.name.split(" ").map(n => n[0]).join("")}
-            </div>
             <div className="flex-1 min-w-0">
-              <div className="text-xs font-medium text-white/80 truncate">{lead.name}</div>
-              <div className="text-[10px] text-white/30 truncate">{lead.title} · {lead.company}</div>
+              <div className="text-xs font-medium text-white/80 truncate">{t.theme}</div>
+              <div className="text-[10px] text-white/30 truncate">{t.sources}</div>
             </div>
             <div className={`text-[9px] px-1.5 py-0.5 rounded-full font-medium ${
-              lead.status === "verified" ? "bg-emerald-500/15 text-emerald-400" :
-              lead.status === "contacted" ? "bg-blue-500/15 text-blue-400" :
+              t.sentiment === "positive" ? "bg-emerald-500/15 text-emerald-400" :
+              t.sentiment === "negative" ? "bg-red-500/15 text-red-400" :
               "bg-white/[0.06] text-white/40"
             }`}>
-              {lead.status}
+              {t.sentiment}
             </div>
-            <div className="text-[10px] text-white/40 font-medium">{lead.score}</div>
+            <div className="text-[10px] text-emerald-400/70 font-medium">{t.trend}</div>
+            <div className="text-[10px] text-white/40 font-mono">{t.mentions}</div>
           </motion.div>
         ))}
       </div>
