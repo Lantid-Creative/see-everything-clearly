@@ -721,20 +721,19 @@ export default function Landing() {
 
       {/* ─── FOOTER ─── */}
       <footer className="border-t border-white/[0.06] py-10 px-6">
-        <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
+        <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
           <div className="flex items-center gap-2">
-            <div className="h-7 w-7 rounded-lg bg-gradient-to-br from-primary to-orange-400 flex items-center justify-center">
-              <span className="text-white font-bold text-xs">L</span>
-            </div>
-            <span className="text-sm font-medium text-white">Lantid</span>
+            <Logo size="sm" variant="light" />
           </div>
           <p className="text-xs text-white/30">
             © {new Date().getFullYear()} Lantid AI. The product discovery platform.
           </p>
-          <div className="flex gap-6 text-xs text-white/30">
-            <a href="#" className="hover:text-white transition-colors">Privacy</a>
-            <a href="#" className="hover:text-white transition-colors">Terms</a>
-            <a href="#" className="hover:text-white transition-colors">Twitter</a>
+          <div className="flex items-center gap-5 text-xs text-white/30">
+            <a href="https://instagram.com/lantidcreative" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">Instagram</a>
+            <a href="https://facebook.com/lantidcreative" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">Facebook</a>
+            <a href="https://x.com/lantidcreative" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">X</a>
+            <a href="https://linkedin.com/company/lantidcreative" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">LinkedIn</a>
+            <a href="mailto:hi@lantid.com" className="hover:text-white transition-colors">hi@lantid.com</a>
           </div>
         </div>
       </footer>
