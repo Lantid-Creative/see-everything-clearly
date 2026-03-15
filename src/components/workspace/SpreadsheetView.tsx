@@ -118,6 +118,19 @@ export function SpreadsheetView({ onBack }: SpreadsheetViewProps) {
             />
           </div>
           {!isMobile && (
+            <button
+              onClick={() => {
+                const headers = ["Name", "Company", "Title", "Email", "LinkedIn", "Status", "Source"];
+                const rows = leads.map((l) => [l.name, l.company, l.title, l.email, l.linkedin, l.status, l.source]);
+                exportAsCSV("lead-research", headers, rows);
+              }}
+              className="h-8 px-3 text-xs text-muted-foreground hover:text-foreground border rounded-lg flex items-center gap-1.5 transition-colors"
+            >
+              <Download className="h-3.5 w-3.5" />
+              Export CSV
+            </button>
+          )}
+          {!isMobile && (
             <button className="h-8 px-3 text-xs text-muted-foreground hover:text-foreground border rounded-lg flex items-center gap-1.5 transition-colors">
               <Filter className="h-3.5 w-3.5" />
               Filter
