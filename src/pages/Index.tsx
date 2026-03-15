@@ -4,6 +4,7 @@ import { AppSidebar } from "@/components/AppSidebar";
 import { ChatView } from "@/components/ChatView";
 import { WorkspaceView } from "@/components/WorkspaceView";
 import { SlideEditorView } from "@/components/workspace/SlideEditorView";
+import { SettingsView } from "@/components/SettingsView";
 import { WorkflowBuilderView } from "@/components/workspace/WorkflowBuilderView";
 import { SpreadsheetView } from "@/components/workspace/SpreadsheetView";
 import { TeamPanel } from "@/components/team/TeamPanel";
