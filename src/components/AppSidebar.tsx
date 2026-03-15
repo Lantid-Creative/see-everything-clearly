@@ -84,6 +84,7 @@ interface AppSidebarProps {
   onSelectConversation: (id: string) => void;
   onNewConversation: () => void;
   onDeleteConversation: (id: string) => void;
+  searchFocusTrigger?: number;
 }
 
 export function AppSidebar({
