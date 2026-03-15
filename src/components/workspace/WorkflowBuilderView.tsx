@@ -154,7 +154,7 @@ export function WorkflowBuilderView({ onBack }: WorkflowBuilderViewProps) {
     try {
       const { data, error } = await supabase.functions.invoke("execute-workflow", {
         body: {
-          workflowId: nodes[0]?.id ? "current" : "",
+          workflowId: workflowId || "current",
           nodes,
         },
       });
