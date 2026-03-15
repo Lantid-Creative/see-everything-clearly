@@ -386,7 +386,7 @@ export function SlideEditorView({ onBack }: SlideEditorViewProps) {
             value={chatInput}
             onChange={(e) => setChatInput(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && handleChat()}
-            placeholder="Ask Carson to edit slides..."
+            placeholder="Ask Lantid to edit slides..."
             disabled={isGenerating}
             className="flex-1 text-sm bg-transparent text-foreground placeholder:text-muted-foreground focus:outline-none disabled:opacity-60"
           />
