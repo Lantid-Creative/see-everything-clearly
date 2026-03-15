@@ -233,9 +233,12 @@ export function DashboardView({ onNavigate, onNewChat }: DashboardViewProps) {
 
   return (
     <div className="flex flex-col h-screen">
-      <header className="h-12 flex items-center px-4 border-b shrink-0">
-        <SidebarTrigger className="mr-3" />
-        <span className="text-sm font-medium text-foreground">Dashboard</span>
+      <header className="h-12 flex items-center justify-between px-4 border-b shrink-0">
+        <div className="flex items-center">
+          <SidebarTrigger className="mr-3" />
+          <span className="text-sm font-medium text-foreground">Dashboard</span>
+        </div>
+        <NotificationBell />
       </header>
 
       <div className="flex-1 overflow-y-auto">
