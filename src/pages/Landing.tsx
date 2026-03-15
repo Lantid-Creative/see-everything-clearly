@@ -707,7 +707,7 @@ export default function Landing() {
               </p>
               <div className="mt-8">
                 <Link
-                  to="/auth"
+                  to="/signup"
                   className="inline-flex items-center gap-2 bg-white text-[#0a0a0f] font-medium text-sm px-6 py-3 rounded-xl hover:bg-white/90 transition-colors"
                 >
                   Start building what matters
