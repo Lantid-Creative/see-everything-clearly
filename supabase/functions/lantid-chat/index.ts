@@ -58,15 +58,79 @@ When your response involves deliverables, mention you can help set them up:
 
 Always ask clarifying questions when the request is ambiguous.`;
 
+function buildContextPrompt(context: any): string {
+  if (!context) return "";
+
+  const parts: string[] = ["\n\n## Current User Context"];
+
+  if (context.userRole) parts.push(`- **Role**: ${context.userRole}`);
+  if (context.company) parts.push(`- **Company**: ${context.company}`);
+  if (context.productGoals) parts.push(`- **Goals**: ${context.productGoals}`);
+
+  parts.push(`\n### Workspace Stats`);
+  parts.push(`- ${context.totalLeads ?? 0} leads in their pipeline`);
+  parts.push(`- ${context.totalConversations ?? 0} conversations`);
+  parts.push(`- ${context.totalWorkflows ?? 0} workflows created`);
+  parts.push(`- ${context.emailsSent ?? 0} emails sent`);
+  parts.push(`- ${context.teamMembers ?? 0} team members`);
+
+  if ((context.totalLeads ?? 0) === 0) parts.push(`- ⚠️ No leads yet — may need help with discovery`);
+  if ((context.totalWorkflows ?? 0) === 0) parts.push(`- ⚠️ No workflows yet — suggest automations`);
+  if ((context.teamMembers ?? 0) === 0) parts.push(`- ⚠️ Solo user — may benefit from team collaboration tips`);
+
+  parts.push(`\nUse this context to personalize your responses. Reference their actual data when relevant.`);
+
+  return parts.join("\n");
+}
+
+const TITLE_SYSTEM_PROMPT = `You generate short, descriptive titles for conversations. Given the user's first message, return a concise title (3-6 words) that captures the topic. Return ONLY the title, nothing else. No quotes, no punctuation at the end.`;
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    const { messages } = await req.json();
+    const { messages, context, generateTitle } = await req.json();
     const KIMI_API_KEY = Deno.env.get("KIMI_API_KEY");
     if (!KIMI_API_KEY) throw new Error("KIMI_API_KEY is not configured");
+
+    // Title generation mode (non-streaming)
+    if (generateTitle) {
+      const titleResponse = await fetch(KIMI_ENDPOINT, {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${KIMI_API_KEY}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          model: "Kimi-K2.5",
+          messages: [
+            { role: "system", content: TITLE_SYSTEM_PROMPT },
+            ...messages,
+          ],
+          stream: false,
+          max_tokens: 20,
+        }),
+      });
+
+      if (!titleResponse.ok) {
+        return new Response(JSON.stringify({ title: messages[0]?.content?.slice(0, 40) || "Untitled" }), {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
+      const titleData = await titleResponse.json();
+      const title = titleData.choices?.[0]?.message?.content?.trim() || messages[0]?.content?.slice(0, 40) || "Untitled";
+
+      return new Response(JSON.stringify({ title }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    // Normal streaming chat
+    const contextPrompt = buildContextPrompt(context);
+    const fullSystemPrompt = SYSTEM_PROMPT + contextPrompt;
 
     const response = await fetch(KIMI_ENDPOINT, {
       method: "POST",
@@ -77,7 +141,7 @@ serve(async (req) => {
       body: JSON.stringify({
         model: "Kimi-K2.5",
         messages: [
-          { role: "system", content: SYSTEM_PROMPT },
+          { role: "system", content: fullSystemPrompt },
           ...messages,
         ],
         stream: true,
