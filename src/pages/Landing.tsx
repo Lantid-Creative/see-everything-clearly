@@ -126,6 +126,7 @@ const STEPS = [
 
 export default function Landing() {
   const [activeTab, setActiveTab] = useState("discover");
+  const [billing, setBilling] = useState<"monthly" | "yearly">("monthly");
   const activeTabData = TABS.find((t) => t.id === activeTab)!;
 
   return (
