@@ -278,7 +278,7 @@ export function AppSidebar({
                   </SidebarMenu>
                 </SidebarGroupContent>
               </SidebarGroup>
-            )
+            )}
 
             {/* Recent Conversations */}
             {!collapsed && (
