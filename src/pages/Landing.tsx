@@ -136,9 +136,9 @@ export default function Landing() {
     <div className="min-h-screen bg-background text-foreground overflow-x-hidden">
       {/* ─── NAV ─── */}
       <nav className="fixed top-0 inset-x-0 z-50 bg-background/80 backdrop-blur-xl border-b border-border">
-        <div className="max-w-6xl mx-auto flex items-center justify-between px-6 h-16">
+        <div className="max-w-6xl mx-auto flex items-center justify-between px-6 h-20">
           <div className="flex items-center gap-2.5">
-            <Logo size="md" />
+            <Logo size="lg" className="dark:h-32 dark:-my-8" />
           </div>
           <div className="hidden md:flex items-center gap-8 text-sm text-muted-foreground">
             <a href="#features" className="hover:text-foreground transition-colors">Features</a>
@@ -165,7 +165,7 @@ export default function Landing() {
       </nav>
 
       {/* ─── HERO ─── */}
-      <section className="relative pt-32 pb-8 md:pt-44 md:pb-16 px-6">
+      <section className="relative pt-36 pb-8 md:pt-48 md:pb-16 px-6">
         {/* Background gradient orbs */}
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[600px] pointer-events-none">
           <div className="absolute top-20 left-1/4 w-[400px] h-[400px] bg-primary/15 rounded-full blur-[150px]" />

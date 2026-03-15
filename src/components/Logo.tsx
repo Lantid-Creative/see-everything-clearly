@@ -12,9 +12,9 @@ interface LogoProps {
 
 const sizeMap = {
   sm: "h-8",
-  md: "h-10",
-  lg: "h-14",
-  xl: "h-20",
+  md: "h-12",
+  lg: "h-16",
+  xl: "h-24",
 };
 
 export function Logo({ className = "", iconOnly = false, size = "md", variant }: LogoProps) {
