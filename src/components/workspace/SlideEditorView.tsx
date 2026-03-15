@@ -143,7 +143,7 @@ export function SlideEditorView({ onBack }: SlideEditorViewProps) {
     try {
       await streamChat({
         messages: [
-          { role: "user", content: `You are Carson helping edit a slide deck. Current slide ${currentSlide + 1}/${slides.length}: "${slide.title}". User request: ${chatInput}. Respond concisely about what you changed.` },
+          { role: "user", content: `You are Lantid helping edit a slide deck. Current slide ${currentSlide + 1}/${slides.length}: "${slide.title}". User request: ${chatInput}. Respond concisely about what you changed.` },
         ],
         onDelta: (chunk) => {
           fullContent += chunk;
