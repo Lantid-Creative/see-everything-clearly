@@ -133,30 +133,30 @@ export default function Landing() {
   const activeTabData = TABS.find((t) => t.id === activeTab)!;
 
   return (
-    <div className="min-h-screen bg-[#0a0a0f] text-white overflow-x-hidden">
+    <div className="min-h-screen bg-background text-foreground overflow-x-hidden">
       {/* ─── NAV ─── */}
-      <nav className="fixed top-0 inset-x-0 z-50 bg-[#0a0a0f]/80 backdrop-blur-xl border-b border-white/[0.06]">
+      <nav className="fixed top-0 inset-x-0 z-50 bg-background/80 backdrop-blur-xl border-b border-border">
         <div className="max-w-6xl mx-auto flex items-center justify-between px-6 h-16">
           <div className="flex items-center gap-2.5">
-            <Logo size="md" variant="light" />
+            <Logo size="md" />
           </div>
-          <div className="hidden md:flex items-center gap-8 text-sm text-white/50">
-            <a href="#features" className="hover:text-white transition-colors">Features</a>
-            <a href="#how-it-works" className="hover:text-white transition-colors">How It Works</a>
-            <a href="#why" className="hover:text-white transition-colors">Why Lantid</a>
-            <a href="#pricing" className="hover:text-white transition-colors">Pricing</a>
+          <div className="hidden md:flex items-center gap-8 text-sm text-muted-foreground">
+            <a href="#features" className="hover:text-foreground transition-colors">Features</a>
+            <a href="#how-it-works" className="hover:text-foreground transition-colors">How It Works</a>
+            <a href="#why" className="hover:text-foreground transition-colors">Why Lantid</a>
+            <a href="#pricing" className="hover:text-foreground transition-colors">Pricing</a>
           </div>
           <div className="flex items-center gap-3">
             <ThemeToggle />
             <Link
               to="/login"
-              className="text-sm text-white/60 hover:text-white transition-colors hidden sm:block"
+              className="text-sm text-muted-foreground hover:text-foreground transition-colors hidden sm:block"
             >
               Login
             </Link>
             <Link
               to="/signup"
-              className="text-sm font-medium bg-white text-[#0a0a0f] px-4 py-2 rounded-lg hover:bg-white/90 transition-colors"
+              className="text-sm font-medium bg-foreground text-background px-4 py-2 rounded-lg hover:opacity-90 transition-colors"
             >
               Get started
             </Link>
@@ -197,10 +197,10 @@ export default function Landing() {
             <motion.p
               variants={fadeUp}
               custom={2}
-              className="mt-6 md:mt-8 text-base md:text-lg text-white/50 max-w-2xl mx-auto leading-relaxed"
+              className="mt-6 md:mt-8 text-base md:text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed"
             >
               AI tools write code. Lantid tells them{" "}
-              <span className="text-white font-medium">what code to write</span>.
+              <span className="text-foreground font-medium">what code to write</span>.
               Upload customer signals, discover opportunities, and generate specs
               your coding agent can ship.
             </motion.p>
@@ -212,14 +212,14 @@ export default function Landing() {
             >
               <Link
                 to="/signup"
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-white text-[#0a0a0f] font-medium text-sm px-6 py-3 rounded-xl hover:bg-white/90 transition-colors"
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-foreground text-background font-medium text-sm px-6 py-3 rounded-xl hover:opacity-90 transition-colors"
               >
                 Get started
                 <ArrowRight className="h-4 w-4" />
               </Link>
               <a
                 href="#how-it-works"
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 text-sm text-white/60 hover:text-white px-6 py-3 rounded-xl border border-white/10 hover:border-white/25 transition-colors"
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 text-sm text-muted-foreground hover:text-foreground px-6 py-3 rounded-xl border border-border hover:border-foreground/25 transition-colors"
               >
                 See how it works
               </a>
@@ -240,15 +240,15 @@ export default function Landing() {
           className="max-w-5xl mx-auto"
         >
           {/* Tab bar */}
-          <div className="flex items-center gap-1 bg-white/[0.04] border border-white/[0.08] rounded-t-2xl p-1.5 overflow-x-auto">
+          <div className="flex items-center gap-1 bg-muted/50 border border-border rounded-t-2xl p-1.5 overflow-x-auto">
             {TABS.map((tab) => (
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
                 className={`flex items-center gap-2 text-sm px-4 py-2 rounded-lg whitespace-nowrap transition-all ${
                   activeTab === tab.id
-                    ? "bg-white/10 text-white font-medium"
-                    : "text-white/40 hover:text-white/70 hover:bg-white/[0.04]"
+                    ? "bg-foreground/10 text-foreground font-medium"
+                    : "text-muted-foreground hover:text-foreground/70 hover:bg-muted"
                 }`}
               >
                 <tab.icon className="h-4 w-4" />
@@ -258,7 +258,7 @@ export default function Landing() {
           </div>
 
           {/* Mockup content */}
-          <div className="bg-white/[0.03] border border-white/[0.08] border-t-0 rounded-b-2xl overflow-hidden">
+          <div className="bg-card/50 border border-border border-t-0 rounded-b-2xl overflow-hidden">
             <AnimatePresence mode="wait">
               <motion.div
                 key={activeTab}
@@ -269,14 +269,14 @@ export default function Landing() {
                 className="grid md:grid-cols-2 min-h-[400px]"
               >
                 {/* Left: Chat */}
-                <div className="p-6 md:p-8 border-b md:border-b-0 md:border-r border-white/[0.06]">
+                <div className="p-6 md:p-8 border-b md:border-b-0 md:border-r border-border">
                   <div className="space-y-4">
                     {/* User message */}
                     <div className="flex gap-3">
-                      <div className="shrink-0 h-7 w-7 rounded-full bg-gradient-to-br from-blue-500 to-violet-500 flex items-center justify-center text-[10px] font-bold">
+                      <div className="shrink-0 h-7 w-7 rounded-full bg-gradient-to-br from-blue-500 to-violet-500 flex items-center justify-center text-[10px] font-bold text-white">
                         Y
                       </div>
-                      <div className="bg-white/[0.06] rounded-2xl rounded-tl-sm px-4 py-3 text-sm text-white/80 leading-relaxed max-w-sm">
+                      <div className="bg-muted rounded-2xl rounded-tl-sm px-4 py-3 text-sm text-foreground/80 leading-relaxed max-w-sm">
                         {activeTabData.mockup.userMessage}
                       </div>
                     </div>
@@ -286,9 +286,9 @@ export default function Landing() {
                       <div className="shrink-0 h-7 w-7 rounded-full bg-gradient-to-br from-primary to-orange-400 flex items-center justify-center">
                         <Sparkles className="h-3.5 w-3.5 text-white" />
                       </div>
-                      <div className="bg-white/[0.04] border border-white/[0.06] rounded-2xl rounded-tl-sm px-4 py-3 text-sm text-white/70 leading-relaxed max-w-md">
+                      <div className="bg-card border border-border rounded-2xl rounded-tl-sm px-4 py-3 text-sm text-muted-foreground leading-relaxed max-w-md">
                         <div
-                          className="whitespace-pre-wrap font-sans text-[13px] [&_strong]:text-white [&_strong]:font-semibold [&_code]:bg-white/10 [&_code]:px-1.5 [&_code]:py-0.5 [&_code]:rounded [&_code]:text-primary [&_code]:text-xs"
+                          className="whitespace-pre-wrap font-sans text-[13px] [&_strong]:text-foreground [&_strong]:font-semibold [&_code]:bg-muted [&_code]:px-1.5 [&_code]:py-0.5 [&_code]:rounded [&_code]:text-primary [&_code]:text-xs"
                           dangerouslySetInnerHTML={{
                             __html: activeTabData.mockup.aiResponse
                               .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
@@ -306,10 +306,10 @@ export default function Landing() {
                     <activeTabData.icon className="h-4 w-4" />
                     {activeTabData.label}
                   </div>
-                  <h3 className="text-xl md:text-2xl font-serif text-white mb-3">
+                  <h3 className="text-xl md:text-2xl font-serif text-foreground mb-3">
                     {activeTabData.title}
                   </h3>
-                  <p className="text-sm text-white/50 leading-relaxed">
+                  <p className="text-sm text-muted-foreground leading-relaxed">
                     {activeTabData.description}
                   </p>
                   <Link
@@ -326,7 +326,7 @@ export default function Landing() {
       </section>
 
       {/* ─── PROBLEM STATEMENT ─── */}
-      <section id="why" className="py-20 md:py-32 px-6 border-t border-white/[0.06]">
+      <section id="why" className="py-20 md:py-32 px-6 border-t border-border">
         <div className="max-w-4xl mx-auto">
           <motion.div
             initial="hidden"
@@ -347,17 +347,17 @@ export default function Landing() {
             </motion.div>
 
             <motion.div variants={fadeUp} custom={1} className="space-y-4">
-              <p className="text-white/50 leading-relaxed">
+              <p className="text-muted-foreground leading-relaxed">
                 Cursor and Claude Code are incredible at implementation. But they start from a blank prompt —
                 they don't know your users, your market, or your feedback.
               </p>
-              <p className="text-white/50 leading-relaxed">
+              <p className="text-muted-foreground leading-relaxed">
                 The hardest part of product development isn't writing code.
-                It's <span className="text-white font-medium">deciding what to build</span>,
-                understanding <span className="text-white font-medium">why it matters</span>,
-                and defining <span className="text-white font-medium">how it should work</span>.
+                It's <span className="text-foreground font-medium">deciding what to build</span>,
+                understanding <span className="text-foreground font-medium">why it matters</span>,
+                and defining <span className="text-foreground font-medium">how it should work</span>.
               </p>
-              <p className="text-white/50 leading-relaxed">
+              <p className="text-muted-foreground leading-relaxed">
                 Lantid is the missing layer — the AI that turns raw customer signal into
                 actionable specs your coding agent can execute.
               </p>
@@ -367,7 +367,7 @@ export default function Landing() {
       </section>
 
       {/* ─── HOW IT WORKS ─── */}
-      <section id="how-it-works" className="py-20 md:py-32 px-6 border-t border-white/[0.06]">
+      <section id="how-it-works" className="py-20 md:py-32 px-6 border-t border-border">
         <div className="max-w-5xl mx-auto">
           <motion.div
             initial="hidden"
@@ -395,16 +395,16 @@ export default function Landing() {
                 key={step.num}
                 variants={fadeUp}
                 custom={i}
-                className="group relative bg-white/[0.03] border border-white/[0.06] rounded-2xl p-6 hover:border-white/[0.12] transition-all duration-300"
+                className="group relative bg-card/50 border border-border rounded-2xl p-6 hover:border-primary/20 transition-all duration-300"
               >
                 <div className={`h-10 w-10 rounded-xl bg-gradient-to-br ${step.color} flex items-center justify-center mb-4 opacity-80 group-hover:opacity-100 transition-opacity`}>
                   <step.icon className="h-5 w-5 text-white" />
                 </div>
-                <span className="text-[10px] font-mono text-white/30 uppercase tracking-wider">{step.num}</span>
-                <h3 className="text-base font-semibold text-white mt-1 mb-2">{step.title}</h3>
-                <p className="text-sm text-white/40 leading-relaxed">{step.desc}</p>
+                <span className="text-[10px] font-mono text-muted-foreground/50 uppercase tracking-wider">{step.num}</span>
+                <h3 className="text-base font-semibold text-foreground mt-1 mb-2">{step.title}</h3>
+                <p className="text-sm text-muted-foreground leading-relaxed">{step.desc}</p>
                 {i < STEPS.length - 1 && (
-                  <div className="hidden lg:block absolute top-1/2 -right-2 w-4 text-white/15">
+                  <div className="hidden lg:block absolute top-1/2 -right-2 w-4 text-muted-foreground/30">
                     <ChevronRight className="h-4 w-4" />
                   </div>
                 )}
@@ -415,7 +415,7 @@ export default function Landing() {
       </section>
 
       {/* ─── FEATURES GRID ─── */}
-      <section id="features" className="py-20 md:py-32 px-6 border-t border-white/[0.06]">
+      <section id="features" className="py-20 md:py-32 px-6 border-t border-border">
         <div className="max-w-5xl mx-auto">
           <motion.div
             initial="hidden"
@@ -444,13 +444,13 @@ export default function Landing() {
                 key={f.title}
                 variants={fadeUp}
                 custom={i}
-                className="group bg-white/[0.03] border border-white/[0.06] rounded-2xl p-6 hover:border-primary/20 hover:bg-white/[0.05] transition-all duration-300"
+                className="group bg-card/50 border border-border rounded-2xl p-6 hover:border-primary/20 hover:bg-card transition-all duration-300"
               >
                 <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center mb-4 group-hover:bg-primary/15 transition-colors">
                   <f.icon className="h-5 w-5 text-primary" />
                 </div>
-                <h3 className="text-base font-semibold text-white mb-2">{f.title}</h3>
-                <p className="text-sm text-white/40 leading-relaxed">{f.desc}</p>
+                <h3 className="text-base font-semibold text-foreground mb-2">{f.title}</h3>
+                <p className="text-sm text-muted-foreground leading-relaxed">{f.desc}</p>
               </motion.div>
             ))}
           </motion.div>
@@ -458,7 +458,7 @@ export default function Landing() {
       </section>
 
       {/* ─── PRICING ─── */}
-      <section id="pricing" className="py-20 md:py-32 px-6 border-t border-white/[0.06]">
+      <section id="pricing" className="py-20 md:py-32 px-6 border-t border-border">
         <motion.div
           initial="hidden"
           whileInView="visible"
@@ -475,18 +475,18 @@ export default function Landing() {
               </span>{" "}
               pricing
             </h2>
-            <p className="mt-4 text-white/50 max-w-lg mx-auto text-sm md:text-base leading-relaxed">
+            <p className="mt-4 text-muted-foreground max-w-lg mx-auto text-sm md:text-base leading-relaxed">
               Pay for what you use. Every AI discovery, PRD generation, and workflow execution consumes tokens. Buy more anytime.
             </p>
 
             {/* Billing toggle */}
-            <div className="mt-8 inline-flex items-center gap-0 bg-white/[0.04] border border-white/[0.08] rounded-full p-1">
+            <div className="mt-8 inline-flex items-center gap-0 bg-muted/50 border border-border rounded-full p-1">
               <button
                 onClick={() => setBilling("monthly")}
                 className={`px-5 py-2 rounded-full text-sm font-medium transition-all ${
                   billing === "monthly"
-                    ? "bg-primary text-white shadow-lg shadow-primary/25"
-                    : "text-white/50 hover:text-white"
+                    ? "bg-primary text-primary-foreground shadow-lg shadow-primary/25"
+                    : "text-muted-foreground hover:text-foreground"
                 }`}
               >
                 Monthly
@@ -495,8 +495,8 @@ export default function Landing() {
                 onClick={() => setBilling("yearly")}
                 className={`px-5 py-2 rounded-full text-sm font-medium transition-all ${
                   billing === "yearly"
-                    ? "bg-primary text-white shadow-lg shadow-primary/25"
-                    : "text-white/50 hover:text-white"
+                    ? "bg-primary text-primary-foreground shadow-lg shadow-primary/25"
+                    : "text-muted-foreground hover:text-foreground"
                 }`}
               >
                 Yearly <span className="text-xs opacity-70">(-20%)</span>
@@ -565,33 +565,33 @@ export default function Landing() {
                 className={`relative rounded-2xl p-[1px] ${
                   plan.highlighted
                     ? "bg-gradient-to-b from-primary/60 to-primary/10"
-                    : "bg-white/[0.06]"
+                    : "bg-border"
                 }`}
               >
                 {plan.highlighted && (
-                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-primary text-white text-[10px] font-semibold uppercase tracking-widest px-4 py-1 rounded-full">
+                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-primary text-primary-foreground text-[10px] font-semibold uppercase tracking-widest px-4 py-1 rounded-full">
                     Most popular
                   </div>
                 )}
-                <div className="bg-[#0e0e14] rounded-2xl p-6 md:p-8 h-full flex flex-col">
-                  <h3 className="text-lg font-semibold text-white">{plan.name}</h3>
-                  <p className="text-xs text-white/40 mt-1 leading-relaxed">{plan.desc}</p>
+                <div className="bg-card rounded-2xl p-6 md:p-8 h-full flex flex-col">
+                  <h3 className="text-lg font-semibold text-foreground">{plan.name}</h3>
+                  <p className="text-xs text-muted-foreground mt-1 leading-relaxed">{plan.desc}</p>
 
                   <div className="mt-6 mb-6">
                     <div className="flex items-baseline gap-1">
-                      <span className="text-3xl md:text-4xl font-bold text-white">
+                      <span className="text-3xl md:text-4xl font-bold text-foreground">
                         ${billing === "monthly" ? plan.monthlyPrice : plan.yearlyPrice}
                       </span>
-                      <span className="text-sm text-white/30">
+                      <span className="text-sm text-muted-foreground/50">
                         /{billing === "monthly" ? "mo" : "yr"}
                       </span>
                     </div>
-                    <p className="text-xs text-white/30 mt-1">{plan.tokens} tokens included</p>
+                    <p className="text-xs text-muted-foreground/50 mt-1">{plan.tokens} tokens included</p>
                   </div>
 
                   <ul className="space-y-3 flex-1">
                     {plan.features.map((f) => (
-                      <li key={f} className="flex items-start gap-2.5 text-sm text-white/60">
+                      <li key={f} className="flex items-start gap-2.5 text-sm text-muted-foreground">
                         <Check className="h-4 w-4 text-primary shrink-0 mt-0.5" />
                         {f}
                       </li>
@@ -602,8 +602,8 @@ export default function Landing() {
                     to="/signup"
                     className={`mt-8 w-full inline-flex items-center justify-center gap-2 font-medium text-sm px-6 py-3 rounded-xl transition-colors ${
                       plan.highlighted
-                        ? "bg-primary text-white hover:bg-primary/90"
-                        : "bg-white/[0.06] text-white hover:bg-white/[0.1] border border-white/[0.08]"
+                        ? "bg-primary text-primary-foreground hover:bg-primary/90"
+                        : "bg-muted text-foreground hover:bg-accent border border-border"
                     }`}
                   >
                     {plan.cta}
@@ -616,10 +616,10 @@ export default function Landing() {
 
           {/* Buy more tokens */}
           <motion.div variants={fadeUp} custom={4} className="text-center mb-16">
-            <div className="inline-flex items-center gap-2 bg-white/[0.04] border border-white/[0.08] rounded-full px-5 py-2.5 text-sm text-white/50">
+            <div className="inline-flex items-center gap-2 bg-muted/50 border border-border rounded-full px-5 py-2.5 text-sm text-muted-foreground">
               <Zap className="h-4 w-4 text-primary" />
               Need more? Buy additional token packs anytime —{" "}
-              <span className="text-white font-medium">$10 per 1,000 tokens</span>
+              <span className="text-foreground font-medium">$10 per 1,000 tokens</span>
             </div>
           </motion.div>
 
@@ -627,7 +627,7 @@ export default function Landing() {
           <motion.div variants={fadeUp} custom={5}>
             <div className="relative rounded-2xl overflow-hidden">
               <div className="absolute inset-0 bg-gradient-to-r from-violet-500/10 via-primary/10 to-violet-500/10 pointer-events-none" />
-              <div className="absolute inset-0 border border-white/[0.08] rounded-2xl pointer-events-none" />
+              <div className="absolute inset-0 border border-border rounded-2xl pointer-events-none" />
 
               <div className="relative p-8 md:p-12 flex flex-col md:flex-row items-start md:items-center gap-8">
                 <div className="flex-1">
@@ -635,9 +635,9 @@ export default function Landing() {
                     <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-violet-500 to-primary flex items-center justify-center">
                       <Plug className="h-5 w-5 text-white" />
                     </div>
-                    <h3 className="text-xl font-semibold text-white">Enterprise</h3>
+                    <h3 className="text-xl font-semibold text-foreground">Enterprise</h3>
                   </div>
-                  <p className="text-sm text-white/50 leading-relaxed max-w-xl">
+                  <p className="text-sm text-muted-foreground leading-relaxed max-w-xl">
                     Integrate Lantid directly into your platform via our API. Monitor user behavior,
                     analyze product gaps, and surface improvement opportunities — all visible through
                     our dashboard or your own plugin interface.
@@ -651,7 +651,7 @@ export default function Landing() {
                       "Dedicated engineering support",
                       "On-prem deployment available",
                     ].map((f) => (
-                      <div key={f} className="flex items-center gap-2 text-sm text-white/60">
+                      <div key={f} className="flex items-center gap-2 text-sm text-muted-foreground">
                         <Check className="h-3.5 w-3.5 text-violet-400 shrink-0" />
                         {f}
                       </div>
@@ -659,8 +659,8 @@ export default function Landing() {
                   </div>
                 </div>
                 <div className="shrink-0 text-center md:text-right">
-                  <p className="text-2xl font-bold text-white">Custom</p>
-                  <p className="text-xs text-white/30 mt-1">Tailored to your scale</p>
+                  <p className="text-2xl font-bold text-foreground">Custom</p>
+                  <p className="text-xs text-muted-foreground/50 mt-1">Tailored to your scale</p>
                   <a
                     href="mailto:enterprise@lantid.ai"
                     className="mt-4 inline-flex items-center gap-2 bg-gradient-to-r from-violet-500 to-primary text-white font-medium text-sm px-6 py-3 rounded-xl hover:opacity-90 transition-opacity"
@@ -676,7 +676,7 @@ export default function Landing() {
       </section>
 
       {/* ─── CTA BANNER ─── */}
-      <section className="py-20 md:py-32 px-6 border-t border-white/[0.06]">
+      <section className="py-20 md:py-32 px-6 border-t border-border">
         <motion.div
           initial="hidden"
           whileInView="visible"
@@ -701,14 +701,14 @@ export default function Landing() {
                 </span>{" "}
                 becomes everything.
               </h2>
-              <p className="mt-6 text-white/50 max-w-lg mx-auto leading-relaxed text-sm md:text-base">
+              <p className="mt-6 text-muted-foreground max-w-lg mx-auto leading-relaxed text-sm md:text-base">
                 PRDs and Jira tickets were designed for human engineers. Lantid creates specs
                 that AI agents can execute and humans can trust.
               </p>
               <div className="mt-8">
                 <Link
                   to="/signup"
-                  className="inline-flex items-center gap-2 bg-white text-[#0a0a0f] font-medium text-sm px-6 py-3 rounded-xl hover:bg-white/90 transition-colors"
+                  className="inline-flex items-center gap-2 bg-foreground text-background font-medium text-sm px-6 py-3 rounded-xl hover:opacity-90 transition-colors"
                 >
                   Start building what matters
                   <ArrowRight className="h-4 w-4" />
@@ -720,20 +720,20 @@ export default function Landing() {
       </section>
 
       {/* ─── FOOTER ─── */}
-      <footer className="border-t border-white/[0.06] py-10 px-6">
+      <footer className="border-t border-border py-10 px-6">
         <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
           <div className="flex items-center gap-2">
-            <Logo size="sm" variant="light" />
+            <Logo size="sm" />
           </div>
-          <p className="text-xs text-white/30">
+          <p className="text-xs text-muted-foreground/50">
             © {new Date().getFullYear()} Lantid AI. The product discovery platform.
           </p>
-          <div className="flex items-center gap-5 text-xs text-white/30">
-            <a href="https://instagram.com/lantidcreative" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">Instagram</a>
-            <a href="https://facebook.com/lantidcreative" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">Facebook</a>
-            <a href="https://x.com/lantidcreative" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">X</a>
-            <a href="https://linkedin.com/company/lantidcreative" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">LinkedIn</a>
-            <a href="mailto:hi@lantid.com" className="hover:text-white transition-colors">hi@lantid.com</a>
+          <div className="flex items-center gap-5 text-xs text-muted-foreground/50">
+            <a href="https://instagram.com/lantidcreative" target="_blank" rel="noopener noreferrer" className="hover:text-foreground transition-colors">Instagram</a>
+            <a href="https://facebook.com/lantidcreative" target="_blank" rel="noopener noreferrer" className="hover:text-foreground transition-colors">Facebook</a>
+            <a href="https://x.com/lantidcreative" target="_blank" rel="noopener noreferrer" className="hover:text-foreground transition-colors">X</a>
+            <a href="https://linkedin.com/company/lantidcreative" target="_blank" rel="noopener noreferrer" className="hover:text-foreground transition-colors">LinkedIn</a>
+            <a href="mailto:hi@lantid.com" className="hover:text-foreground transition-colors">hi@lantid.com</a>
           </div>
         </div>
       </footer>
