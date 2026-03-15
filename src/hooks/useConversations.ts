@@ -23,7 +23,7 @@ const welcomeMessage: ChatMessage = {
   id: "welcome",
   role: "assistant",
   content:
-    "Hi! I'm Lantid, your AI product management assistant. I can help you with product discovery, research, specs, workflows, and more. What would you like to work on today?",
+    "Hey! 👋 I'm **Lantid**, your AI product management assistant. I help PMs figure out **what to build and why**.\n\nHere's what I can help you with:\n- 🔍 **Product Discovery** — research users, validate ideas, run interviews\n- 📋 **PRDs & Specs** — generate requirements, user stories, dev tasks\n- 📊 **Prioritization** — RICE scoring, trade-off analysis, roadmapping\n- ⚡ **Workflows** — automate repetitive PM processes\n- 📧 **Outreach** — draft stakeholder updates & customer emails\n\nTry one of the suggestions below to get started, or just ask me anything!",
 };
 
 export function useConversations() {
