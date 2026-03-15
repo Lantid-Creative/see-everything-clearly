@@ -219,7 +219,7 @@ export function SlideEditorView({ onBack }: SlideEditorViewProps) {
         )}
 
         {/* Main slide view */}
-        <div className="flex-1 flex flex-col items-center justify-center p-8 bg-muted/30">
+        <div className="flex-1 flex flex-col items-center justify-center p-4 md:p-8 bg-muted/30">
           <div className="w-full max-w-3xl aspect-[16/9] bg-background rounded-xl shadow-lg border overflow-hidden flex flex-col">
             {/* Brand bar */}
             <div className="h-1.5 w-full bg-primary" />
