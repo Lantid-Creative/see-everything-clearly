@@ -211,7 +211,7 @@ export default function Landing() {
               className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3"
             >
               <Link
-                to="/auth"
+                to="/signup"
                 className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-white text-[#0a0a0f] font-medium text-sm px-6 py-3 rounded-xl hover:bg-white/90 transition-colors"
               >
                 Get started
