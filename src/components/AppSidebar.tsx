@@ -11,9 +11,12 @@ import {
   FileText,
   LogOut,
   Trash2,
+  Sun,
+  Moon,
 } from "lucide-react";
 import { useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
+import { useTheme } from "@/hooks/useTheme";
 import {
   Sidebar,
   SidebarContent,
@@ -72,6 +75,7 @@ export function AppSidebar({
 }: AppSidebarProps) {
   const { state } = useSidebar();
   const { user, signOut } = useAuth();
+  const { theme, toggleTheme } = useTheme();
   const collapsed = state === "collapsed";
   const [activeItem, setActiveItem] = useState("home");
   const [searchQuery, setSearchQuery] = useState("");
@@ -228,6 +232,15 @@ export function AppSidebar({
             <SidebarMenuButton className="text-sidebar-foreground hover:text-sidebar-primary hover:bg-sidebar-accent">
               <Puzzle className="h-4 w-4" />
               {!collapsed && <span>Integrations</span>}
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+          <SidebarMenuItem>
+            <SidebarMenuButton
+              onClick={toggleTheme}
+              className="text-sidebar-foreground hover:text-sidebar-primary hover:bg-sidebar-accent"
+            >
+              {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+              {!collapsed && <span>{theme === "dark" ? "Light Mode" : "Dark Mode"}</span>}
             </SidebarMenuButton>
           </SidebarMenuItem>
           <SidebarMenuItem>
