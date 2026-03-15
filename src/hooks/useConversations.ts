@@ -1,5 +1,6 @@
 import { useState, useCallback, useEffect, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
 
 export interface ChatMessage {
   id: string;
@@ -24,29 +25,29 @@ const welcomeMessage: ChatMessage = {
 };
 
 export function useConversations() {
+  const { user } = useAuth();
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [activeConversationId, setActiveConversationId] = useState<string>("");
   const [loaded, setLoaded] = useState(false);
-  const savingRef = useRef(false);
 
-  // Load conversations from DB on mount
   useEffect(() => {
+    if (!user) return;
+
     async function load() {
       const { data: convRows } = await supabase
         .from("conversations")
         .select("*")
+        .eq("user_id", user!.id)
         .order("created_at", { ascending: false });
 
       if (!convRows || convRows.length === 0) {
-        // Create initial conversation
         const { data: newConv } = await supabase
           .from("conversations")
-          .insert({ title: "Untitled" })
+          .insert({ title: "Untitled", user_id: user!.id })
           .select()
           .single();
 
         if (newConv) {
-          // Insert welcome message
           await supabase.from("messages").insert({
             conversation_id: newConv.id,
             role: "assistant",
@@ -64,7 +65,6 @@ export function useConversations() {
           setActiveConversationId(newConv.id);
         }
       } else {
-        // Load messages for all conversations
         const convs: Conversation[] = [];
         for (const conv of convRows) {
           const { data: msgs } = await supabase
@@ -91,7 +91,7 @@ export function useConversations() {
       setLoaded(true);
     }
     load();
-  }, []);
+  }, [user]);
 
   const activeConversation =
     conversations.find((c) => c.id === activeConversationId) ||
@@ -99,9 +99,11 @@ export function useConversations() {
     { id: "", title: "Untitled", messages: [], createdAt: new Date() };
 
   const createConversation = useCallback(async () => {
+    if (!user) return "";
+
     const { data: newConv } = await supabase
       .from("conversations")
-      .insert({ title: "Untitled" })
+      .insert({ title: "Untitled", user_id: user.id })
       .select()
       .single();
 
@@ -124,10 +126,9 @@ export function useConversations() {
     setConversations((prev) => [conv, ...prev]);
     setActiveConversationId(newConv.id);
     return newConv.id;
-  }, []);
+  }, [user]);
 
   const addMessage = useCallback((convId: string, message: ChatMessage) => {
-    // Don't persist streaming placeholders
     const shouldPersist = !message.isStreaming;
 
     setConversations((prev) =>
@@ -141,7 +142,6 @@ export function useConversations() {
             (message.content.length > 40 ? "..." : "")
           : c.title;
 
-        // Update title in DB if changed
         if (isFirstUser) {
           supabase
             .from("conversations")
@@ -186,7 +186,6 @@ export function useConversations() {
         })
       );
 
-      // When streaming is done, persist the final message
       if (!isStreaming && content) {
         setConversations((prev) => {
           const conv = prev.find((c) => c.id === convId);
@@ -225,7 +224,6 @@ export function useConversations() {
         })
       );
 
-      // Update in DB
       supabase
         .from("messages")
         .update({ action })
