@@ -1,5 +1,6 @@
 import { useState, useCallback } from "react";
 import { ArrowLeft, Plus, Play, Loader2, Sparkles, X, GripVertical, Mail, Bell, FileText, Calendar, Send, Shield, Check, AlertTriangle } from "lucide-react";
+import { useIsMobile } from "@/hooks/use-mobile";
 import {
   Dialog,
   DialogContent,
