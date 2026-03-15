@@ -9,8 +9,10 @@ import {
   MessageSquare,
   Presentation,
   FileText,
+  LogOut,
 } from "lucide-react";
 import { useState } from "react";
+import { useAuth } from "@/hooks/useAuth";
 import {
   Sidebar,
   SidebarContent,
