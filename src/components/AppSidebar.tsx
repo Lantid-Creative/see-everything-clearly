@@ -17,6 +17,8 @@ import {
   Users,
   GitBranch,
   Loader2,
+  LayoutGrid,
+  Table,
 } from "lucide-react";
 import { useState } from "react";
 import { Logo } from "@/components/Logo";
@@ -41,9 +43,15 @@ import type { ViewMode } from "@/pages/Index";
 import type { Conversation } from "@/hooks/useConversations";
 
 const mainNav = [
-  { title: "Home", icon: Home, id: "home" },
-  { title: "Inbox", icon: Inbox, id: "inbox", badge: 15 },
-  { title: "Workflows", icon: Workflow, id: "workflows" },
+  { title: "Home", icon: Home, id: "home", view: "chat" as ViewMode },
+  { title: "Inbox", icon: Inbox, id: "inbox", view: "chat" as ViewMode, badge: 15 },
+  { title: "Workflows", icon: Workflow, id: "workflows", view: "workflow" as ViewMode },
+];
+
+const workspaceNav = [
+  { title: "Workspace", icon: LayoutGrid, id: "workspace", view: "workspace" as ViewMode },
+  { title: "Slides", icon: Presentation, id: "slides", view: "slides" as ViewMode },
+  { title: "Spreadsheet", icon: Table, id: "spreadsheet", view: "spreadsheet" as ViewMode },
 ];
 
 // Team members are now loaded dynamically from the database
