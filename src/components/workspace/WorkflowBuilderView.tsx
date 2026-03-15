@@ -1,5 +1,13 @@
 import { useState, useCallback } from "react";
-import { ArrowLeft, Plus, Play, Loader2, Sparkles, X, GripVertical, Mail, Bell, FileText, Calendar, Send } from "lucide-react";
+import { ArrowLeft, Plus, Play, Loader2, Sparkles, X, GripVertical, Mail, Bell, FileText, Calendar, Send, Shield, Check, AlertTriangle } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { streamChat } from "@/lib/streamChat";
 import { useToast } from "@/hooks/use-toast";
@@ -30,9 +38,20 @@ interface WorkflowBuilderViewProps {
   onBack: () => void;
 }
 
+interface PermissionScope {
+  id: string;
+  label: string;
+  description: string;
+  icon: string;
+  required: boolean;
+  granted: boolean;
+}
+
 export function WorkflowBuilderView({ onBack }: WorkflowBuilderViewProps) {
   const [nodes, setNodes] = useState<WorkflowNode[]>(defaultNodes);
   const [isDeployed, setIsDeployed] = useState(false);
+  const [showPermissions, setShowPermissions] = useState(false);
+  const [permissionScopes, setPermissionScopes] = useState<PermissionScope[]>([]);
   const [chatInput, setChatInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [editingNode, setEditingNode] = useState<string | null>(null);
@@ -41,6 +60,32 @@ export function WorkflowBuilderView({ onBack }: WorkflowBuilderViewProps) {
     { role: "assistant", content: "I've set up your automation workflow. Each node describes a step in plain English. You can edit any node, add new ones, or ask me to modify the flow." },
   ]);
   const { toast } = useToast();
+
+  const deriveScopes = (): PermissionScope[] => {
+    const scopes: PermissionScope[] = [];
+    const hasCalendar = nodes.some((n) => n.icon === "calendar");
+    const hasMail = nodes.some((n) => n.icon === "mail");
+    const hasSlides = nodes.some((n) => n.icon === "file");
+    const hasSlack = nodes.some((n) => n.label.toLowerCase().includes("slack"));
+
+    if (hasCalendar) {
+      scopes.push({ id: "calendar.read", label: "Google Calendar", description: "Read calendar events and booking notifications", icon: "calendar", required: true, granted: false });
+    }
+    if (hasMail) {
+      scopes.push({ id: "email.send", label: "Email (Send)", description: "Send emails on your behalf with attachments", icon: "mail", required: true, granted: false });
+      scopes.push({ id: "email.read", label: "Email (Read)", description: "Read inbox to detect replies and thread context", icon: "mail", required: false, granted: false });
+    }
+    if (hasSlides) {
+      scopes.push({ id: "drive.write", label: "Google Drive", description: "Create and store generated presentations", icon: "file", required: true, granted: false });
+      scopes.push({ id: "research.web", label: "Web Research", description: "Search the web to enrich slide content", icon: "file", required: true, granted: false });
+    }
+    if (hasSlack) {
+      scopes.push({ id: "slack.post", label: "Slack (Post)", description: "Send messages and attachments to Slack channels", icon: "bell", required: true, granted: false });
+    }
+    scopes.push({ id: "agent.autonomous", label: "Autonomous Execution", description: "Run this workflow without manual approval each time", icon: "bell", required: true, granted: false });
+
+    return scopes;
+  };
 
   const addNode = () => {
     const newNode: WorkflowNode = {
@@ -71,11 +116,25 @@ export function WorkflowBuilderView({ onBack }: WorkflowBuilderViewProps) {
     setEditingNode(null);
   };
 
-  const handleDeploy = () => {
+  const handleDeployClick = () => {
+    setPermissionScopes(deriveScopes());
+    setShowPermissions(true);
+  };
+
+  const toggleScope = (id: string) => {
+    setPermissionScopes((prev) =>
+      prev.map((s) => (s.id === id ? { ...s, granted: !s.granted } : s))
+    );
+  };
+
+  const allRequiredGranted = permissionScopes.filter((s) => s.required).every((s) => s.granted);
+
+  const confirmDeploy = () => {
+    setShowPermissions(false);
     setIsDeployed(true);
     toast({
       title: "Workflow deployed!",
-      description: "Your automation is now active and monitoring for triggers.",
+      description: "All permissions granted. Your automation is now active.",
     });
   };
 
@@ -148,7 +207,7 @@ export function WorkflowBuilderView({ onBack }: WorkflowBuilderViewProps) {
           )}
         </div>
         <button
-          onClick={handleDeploy}
+          onClick={handleDeployClick}
           disabled={isDeployed}
           className="h-8 px-4 rounded-lg bg-primary text-primary-foreground text-xs font-medium hover:bg-primary/90 transition-colors disabled:opacity-50 flex items-center gap-2"
         >
@@ -292,6 +351,83 @@ export function WorkflowBuilderView({ onBack }: WorkflowBuilderViewProps) {
           </div>
         </div>
       </div>
+      {/* Permissions Dialog */}
+      <Dialog open={showPermissions} onOpenChange={setShowPermissions}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <div className="flex items-center gap-2 mb-1">
+              <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center">
+                <Shield className="h-4 w-4 text-primary" />
+              </div>
+              <DialogTitle className="text-base">Authorization Required</DialogTitle>
+            </div>
+            <DialogDescription className="text-xs">
+              Carson needs the following permissions to run this workflow autonomously. Review and approve each scope.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-2 my-2">
+            {permissionScopes.map((scope) => {
+              const Icon = iconMap[scope.icon] || Bell;
+              return (
+                <button
+                  key={scope.id}
+                  onClick={() => toggleScope(scope.id)}
+                  className={`w-full flex items-center gap-3 rounded-xl border-2 px-4 py-3 text-left transition-all ${
+                    scope.granted
+                      ? "border-success bg-success/5"
+                      : "border-border hover:border-muted-foreground/30"
+                  }`}
+                >
+                  <div className={`h-8 w-8 rounded-lg flex items-center justify-center shrink-0 ${
+                    scope.granted ? "bg-success/10 text-success" : "bg-muted text-muted-foreground"
+                  }`}>
+                    {scope.granted ? <Check className="h-4 w-4" /> : <Icon className="h-4 w-4" />}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm font-medium text-foreground">{scope.label}</span>
+                      {scope.required && (
+                        <span className="text-[9px] uppercase tracking-wider font-semibold text-destructive">Required</span>
+                      )}
+                    </div>
+                    <p className="text-xs text-muted-foreground mt-0.5">{scope.description}</p>
+                  </div>
+                  <div className={`h-5 w-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-colors ${
+                    scope.granted ? "border-success bg-success" : "border-muted-foreground/30"
+                  }`}>
+                    {scope.granted && <Check className="h-3 w-3 text-success-foreground" />}
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+
+          {!allRequiredGranted && (
+            <div className="flex items-center gap-2 text-xs text-amber-600 bg-amber-500/10 rounded-lg px-3 py-2">
+              <AlertTriangle className="h-3.5 w-3.5 shrink-0" />
+              <span>All required permissions must be granted before deployment.</span>
+            </div>
+          )}
+
+          <DialogFooter className="flex gap-2 sm:gap-2">
+            <button
+              onClick={() => setShowPermissions(false)}
+              className="flex-1 h-9 rounded-lg border text-sm font-medium text-foreground hover:bg-secondary transition-colors"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={confirmDeploy}
+              disabled={!allRequiredGranted}
+              className="flex-1 h-9 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 transition-colors disabled:opacity-40 flex items-center justify-center gap-2"
+            >
+              <Shield className="h-3.5 w-3.5" />
+              Authorize & Deploy
+            </button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
