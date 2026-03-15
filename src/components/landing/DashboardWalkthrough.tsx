@@ -192,44 +192,60 @@ function ResearchScene({ active }: { active: boolean }) {
   );
 }
 
-/* ─── Scene: Email Outreach ─── */
+/* ─── Scene: Roadmap Prioritization ─── */
 function EmailScene({ active }: { active: boolean }) {
-  const subjectLine = useTypingText("Quick question about Acme AI's analytics approach", active, 35);
-  const bodyText = useTypingText(
-    "Hi Sarah,\n\nI noticed Acme AI just closed your Series A — congrats! I've been following your work on AI-powered e-commerce analytics.\n\nWe help product teams like yours turn customer feedback into actionable specs. Would love to chat about how we could help Acme ship faster.\n\nBest,\nYour Name",
-    active,
-    12
-  );
+  const features = [
+    { name: "Real-time co-editing", impact: 9.2, effort: "M", rice: 94, quarter: "Q2", status: "approved" },
+    { name: "Approval workflow revamp", impact: 8.5, effort: "L", rice: 87, quarter: "Q2", status: "approved" },
+    { name: "Jira bi-directional sync", impact: 7.8, effort: "M", rice: 76, quarter: "Q3", status: "proposed" },
+    { name: "Mobile spec viewer", impact: 7.1, effort: "S", rice: 72, quarter: "Q3", status: "proposed" },
+    { name: "Role-based permissions v2", impact: 6.9, effort: "L", rice: 65, quarter: "Q4", status: "backlog" },
+  ];
 
   return (
     <div className="flex-1 flex flex-col p-4 overflow-hidden">
-      <div className="flex items-center gap-2 pb-3 border-b border-white/[0.06] mb-3">
-        <Mail className="h-3.5 w-3.5 text-primary" />
-        <span className="text-xs font-medium text-white/70">Email Composer</span>
-        <span className="ml-auto text-[10px] bg-primary/15 text-primary px-2 py-0.5 rounded-full">AI Generated</span>
+      <div className="flex items-center justify-between pb-3 border-b border-white/[0.06] mb-3">
+        <div className="flex items-center gap-2">
+          <BarChart3 className="h-3.5 w-3.5 text-primary" />
+          <span className="text-xs font-medium text-white/70">AI-Ranked Roadmap</span>
+        </div>
+        <span className="text-[10px] bg-primary/15 text-primary px-2 py-0.5 rounded-full">RICE scored</span>
       </div>
 
-      <div className="space-y-3">
-        <div>
-          <div className="text-[10px] text-white/30 mb-1">To</div>
-          <div className="text-xs text-white/70 bg-white/[0.04] border border-white/[0.06] rounded-lg px-3 py-1.5">
-            sarah@acme-ai.com
-          </div>
-        </div>
-        <div>
-          <div className="text-[10px] text-white/30 mb-1">Subject</div>
-          <div className="text-xs text-white/70 bg-white/[0.04] border border-white/[0.06] rounded-lg px-3 py-1.5 min-h-[28px]">
-            {subjectLine}
-            {subjectLine.length < 40 && active && <span className="inline-block w-0.5 h-3 bg-primary ml-0.5 animate-pulse" />}
-          </div>
-        </div>
-        <div>
-          <div className="text-[10px] text-white/30 mb-1">Body</div>
-          <div className="text-xs text-white/60 bg-white/[0.04] border border-white/[0.06] rounded-lg px-3 py-2 min-h-[120px] whitespace-pre-wrap leading-relaxed">
-            {bodyText}
-            {bodyText.length < 280 && active && <span className="inline-block w-0.5 h-3 bg-primary ml-0.5 animate-pulse" />}
-          </div>
-        </div>
+      {/* Header */}
+      <div className="flex items-center gap-2 px-3 py-1.5 text-[9px] text-white/30 uppercase tracking-wider">
+        <span className="flex-1">Feature</span>
+        <span className="w-10 text-center">Impact</span>
+        <span className="w-8 text-center">Effort</span>
+        <span className="w-10 text-center">RICE</span>
+        <span className="w-12 text-center">Status</span>
+      </div>
+
+      <div className="space-y-0.5">
+        {features.map((f, i) => (
+          <motion.div
+            key={f.name}
+            initial={{ opacity: 0, x: -10 }}
+            animate={{ opacity: active ? 1 : 0, x: active ? 0 : -10 }}
+            transition={{ delay: i * 0.15, duration: 0.3 }}
+            className={`flex items-center gap-2 px-3 py-2 rounded-lg ${i < 2 ? "bg-primary/[0.06] border border-primary/10" : "hover:bg-white/[0.03]"}`}
+          >
+            <div className="flex-1 min-w-0">
+              <div className="text-xs font-medium text-white/80 truncate">{f.name}</div>
+              <div className="text-[10px] text-white/30">{f.quarter}</div>
+            </div>
+            <div className="w-10 text-center text-[11px] text-white/60 font-medium">{f.impact}</div>
+            <div className="w-8 text-center text-[10px] text-white/40 font-mono">{f.effort}</div>
+            <div className="w-10 text-center text-[11px] text-primary font-bold">{f.rice}</div>
+            <div className={`w-12 text-center text-[9px] px-1 py-0.5 rounded-full font-medium ${
+              f.status === "approved" ? "bg-emerald-500/15 text-emerald-400" :
+              f.status === "proposed" ? "bg-blue-500/15 text-blue-400" :
+              "bg-white/[0.06] text-white/40"
+            }`}>
+              {f.status}
+            </div>
+          </motion.div>
+        ))}
       </div>
     </div>
   );
