@@ -107,6 +107,13 @@ export function AppSidebar({
   const [isSearchFocused, setIsSearchFocused] = useState(false);
   const { results: searchResults, isSearching: isGlobalSearching } = useGlobalSearch(searchQuery);
 
+  // Focus search when triggered by keyboard shortcut
+  useEffect(() => {
+    if (searchFocusTrigger && searchFocusTrigger > 0) {
+      setIsSearchFocused(true);
+    }
+  }, [searchFocusTrigger]);
+
   const hasQuery = searchQuery.trim().length > 0;
 
   // Group search results by type
