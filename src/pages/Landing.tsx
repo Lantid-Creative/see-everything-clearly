@@ -228,6 +228,9 @@ export default function Landing() {
         </div>
       </section>
 
+      {/* ─── ANIMATED DASHBOARD WALKTHROUGH ─── */}
+      <DashboardWalkthrough />
+
       {/* ─── INTERACTIVE PRODUCT MOCKUP ─── */}
       <section className="px-4 md:px-6 pb-20 md:pb-32">
         <motion.div
