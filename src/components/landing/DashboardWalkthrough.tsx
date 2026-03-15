@@ -70,18 +70,18 @@ function useTypingText(text: string, isActive: boolean, speed = 25) {
   return displayed;
 }
 
-/* ─── Scene: AI Chat ─── */
+/* ─── Scene: PRD Generation ─── */
 function ChatScene({ active }: { active: boolean }) {
   const userMsg = useTypingText(
-    "Research B2B SaaS founders in the Bay Area who recently raised Series A",
+    "Generate a PRD for our new collaborative editing feature based on the last 50 user interviews",
     active,
     30
   );
   const [showAI, setShowAI] = useState(false);
   const aiMsg = useTypingText(
-    "Found 12 founders matching your criteria. Top 3:\n\n• Sarah Chen — Acme AI (Series A, $14M)\n  AI-powered analytics for e-commerce\n\n• James Park — DataFlow ($8M Series A)\n  Real-time data pipeline management\n\n• Maria Torres — CloudSync ($11M Series A)\n  Multi-cloud infrastructure",
+    "PRD: Collaborative Editing v1.0\n\n▎ Problem\nTeams lose context switching between docs, chat, and specs. 73% of interviewed users cited 'fragmented tools' as #1 pain.\n\n▎ User Stories\n✅ As a PM, I can co-edit specs in real-time\n✅ As a designer, I can leave inline feedback\n✅ As an engineer, I can link PRD sections to tickets\n\n▎ Success Metrics\n• 40% reduction in spec review cycles\n• NPS > 50 for editing experience",
     showAI,
-    15
+    12
   );
 
   useEffect(() => {
@@ -94,10 +94,10 @@ function ChatScene({ active }: { active: boolean }) {
     <div className="flex-1 flex flex-col p-4 gap-3 overflow-hidden">
       <div className="flex items-center gap-2 pb-3 border-b border-white/[0.06]">
         <Sparkles className="h-3.5 w-3.5 text-primary" />
-        <span className="text-xs font-medium text-white/70">Lantid AI</span>
+        <span className="text-xs font-medium text-white/70">PRD Generator</span>
+        <span className="ml-auto text-[10px] bg-primary/15 text-primary px-2 py-0.5 rounded-full">From interviews</span>
       </div>
 
-      {/* User message */}
       <motion.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: active ? 1 : 0, y: active ? 0 : 10 }}
@@ -106,15 +106,14 @@ function ChatScene({ active }: { active: boolean }) {
         <div className="shrink-0 h-6 w-6 rounded-full bg-gradient-to-br from-blue-500 to-violet-500 flex items-center justify-center text-[9px] font-bold text-white">
           Y
         </div>
-        <div className="bg-white/[0.06] rounded-xl rounded-tl-sm px-3 py-2 text-xs text-white/80 max-w-[260px] leading-relaxed">
+        <div className="bg-white/[0.06] rounded-xl rounded-tl-sm px-3 py-2 text-xs text-white/80 max-w-[280px] leading-relaxed">
           {userMsg}
-          {userMsg.length < 70 && active && (
+          {userMsg.length < 80 && active && (
             <span className="inline-block w-0.5 h-3.5 bg-primary ml-0.5 animate-pulse" />
           )}
         </div>
       </motion.div>
 
-      {/* AI response */}
       <AnimatePresence>
         {showAI && (
           <motion.div
@@ -125,9 +124,9 @@ function ChatScene({ active }: { active: boolean }) {
             <div className="shrink-0 h-6 w-6 rounded-full bg-gradient-to-br from-primary to-orange-400 flex items-center justify-center">
               <Sparkles className="h-3 w-3 text-white" />
             </div>
-            <div className="bg-white/[0.04] border border-white/[0.06] rounded-xl rounded-tl-sm px-3 py-2 text-xs text-white/70 max-w-[280px] leading-relaxed whitespace-pre-wrap">
+            <div className="bg-white/[0.04] border border-white/[0.06] rounded-xl rounded-tl-sm px-3 py-2 text-xs text-white/70 max-w-[300px] leading-relaxed whitespace-pre-wrap">
               {aiMsg}
-              {aiMsg.length < 250 && (
+              {aiMsg.length < 350 && (
                 <span className="inline-block w-0.5 h-3.5 bg-primary ml-0.5 animate-pulse" />
               )}
             </div>
@@ -135,10 +134,9 @@ function ChatScene({ active }: { active: boolean }) {
         )}
       </AnimatePresence>
 
-      {/* Input bar */}
       <div className="mt-auto flex items-center gap-2 bg-white/[0.04] border border-white/[0.06] rounded-xl px-3 py-2">
         <Plus className="h-3.5 w-3.5 text-white/30" />
-        <span className="text-xs text-white/20 flex-1">Ask Lantid anything…</span>
+        <span className="text-xs text-white/20 flex-1">Ask about your product…</span>
         <Send className="h-3.5 w-3.5 text-white/20" />
       </div>
     </div>
