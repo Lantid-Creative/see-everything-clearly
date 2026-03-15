@@ -130,12 +130,7 @@ export function AppSidebar({
     <Sidebar collapsible="icon" className="border-r-0">
       <SidebarHeader className="p-3">
         <div className="flex items-center gap-2">
-          <div className="h-8 w-8 rounded-lg bg-primary flex items-center justify-center shrink-0">
-            <span className="text-primary-foreground font-bold text-sm">L</span>
-          </div>
-          {!collapsed && (
-            <span className="font-semibold text-sidebar-primary text-sm">Lantid</span>
-          )}
+          <Logo size="sm" />
         </div>
         {!collapsed && (
           <div className="mt-3 flex items-center gap-2">

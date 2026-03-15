@@ -91,10 +91,7 @@ export function AuthLayout({ children }: { children: React.ReactNode }) {
         >
           {/* Mobile logo */}
           <Link to="/" className="flex lg:hidden items-center justify-center gap-2 mb-10">
-            <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center shadow-lg shadow-primary/20">
-              <span className="text-primary-foreground font-bold text-lg">L</span>
-            </div>
-            <span className="font-semibold text-xl text-foreground">Lantid</span>
+            <Logo size="lg" />
           </Link>
 
           {children}
