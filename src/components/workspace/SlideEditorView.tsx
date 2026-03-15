@@ -1,0 +1,400 @@
+import { useState } from "react";
+import { ArrowLeft, ChevronLeft, ChevronRight, MessageSquare, Edit3, Plus, Loader2, Sparkles } from "lucide-react";
+import { SidebarTrigger } from "@/components/ui/sidebar";
+import { streamChat } from "@/lib/streamChat";
+import { useToast } from "@/hooks/use-toast";
+
+interface Slide {
+  id: string;
+  title: string;
+  subtitle?: string;
+  bullets?: string[];
+  layout: "title" | "content" | "two-column" | "image";
+  brandColor: string;
+  clientLogo?: string;
+  comments?: { text: string; resolved: boolean }[];
+}
+
+const defaultSlides: Slide[] = [
+  {
+    id: "1",
+    title: "ClosedAI × Draft",
+    subtitle: "Partnership Proposal",
+    layout: "title",
+    brandColor: "hsl(var(--primary))",
+  },
+  {
+    id: "2",
+    title: "About ClosedAI",
+    bullets: [
+      "AI-powered sales intelligence platform",
+      "10x faster lead research & enrichment",
+      "Trusted by 500+ B2B companies",
+      "SOC2 Type II certified",
+    ],
+    layout: "content",
+    brandColor: "hsl(var(--primary))",
+  },
+  {
+    id: "3",
+    title: "Why Draft + ClosedAI?",
+    bullets: [
+      "Draft's developer audience aligns with ClosedAI's ICP",
+      "Joint content marketing amplifies both brands",
+      "Technical credibility through authentic developer voices",
+      "Shared vision: democratize AI tools for builders",
+    ],
+    layout: "content",
+    brandColor: "hsl(var(--primary))",
+  },
+  {
+    id: "4",
+    title: "Proposed Partnership",
+    bullets: [
+      "Co-branded case study series (3 articles)",
+      "Guest post exchange program",
+      "Joint webinar: 'AI for Developer Productivity'",
+      "Revenue share on referred customers",
+    ],
+    layout: "content",
+    brandColor: "hsl(var(--primary))",
+  },
+  {
+    id: "5",
+    title: "Next Steps",
+    bullets: [
+      "30-min alignment call this week",
+      "Draft partnership agreement",
+      "Launch first co-branded content in 2 weeks",
+      "Measure & iterate monthly",
+    ],
+    layout: "content",
+    brandColor: "hsl(var(--primary))",
+  },
+];
+
+interface SlideEditorViewProps {
+  onBack: () => void;
+}
+
+export function SlideEditorView({ onBack }: SlideEditorViewProps) {
+  const [slides, setSlides] = useState<Slide[]>(defaultSlides);
+  const [currentSlide, setCurrentSlide] = useState(0);
+  const [editingField, setEditingField] = useState<string | null>(null);
+  const [editValue, setEditValue] = useState("");
+  const [commentInput, setCommentInput] = useState("");
+  const [showComments, setShowComments] = useState(false);
+  const [chatInput, setChatInput] = useState("");
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [chatMessages, setChatMessages] = useState<{ role: "user" | "assistant"; content: string }[]>([]);
+  const { toast } = useToast();
+
+  const slide = slides[currentSlide];
+
+  const startEdit = (field: string, value: string) => {
+    setEditingField(field);
+    setEditValue(value);
+  };
+
+  const saveEdit = () => {
+    if (!editingField) return;
+    setSlides((prev) =>
+      prev.map((s, i) => {
+        if (i !== currentSlide) return s;
+        if (editingField === "title") return { ...s, title: editValue };
+        if (editingField === "subtitle") return { ...s, subtitle: editValue };
+        if (editingField.startsWith("bullet-")) {
+          const idx = parseInt(editingField.split("-")[1]);
+          const bullets = [...(s.bullets || [])];
+          bullets[idx] = editValue;
+          return { ...s, bullets };
+        }
+        return s;
+      })
+    );
+    setEditingField(null);
+  };
+
+  const addComment = () => {
+    if (!commentInput.trim()) return;
+    setSlides((prev) =>
+      prev.map((s, i) =>
+        i === currentSlide
+          ? { ...s, comments: [...(s.comments || []), { text: commentInput, resolved: false }] }
+          : s
+      )
+    );
+    setCommentInput("");
+    toast({ title: "Comment added", description: "Carson will address your feedback." });
+  };
+
+  const handleChat = async () => {
+    if (!chatInput.trim() || isGenerating) return;
+    const userMsg = { role: "user" as const, content: chatInput };
+    setChatMessages((prev) => [...prev, userMsg]);
+    setChatInput("");
+    setIsGenerating(true);
+
+    setChatMessages((prev) => [...prev, { role: "assistant", content: "" }]);
+    let fullContent = "";
+
+    try {
+      await streamChat({
+        messages: [
+          { role: "user", content: `You are Carson helping edit a slide deck. Current slide ${currentSlide + 1}/${slides.length}: "${slide.title}". User request: ${chatInput}. Respond concisely about what you changed.` },
+        ],
+        onDelta: (chunk) => {
+          fullContent += chunk;
+          setChatMessages((prev) => {
+            const msgs = [...prev];
+            msgs[msgs.length - 1] = { role: "assistant", content: fullContent };
+            return msgs;
+          });
+        },
+        onDone: () => {},
+      });
+    } catch {
+      setChatMessages((prev) => {
+        const msgs = [...prev];
+        msgs[msgs.length - 1] = { role: "assistant", content: "I'll address that feedback on the slide." };
+        return msgs;
+      });
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
+  return (
+    <div className="flex flex-col h-screen">
+      <header className="h-12 flex items-center px-4 border-b shrink-0 justify-between">
+        <div className="flex items-center gap-3">
+          <SidebarTrigger />
+          <button onClick={onBack} className="h-7 w-7 rounded-md hover:bg-secondary flex items-center justify-center transition-colors">
+            <ArrowLeft className="h-4 w-4 text-muted-foreground" />
+          </button>
+          <h1 className="text-sm font-semibold text-foreground">Slide Editor</h1>
+          <span className="text-xs text-muted-foreground bg-secondary px-2 py-0.5 rounded-full">
+            {currentSlide + 1}/{slides.length} slides
+          </span>
+        </div>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => setShowComments(!showComments)}
+            className={`h-7 px-2 rounded-md text-xs flex items-center gap-1 transition-colors ${showComments ? "bg-primary text-primary-foreground" : "hover:bg-secondary text-muted-foreground"}`}
+          >
+            <MessageSquare className="h-3.5 w-3.5" />
+            Comments
+          </button>
+        </div>
+      </header>
+
+      <div className="flex-1 flex min-h-0">
+        {/* Slide thumbnails */}
+        <div className="w-[140px] border-r overflow-y-auto p-2 space-y-2 shrink-0">
+          {slides.map((s, i) => (
+            <button
+              key={s.id}
+              onClick={() => setCurrentSlide(i)}
+              className={`w-full aspect-[16/9] rounded-lg border-2 p-2 text-left transition-colors ${
+                i === currentSlide ? "border-primary bg-primary/5" : "border-border hover:border-muted-foreground/30"
+              }`}
+            >
+              <p className="text-[7px] font-semibold text-foreground truncate">{s.title}</p>
+              {s.subtitle && <p className="text-[6px] text-muted-foreground truncate">{s.subtitle}</p>}
+              {s.comments && s.comments.length > 0 && (
+                <div className="mt-1 flex items-center gap-0.5">
+                  <MessageSquare className="h-2 w-2 text-primary" />
+                  <span className="text-[6px] text-primary">{s.comments.length}</span>
+                </div>
+              )}
+            </button>
+          ))}
+          <button className="w-full aspect-[16/9] rounded-lg border-2 border-dashed border-border hover:border-muted-foreground/30 flex items-center justify-center transition-colors">
+            <Plus className="h-4 w-4 text-muted-foreground" />
+          </button>
+        </div>
+
+        {/* Main slide view */}
+        <div className="flex-1 flex flex-col items-center justify-center p-8 bg-muted/30">
+          <div className="w-full max-w-3xl aspect-[16/9] bg-background rounded-xl shadow-lg border overflow-hidden flex flex-col">
+            {/* Brand bar */}
+            <div className="h-1.5 w-full bg-primary" />
+            <div className="flex-1 p-8 flex flex-col justify-center">
+              {slide.layout === "title" ? (
+                <div className="text-center space-y-3">
+                  {editingField === "title" ? (
+                    <input
+                      value={editValue}
+                      onChange={(e) => setEditValue(e.target.value)}
+                      onBlur={saveEdit}
+                      onKeyDown={(e) => e.key === "Enter" && saveEdit()}
+                      autoFocus
+                      className="text-2xl font-bold text-foreground text-center w-full bg-transparent border-b-2 border-primary focus:outline-none"
+                    />
+                  ) : (
+                    <h2
+                      onClick={() => startEdit("title", slide.title)}
+                      className="text-2xl font-bold text-foreground cursor-pointer hover:bg-primary/5 rounded-lg px-2 py-1 transition-colors group"
+                    >
+                      {slide.title}
+                      <Edit3 className="h-3.5 w-3.5 inline ml-2 opacity-0 group-hover:opacity-50" />
+                    </h2>
+                  )}
+                  {editingField === "subtitle" ? (
+                    <input
+                      value={editValue}
+                      onChange={(e) => setEditValue(e.target.value)}
+                      onBlur={saveEdit}
+                      onKeyDown={(e) => e.key === "Enter" && saveEdit()}
+                      autoFocus
+                      className="text-base text-muted-foreground text-center w-full bg-transparent border-b border-primary focus:outline-none"
+                    />
+                  ) : (
+                    <p
+                      onClick={() => startEdit("subtitle", slide.subtitle || "")}
+                      className="text-base text-muted-foreground cursor-pointer hover:bg-primary/5 rounded-lg px-2 py-1 transition-colors"
+                    >
+                      {slide.subtitle || "Click to add subtitle"}
+                    </p>
+                  )}
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {editingField === "title" ? (
+                    <input
+                      value={editValue}
+                      onChange={(e) => setEditValue(e.target.value)}
+                      onBlur={saveEdit}
+                      onKeyDown={(e) => e.key === "Enter" && saveEdit()}
+                      autoFocus
+                      className="text-lg font-bold text-foreground w-full bg-transparent border-b-2 border-primary focus:outline-none"
+                    />
+                  ) : (
+                    <h3
+                      onClick={() => startEdit("title", slide.title)}
+                      className="text-lg font-bold text-foreground cursor-pointer hover:bg-primary/5 rounded-lg px-2 py-1 transition-colors group"
+                    >
+                      {slide.title}
+                      <Edit3 className="h-3 w-3 inline ml-2 opacity-0 group-hover:opacity-50" />
+                    </h3>
+                  )}
+                  <ul className="space-y-2 pl-2">
+                    {slide.bullets?.map((bullet, bi) => (
+                      <li key={bi} className="flex items-start gap-2">
+                        <span className="h-1.5 w-1.5 rounded-full bg-primary mt-2 shrink-0" />
+                        {editingField === `bullet-${bi}` ? (
+                          <input
+                            value={editValue}
+                            onChange={(e) => setEditValue(e.target.value)}
+                            onBlur={saveEdit}
+                            onKeyDown={(e) => e.key === "Enter" && saveEdit()}
+                            autoFocus
+                            className="flex-1 text-sm text-foreground bg-transparent border-b border-primary focus:outline-none"
+                          />
+                        ) : (
+                          <span
+                            onClick={() => startEdit(`bullet-${bi}`, bullet)}
+                            className="text-sm text-foreground cursor-pointer hover:bg-primary/5 rounded px-1 transition-colors"
+                          >
+                            {bullet}
+                          </span>
+                        )}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </div>
+            {/* Footer branding */}
+            <div className="px-6 py-2 flex items-center justify-between border-t">
+              <span className="text-[9px] text-muted-foreground font-medium">ClosedAI</span>
+              <span className="text-[9px] text-muted-foreground">Slide {currentSlide + 1}</span>
+            </div>
+          </div>
+
+          {/* Navigation */}
+          <div className="flex items-center gap-3 mt-4">
+            <button
+              onClick={() => setCurrentSlide(Math.max(0, currentSlide - 1))}
+              disabled={currentSlide === 0}
+              className="h-8 w-8 rounded-full border flex items-center justify-center hover:bg-secondary transition-colors disabled:opacity-30"
+            >
+              <ChevronLeft className="h-4 w-4" />
+            </button>
+            <span className="text-xs text-muted-foreground">
+              {currentSlide + 1} / {slides.length}
+            </span>
+            <button
+              onClick={() => setCurrentSlide(Math.min(slides.length - 1, currentSlide + 1))}
+              disabled={currentSlide === slides.length - 1}
+              className="h-8 w-8 rounded-full border flex items-center justify-center hover:bg-secondary transition-colors disabled:opacity-30"
+            >
+              <ChevronRight className="h-4 w-4" />
+            </button>
+          </div>
+        </div>
+
+        {/* Comments & Chat Panel */}
+        {showComments && (
+          <div className="w-[280px] border-l flex flex-col shrink-0">
+            <div className="px-4 py-2.5 border-b">
+              <h2 className="text-xs font-semibold text-foreground uppercase tracking-wider">Comments</h2>
+            </div>
+            <div className="flex-1 overflow-y-auto p-3 space-y-2">
+              {(slide.comments || []).map((c, i) => (
+                <div key={i} className="bg-secondary rounded-lg px-3 py-2 text-xs text-foreground">
+                  {c.text}
+                </div>
+              ))}
+              {(slide.comments || []).length === 0 && (
+                <p className="text-xs text-muted-foreground text-center py-4">No comments on this slide</p>
+              )}
+            </div>
+            <div className="border-t p-3">
+              <div className="flex items-center gap-2">
+                <input
+                  type="text"
+                  value={commentInput}
+                  onChange={(e) => setCommentInput(e.target.value)}
+                  onKeyDown={(e) => e.key === "Enter" && addComment()}
+                  placeholder="Leave a comment..."
+                  className="flex-1 text-xs bg-secondary rounded-md px-2.5 py-1.5 text-foreground placeholder:text-muted-foreground focus:outline-none"
+                />
+                <button
+                  onClick={addComment}
+                  disabled={!commentInput.trim()}
+                  className="text-xs text-primary font-medium disabled:opacity-40"
+                >
+                  Add
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Bottom chat */}
+      <div className="border-t px-4 py-2.5 shrink-0 bg-card">
+        <div className="flex items-center gap-2">
+          <Sparkles className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+          <input
+            type="text"
+            value={chatInput}
+            onChange={(e) => setChatInput(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && handleChat()}
+            placeholder="Ask Carson to edit slides..."
+            disabled={isGenerating}
+            className="flex-1 text-sm bg-transparent text-foreground placeholder:text-muted-foreground focus:outline-none disabled:opacity-60"
+          />
+          <button
+            onClick={handleChat}
+            disabled={!chatInput.trim() || isGenerating}
+            className="h-7 w-7 rounded-md bg-primary text-primary-foreground flex items-center justify-center hover:bg-primary/90 transition-colors disabled:opacity-40"
+          >
+            {isGenerating ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Edit3 className="h-3.5 w-3.5" />}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}

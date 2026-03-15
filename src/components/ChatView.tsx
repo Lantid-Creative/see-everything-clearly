@@ -1,14 +1,15 @@
 import { useState, useRef, useEffect, useCallback } from "react";
-import { Send, Sparkles, ArrowRight, Loader2 } from "lucide-react";
+import { Send, Sparkles, ArrowRight, Loader2, LayoutGrid, Presentation, GitBranch, Table } from "lucide-react";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { streamChat } from "@/lib/streamChat";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import type { ChatMessage, Conversation } from "@/hooks/useConversations";
 import { useToast } from "@/hooks/use-toast";
+import type { ViewMode } from "@/pages/Index";
 
 interface ChatViewProps {
-  onOpenWorkspace: () => void;
+  onOpenWorkspace: (type?: ViewMode) => void;
   conversation: Conversation;
   onAddMessage: (msg: ChatMessage) => void;
   onUpdateLastAssistant: (content: string, isStreaming: boolean) => void;
@@ -36,6 +37,31 @@ export function ChatView({
     scrollToBottom();
   }, [conversation.messages, scrollToBottom]);
 
+  const detectWorkspaceType = (content: string): { action: string; type: ViewMode } | null => {
+    const lower = content.toLowerCase();
+    if (lower.includes("slide") || lower.includes("presentation") || lower.includes("deck")) {
+      return { action: "open_slides", type: "slides" };
+    }
+    if (lower.includes("workflow") || lower.includes("automat") || lower.includes("deploy")) {
+      return { action: "open_workflow", type: "workflow" };
+    }
+    if (lower.includes("spreadsheet") || lower.includes("table") || lower.includes("lead")) {
+      if (lower.includes("found") || lower.includes("research") || lower.includes("pulling")) {
+        return { action: "open_spreadsheet", type: "spreadsheet" };
+      }
+    }
+    if (
+      lower.includes("outreach") ||
+      lower.includes("workspace") ||
+      lower.includes("email") ||
+      lower.includes("set up your") ||
+      lower.includes("ready for you")
+    ) {
+      return { action: "open_workspace", type: "workspace" };
+    }
+    return null;
+  };
+
   const handleSend = async () => {
     const text = input.trim();
     if (!text || isLoading) return;
@@ -49,7 +75,6 @@ export function ChatView({
     setInput("");
     setIsLoading(true);
 
-    // Create placeholder assistant message
     const assistantId = `assistant-${Date.now()}`;
     const assistantMsg: ChatMessage = {
       id: assistantId,
@@ -77,18 +102,16 @@ export function ChatView({
         onDone: () => {
           onUpdateLastAssistant(fullContent, false);
 
-          // Detect if the response mentions workspace/outreach/research completion
-          const lower = fullContent.toLowerCase();
-          if (
-            lower.includes("workspace") ||
-            lower.includes("outreach dashboard") ||
-            lower.includes("set up your") ||
-            lower.includes("ready for you")
-          ) {
+          // Detect workspace type from response
+          const ws = detectWorkspaceType(fullContent);
+          if (ws) {
             setTimeout(() => {
-              onSetAction(assistantId, "open_workspace");
+              onSetAction(assistantId, ws.action);
             }, 300);
           }
+
+          // Detect research action
+          const lower = fullContent.toLowerCase();
           if (
             lower.includes("research") &&
             (lower.includes("found") || lower.includes("complete") || lower.includes("identified"))
@@ -118,6 +141,13 @@ export function ChatView({
     }
   };
 
+  const actionConfig: Record<string, { label: string; icon: any; type: ViewMode }> = {
+    open_workspace: { label: "Open outreach workspace", icon: LayoutGrid, type: "workspace" },
+    open_slides: { label: "Open slide editor", icon: Presentation, type: "slides" },
+    open_workflow: { label: "Open workflow builder", icon: GitBranch, type: "workflow" },
+    open_spreadsheet: { label: "Open spreadsheet", icon: Table, type: "spreadsheet" },
+  };
+
   return (
     <div className="flex flex-col h-screen">
       {/* Header */}
@@ -130,7 +160,7 @@ export function ChatView({
           <span className="text-muted-foreground text-xs">·</span>
           <div className="flex items-center gap-1 text-xs text-muted-foreground">
             <Sparkles className="h-3 w-3" />
-            <span>Gemini</span>
+            <span>Kimi-K2.5</span>
           </div>
         </div>
       </header>
@@ -168,12 +198,16 @@ export function ChatView({
                     <span>Used spreadsheet research</span>
                   </div>
                 )}
-                {msg.action === "open_workspace" && (
+                {msg.action && actionConfig[msg.action] && (
                   <button
-                    onClick={onOpenWorkspace}
+                    onClick={() => onOpenWorkspace(actionConfig[msg.action!].type)}
                     className="mt-3 flex items-center gap-2 text-xs font-medium bg-foreground/10 hover:bg-foreground/15 rounded-lg px-3 py-2 transition-colors"
                   >
-                    <span>Open workspace</span>
+                    {(() => {
+                      const Icon = actionConfig[msg.action!].icon;
+                      return <Icon className="h-3.5 w-3.5" />;
+                    })()}
+                    <span>{actionConfig[msg.action!].label}</span>
                     <ArrowRight className="h-3 w-3" />
                   </button>
                 )}
