@@ -50,10 +50,10 @@ export function ResearchPanel({ lead, chatMessages = [] }: ResearchPanelProps) {
               }`}
             >
               <p>{msg.content}</p>
-              {"action" in msg && msg.action && (
+              {"action" in msg && (msg as any).action && (
                 <div className="mt-1.5 flex items-center gap-1 text-[10px] opacity-60">
                   <Sparkles className="h-2.5 w-2.5" />
-                  <span>{msg.action}</span>
+                  <span>{String((msg as any).action)}</span>
                 </div>
               )}
             </div>
