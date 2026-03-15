@@ -11,6 +11,7 @@ interface SpreadsheetViewProps {
 
 export function SpreadsheetView({ onBack }: SpreadsheetViewProps) {
   const { leads, loaded } = useSpreadsheetLeads();
+  const isMobile = useIsMobile();
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedRows, setSelectedRows] = useState<Set<string>>(new Set());
   const [chatInput, setChatInput] = useState("");
