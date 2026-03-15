@@ -8,7 +8,7 @@ import { SpreadsheetView } from "@/components/workspace/SpreadsheetView";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { useConversations } from "@/hooks/useConversations";
 
-export type ViewMode = "chat" | "workspace" | "slides" | "workflow" | "spreadsheet";
+export type ViewMode = "chat" | "workspace" | "slides" | "workflow" | "spreadsheet" | "team";
 
 const Index = () => {
   const [viewMode, setViewMode] = useState<ViewMode>("chat");
