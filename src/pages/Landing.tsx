@@ -40,7 +40,7 @@ const TABS = [
     label: "Discovery",
     icon: Search,
     title: "Ask what to build next",
-    description: "Upload customer interviews, NPS data, and support tickets. Carson synthesizes everything and surfaces the opportunities worth pursuing.",
+    description: "Upload customer interviews, NPS data, and support tickets. Lantid synthesizes everything and surfaces the opportunities worth pursuing.",
     mockup: {
       userMessage: "Based on our last 50 customer interviews, what's the #1 feature we should build?",
       aiResponse: `**Top Priority: Collaborative Workspaces**\n\n📊 Mentioned by **34 of 50** customers (68%)\n\n**Key Signals:**\n• "I need to share findings with my team" — 23 mentions\n• "We waste time re-doing the same research" — 18 mentions\n• "No single source of truth for product decisions" — 15 mentions\n\n**Impact Score: 9.2/10**\nHigh user demand + low implementation complexity + strong retention signal`,
