@@ -149,13 +149,13 @@ export default function Landing() {
           </div>
           <div className="flex items-center gap-3">
             <Link
-              to="/auth"
+              to="/login"
               className="text-sm text-white/60 hover:text-white transition-colors hidden sm:block"
             >
               Login
             </Link>
             <Link
-              to="/auth"
+              to="/signup"
               className="text-sm font-medium bg-white text-[#0a0a0f] px-4 py-2 rounded-lg hover:bg-white/90 transition-colors"
             >
               Get started
