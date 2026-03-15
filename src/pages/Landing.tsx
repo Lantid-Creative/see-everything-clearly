@@ -448,6 +448,224 @@ export default function Landing() {
         </div>
       </section>
 
+      {/* ─── PRICING ─── */}
+      <section id="pricing" className="py-20 md:py-32 px-6 border-t border-white/[0.06]">
+        <motion.div
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: "-80px" }}
+          variants={stagger}
+          className="max-w-6xl mx-auto"
+        >
+          <motion.div variants={fadeUp} custom={0} className="text-center mb-12 md:mb-16">
+            <p className="text-xs font-medium text-primary uppercase tracking-widest mb-4">Pricing</p>
+            <h2 className="text-2xl md:text-4xl font-serif tracking-tight leading-[1.15]">
+              Simple,{" "}
+              <span className="italic bg-gradient-to-r from-primary to-orange-300 bg-clip-text text-transparent">
+                token-based
+              </span>{" "}
+              pricing
+            </h2>
+            <p className="mt-4 text-white/50 max-w-lg mx-auto text-sm md:text-base leading-relaxed">
+              Pay for what you use. Every AI discovery, PRD generation, and workflow execution consumes tokens. Buy more anytime.
+            </p>
+
+            {/* Billing toggle */}
+            <div className="mt-8 inline-flex items-center gap-0 bg-white/[0.04] border border-white/[0.08] rounded-full p-1">
+              <button
+                onClick={() => setBilling("monthly")}
+                className={`px-5 py-2 rounded-full text-sm font-medium transition-all ${
+                  billing === "monthly"
+                    ? "bg-primary text-white shadow-lg shadow-primary/25"
+                    : "text-white/50 hover:text-white"
+                }`}
+              >
+                Monthly
+              </button>
+              <button
+                onClick={() => setBilling("yearly")}
+                className={`px-5 py-2 rounded-full text-sm font-medium transition-all ${
+                  billing === "yearly"
+                    ? "bg-primary text-white shadow-lg shadow-primary/25"
+                    : "text-white/50 hover:text-white"
+                }`}
+              >
+                Yearly <span className="text-xs opacity-70">(-20%)</span>
+              </button>
+            </div>
+          </motion.div>
+
+          {/* Plan cards */}
+          <div className="grid md:grid-cols-3 gap-5 mb-10">
+            {[
+              {
+                name: "Starter",
+                desc: "For solo PMs and founders exploring product-market fit.",
+                monthlyPrice: 29,
+                yearlyPrice: 278,
+                tokens: "5,000",
+                features: [
+                  "5,000 tokens / month",
+                  "AI Discovery & synthesis",
+                  "PRD generation",
+                  "3 active workflows",
+                  "Email support",
+                ],
+                cta: "Get started",
+                highlighted: false,
+              },
+              {
+                name: "Pro",
+                desc: "For product teams shipping fast with AI-native specs.",
+                monthlyPrice: 79,
+                yearlyPrice: 758,
+                tokens: "25,000",
+                features: [
+                  "25,000 tokens / month",
+                  "Everything in Starter",
+                  "Unlimited workflows",
+                  "Team collaboration (up to 10)",
+                  "Slide deck generation",
+                  "Priority support",
+                ],
+                cta: "Start free trial",
+                highlighted: true,
+              },
+              {
+                name: "Business",
+                desc: "For scaling teams that need volume and control.",
+                monthlyPrice: 199,
+                yearlyPrice: 1910,
+                tokens: "100,000",
+                features: [
+                  "100,000 tokens / month",
+                  "Everything in Pro",
+                  "Unlimited team members",
+                  "Advanced analytics",
+                  "SSO & audit logs",
+                  "Dedicated account manager",
+                ],
+                cta: "Contact sales",
+                highlighted: false,
+              },
+            ].map((plan, i) => (
+              <motion.div
+                key={plan.name}
+                variants={fadeUp}
+                custom={i + 1}
+                className={`relative rounded-2xl p-[1px] ${
+                  plan.highlighted
+                    ? "bg-gradient-to-b from-primary/60 to-primary/10"
+                    : "bg-white/[0.06]"
+                }`}
+              >
+                {plan.highlighted && (
+                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-primary text-white text-[10px] font-semibold uppercase tracking-widest px-4 py-1 rounded-full">
+                    Most popular
+                  </div>
+                )}
+                <div className="bg-[#0e0e14] rounded-2xl p-6 md:p-8 h-full flex flex-col">
+                  <h3 className="text-lg font-semibold text-white">{plan.name}</h3>
+                  <p className="text-xs text-white/40 mt-1 leading-relaxed">{plan.desc}</p>
+
+                  <div className="mt-6 mb-6">
+                    <div className="flex items-baseline gap-1">
+                      <span className="text-3xl md:text-4xl font-bold text-white">
+                        ${billing === "monthly" ? plan.monthlyPrice : plan.yearlyPrice}
+                      </span>
+                      <span className="text-sm text-white/30">
+                        /{billing === "monthly" ? "mo" : "yr"}
+                      </span>
+                    </div>
+                    <p className="text-xs text-white/30 mt-1">{plan.tokens} tokens included</p>
+                  </div>
+
+                  <ul className="space-y-3 flex-1">
+                    {plan.features.map((f) => (
+                      <li key={f} className="flex items-start gap-2.5 text-sm text-white/60">
+                        <Check className="h-4 w-4 text-primary shrink-0 mt-0.5" />
+                        {f}
+                      </li>
+                    ))}
+                  </ul>
+
+                  <Link
+                    to="/auth"
+                    className={`mt-8 w-full inline-flex items-center justify-center gap-2 font-medium text-sm px-6 py-3 rounded-xl transition-colors ${
+                      plan.highlighted
+                        ? "bg-primary text-white hover:bg-primary/90"
+                        : "bg-white/[0.06] text-white hover:bg-white/[0.1] border border-white/[0.08]"
+                    }`}
+                  >
+                    {plan.cta}
+                    <ArrowRight className="h-4 w-4" />
+                  </Link>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+
+          {/* Buy more tokens */}
+          <motion.div variants={fadeUp} custom={4} className="text-center mb-16">
+            <div className="inline-flex items-center gap-2 bg-white/[0.04] border border-white/[0.08] rounded-full px-5 py-2.5 text-sm text-white/50">
+              <Zap className="h-4 w-4 text-primary" />
+              Need more? Buy additional token packs anytime —{" "}
+              <span className="text-white font-medium">$10 per 1,000 tokens</span>
+            </div>
+          </motion.div>
+
+          {/* Enterprise card */}
+          <motion.div variants={fadeUp} custom={5}>
+            <div className="relative rounded-2xl overflow-hidden">
+              <div className="absolute inset-0 bg-gradient-to-r from-violet-500/10 via-primary/10 to-violet-500/10 pointer-events-none" />
+              <div className="absolute inset-0 border border-white/[0.08] rounded-2xl pointer-events-none" />
+
+              <div className="relative p-8 md:p-12 flex flex-col md:flex-row items-start md:items-center gap-8">
+                <div className="flex-1">
+                  <div className="flex items-center gap-3 mb-3">
+                    <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-violet-500 to-primary flex items-center justify-center">
+                      <Plug className="h-5 w-5 text-white" />
+                    </div>
+                    <h3 className="text-xl font-semibold text-white">Enterprise</h3>
+                  </div>
+                  <p className="text-sm text-white/50 leading-relaxed max-w-xl">
+                    Integrate Lantid directly into your platform via our API. Monitor user behavior,
+                    analyze product gaps, and surface improvement opportunities — all visible through
+                    our dashboard or your own plugin interface.
+                  </p>
+                  <div className="mt-5 grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    {[
+                      "Full API access & SDKs",
+                      "Embed analysis in your platform",
+                      "Plugin dashboard for your users",
+                      "Custom token volume & SLA",
+                      "Dedicated engineering support",
+                      "On-prem deployment available",
+                    ].map((f) => (
+                      <div key={f} className="flex items-center gap-2 text-sm text-white/60">
+                        <Check className="h-3.5 w-3.5 text-violet-400 shrink-0" />
+                        {f}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                <div className="shrink-0 text-center md:text-right">
+                  <p className="text-2xl font-bold text-white">Custom</p>
+                  <p className="text-xs text-white/30 mt-1">Tailored to your scale</p>
+                  <a
+                    href="mailto:enterprise@lantid.ai"
+                    className="mt-4 inline-flex items-center gap-2 bg-gradient-to-r from-violet-500 to-primary text-white font-medium text-sm px-6 py-3 rounded-xl hover:opacity-90 transition-opacity"
+                  >
+                    <LayoutDashboard className="h-4 w-4" />
+                    Talk to sales
+                  </a>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        </motion.div>
+      </section>
+
       {/* ─── CTA BANNER ─── */}
       <section className="py-20 md:py-32 px-6 border-t border-white/[0.06]">
         <motion.div
