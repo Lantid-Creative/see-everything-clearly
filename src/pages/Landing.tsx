@@ -313,7 +313,7 @@ export default function Landing() {
                     {activeTabData.description}
                   </p>
                   <Link
-                    to="/auth"
+                    to="/signup"
                     className="mt-6 inline-flex items-center gap-1.5 text-sm font-medium text-primary hover:text-primary/80 transition-colors"
                   >
                     Try it now <ChevronRight className="h-3.5 w-3.5" />
