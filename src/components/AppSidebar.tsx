@@ -38,7 +38,7 @@ import {
   SidebarFooter,
   useSidebar,
 } from "@/components/ui/sidebar";
-import { useState } from "react";
+
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import type { ViewMode } from "@/pages/Index";
 import type { Conversation } from "@/hooks/useConversations";
