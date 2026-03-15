@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { DashboardWalkthrough } from "@/components/landing/DashboardWalkthrough";
 import { motion, AnimatePresence } from "framer-motion";
 import { Link } from "react-router-dom";
 import {
@@ -226,6 +227,9 @@ export default function Landing() {
           </motion.div>
         </div>
       </section>
+
+      {/* ─── ANIMATED DASHBOARD WALKTHROUGH ─── */}
+      <DashboardWalkthrough />
 
       {/* ─── INTERACTIVE PRODUCT MOCKUP ─── */}
       <section className="px-4 md:px-6 pb-20 md:pb-32">
