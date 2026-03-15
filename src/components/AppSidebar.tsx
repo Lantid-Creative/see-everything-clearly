@@ -294,23 +294,15 @@ export function AppSidebar({
                 </SidebarGroupLabel>
                 <SidebarGroupContent>
                   <SidebarMenu>
-                    {teamMembers.map((member) => (
-                      <SidebarMenuItem key={member.name}>
-                        <SidebarMenuButton className="text-sidebar-foreground hover:text-sidebar-primary hover:bg-sidebar-accent text-xs">
-                          <Avatar className="h-5 w-5">
-                            <AvatarFallback className={`${member.color} text-[9px] font-medium text-primary-foreground`}>
-                              {member.initials}
-                            </AvatarFallback>
-                          </Avatar>
-                          <span className="truncate">
-                            {member.name}
-                            {member.tag && (
-                              <span className="text-sidebar-muted ml-1">{member.tag}</span>
-                            )}
-                          </span>
-                        </SidebarMenuButton>
-                      </SidebarMenuItem>
-                    ))}
+                    <SidebarMenuItem>
+                      <SidebarMenuButton
+                        onClick={() => onSwitchView("team" as any)}
+                        className="text-sidebar-foreground hover:text-sidebar-primary hover:bg-sidebar-accent text-xs"
+                      >
+                        <Users className="h-4 w-4" />
+                        <span>Manage Team</span>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
                   </SidebarMenu>
                 </SidebarGroupContent>
               </SidebarGroup>
