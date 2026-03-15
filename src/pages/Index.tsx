@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { WelcomeModal } from "@/components/WelcomeModal";
 import { AppSidebar } from "@/components/AppSidebar";
 import { ChatView } from "@/components/ChatView";
@@ -13,11 +13,13 @@ import { useConversations } from "@/hooks/useConversations";
 import { GettingStartedTour } from "@/components/GettingStartedTour";
 import { OnboardingChecklist } from "@/components/OnboardingChecklist";
 import { DashboardView } from "@/components/DashboardView";
+import { useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
 
 export type ViewMode = "dashboard" | "chat" | "workspace" | "slides" | "workflow" | "spreadsheet" | "team" | "settings";
 
 const Index = () => {
   const [viewMode, setViewMode] = useState<ViewMode>("dashboard");
+  const [searchFocusTrigger, setSearchFocusTrigger] = useState(0);
   const {
     conversations,
     activeConversation,
@@ -28,8 +30,24 @@ const Index = () => {
     updateLastAssistantMessage,
     setMessageAction,
     deleteConversation,
+    updateConversationTitle,
     loaded,
   } = useConversations();
+
+  const handleNewChat = useCallback(() => {
+    createConversation();
+    setViewMode("chat");
+  }, [createConversation]);
+
+  const handleToggleSearch = useCallback(() => {
+    setSearchFocusTrigger((prev) => prev + 1);
+  }, []);
+
+  useKeyboardShortcuts({
+    onNavigate: setViewMode,
+    onNewChat: handleNewChat,
+    onToggleSearch: handleToggleSearch,
+  });
 
   if (!loaded) {
     return (
@@ -45,10 +63,7 @@ const Index = () => {
         return (
           <DashboardView
             onNavigate={setViewMode}
-            onNewChat={() => {
-              createConversation();
-              setViewMode("chat");
-            }}
+            onNewChat={handleNewChat}
           />
         );
       case "workspace":
@@ -75,6 +90,9 @@ const Index = () => {
             onSetAction={(messageId, action) =>
               setMessageAction(activeConversationId, messageId, action)
             }
+            onUpdateTitle={(title) =>
+              updateConversationTitle(activeConversationId, title)
+            }
           />
         );
     }
@@ -95,11 +113,9 @@ const Index = () => {
             setActiveConversationId(id);
             setViewMode("chat");
           }}
-          onNewConversation={() => {
-            createConversation();
-            setViewMode("chat");
-          }}
+          onNewConversation={handleNewChat}
           onDeleteConversation={deleteConversation}
+          searchFocusTrigger={searchFocusTrigger}
         />
         <main className="flex-1 flex flex-col min-w-0">
           {renderView()}

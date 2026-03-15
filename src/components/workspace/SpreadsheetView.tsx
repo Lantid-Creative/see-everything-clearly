@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { ArrowLeft, Loader2, Sparkles, Search, Filter } from "lucide-react";
+import { ArrowLeft, Loader2, Sparkles, Search, Filter, Download } from "lucide-react";
+import { exportAsCSV } from "@/lib/exportUtils";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { streamChat } from "@/lib/streamChat";
@@ -116,6 +117,19 @@ export function SpreadsheetView({ onBack }: SpreadsheetViewProps) {
               className="h-8 pl-8 pr-3 text-xs bg-secondary rounded-lg text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary w-32 md:w-48"
             />
           </div>
+          {!isMobile && (
+            <button
+              onClick={() => {
+                const headers = ["Name", "Company", "Title", "Email", "LinkedIn", "Status", "Source"];
+                const rows = leads.map((l) => [l.name, l.company, l.title, l.email, l.linkedin, l.status, l.source]);
+                exportAsCSV("lead-research", headers, rows);
+              }}
+              className="h-8 px-3 text-xs text-muted-foreground hover:text-foreground border rounded-lg flex items-center gap-1.5 transition-colors"
+            >
+              <Download className="h-3.5 w-3.5" />
+              Export CSV
+            </button>
+          )}
           {!isMobile && (
             <button className="h-8 px-3 text-xs text-muted-foreground hover:text-foreground border rounded-lg flex items-center gap-1.5 transition-colors">
               <Filter className="h-3.5 w-3.5" />

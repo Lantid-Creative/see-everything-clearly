@@ -237,6 +237,20 @@ export function useConversations() {
     []
   );
 
+  const updateConversationTitle = useCallback(
+    (convId: string, title: string) => {
+      setConversations((prev) =>
+        prev.map((c) => (c.id === convId ? { ...c, title } : c))
+      );
+      supabase
+        .from("conversations")
+        .update({ title, updated_at: new Date().toISOString() })
+        .eq("id", convId)
+        .then();
+    },
+    []
+  );
+
   const deleteConversation = useCallback(
     async (convId: string) => {
       setConversations((prev) => prev.filter((c) => c.id !== convId));
@@ -264,6 +278,7 @@ export function useConversations() {
     updateLastAssistantMessage,
     setMessageAction,
     deleteConversation,
+    updateConversationTitle,
     loaded,
   };
 }

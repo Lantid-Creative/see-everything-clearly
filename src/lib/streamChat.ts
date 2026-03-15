@@ -1,5 +1,16 @@
 type Msg = { role: "user" | "assistant" | "system"; content: string };
 
+export interface WorkspaceContext {
+  totalLeads: number;
+  totalConversations: number;
+  totalWorkflows: number;
+  emailsSent: number;
+  teamMembers: number;
+  userRole?: string | null;
+  company?: string | null;
+  productGoals?: string | null;
+}
+
 const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/lantid-chat`;
 
 export async function streamChat({
@@ -7,11 +18,13 @@ export async function streamChat({
   onDelta,
   onDone,
   signal,
+  context,
 }: {
   messages: Msg[];
   onDelta: (deltaText: string) => void;
   onDone: () => void;
   signal?: AbortSignal;
+  context?: WorkspaceContext;
 }) {
   const resp = await fetch(CHAT_URL, {
     method: "POST",
@@ -19,7 +32,7 @@ export async function streamChat({
       "Content-Type": "application/json",
       Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
     },
-    body: JSON.stringify({ messages }),
+    body: JSON.stringify({ messages, context }),
     signal,
   });
 
@@ -84,4 +97,33 @@ export async function streamChat({
   }
 
   onDone();
+}
+
+/** Generate a short title for a conversation using AI (non-streaming) */
+export async function generateTitle(firstUserMessage: string): Promise<string> {
+  try {
+    const resp = await fetch(CHAT_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+      },
+      body: JSON.stringify({
+        messages: [
+          {
+            role: "user",
+            content: firstUserMessage,
+          },
+        ],
+        generateTitle: true,
+      }),
+    });
+
+    if (!resp.ok) return firstUserMessage.slice(0, 40);
+
+    const data = await resp.json();
+    return data.title || firstUserMessage.slice(0, 40);
+  } catch {
+    return firstUserMessage.slice(0, 40) + (firstUserMessage.length > 40 ? "..." : "");
+  }
 }

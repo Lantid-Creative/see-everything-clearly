@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import {
   Home,
   Inbox,
@@ -20,7 +21,6 @@ import {
   LayoutGrid,
   Table,
 } from "lucide-react";
-import { useState } from "react";
 import { Logo } from "@/components/Logo";
 import { useAuth } from "@/hooks/useAuth";
 import { useTheme } from "@/hooks/useTheme";
@@ -38,6 +38,7 @@ import {
   SidebarFooter,
   useSidebar,
 } from "@/components/ui/sidebar";
+
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import type { ViewMode } from "@/pages/Index";
 import type { Conversation } from "@/hooks/useConversations";
@@ -84,6 +85,7 @@ interface AppSidebarProps {
   onSelectConversation: (id: string) => void;
   onNewConversation: () => void;
   onDeleteConversation: (id: string) => void;
+  searchFocusTrigger?: number;
 }
 
 export function AppSidebar({
@@ -94,6 +96,7 @@ export function AppSidebar({
   onSelectConversation,
   onNewConversation,
   onDeleteConversation,
+  searchFocusTrigger,
 }: AppSidebarProps) {
   const { state } = useSidebar();
   const { user, signOut } = useAuth();
@@ -103,6 +106,13 @@ export function AppSidebar({
   const [searchQuery, setSearchQuery] = useState("");
   const [isSearchFocused, setIsSearchFocused] = useState(false);
   const { results: searchResults, isSearching: isGlobalSearching } = useGlobalSearch(searchQuery);
+
+  // Focus search when triggered by keyboard shortcut
+  useEffect(() => {
+    if (searchFocusTrigger && searchFocusTrigger > 0) {
+      setIsSearchFocused(true);
+    }
+  }, [searchFocusTrigger]);
 
   const hasQuery = searchQuery.trim().length > 0;
 

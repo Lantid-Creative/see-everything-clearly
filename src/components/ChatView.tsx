@@ -1,7 +1,8 @@
 import { useState, useRef, useEffect, useCallback } from "react";
-import { Send, Sparkles, ArrowRight, Loader2, LayoutGrid, Presentation, GitBranch, Table, Paperclip, FileText, BarChart3, Zap, Search, MessageSquare, Users, Target } from "lucide-react";
+import { Send, Sparkles, ArrowRight, Loader2, LayoutGrid, Presentation, GitBranch, Table, Paperclip, FileText, BarChart3, Zap, Search, MessageSquare, Users, Target, Download, BookOpen } from "lucide-react";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { streamChat } from "@/lib/streamChat";
+import { generateTitle } from "@/lib/streamChat";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import type { ChatMessage, Conversation } from "@/hooks/useConversations";
@@ -10,7 +11,9 @@ import { useFileUpload } from "@/hooks/useFileUpload";
 import { FilePreviewBar, MessageAttachments } from "@/components/FilePreview";
 import type { ViewMode } from "@/pages/Index";
 import { useUserProfile } from "@/hooks/useUserProfile";
+import { useWorkspaceContext } from "@/hooks/useWorkspaceContext";
 import { NotificationBell } from "@/components/NotificationBell";
+import { exportChatAsMarkdown } from "@/lib/exportUtils";
 
 interface ChatViewProps {
   onOpenWorkspace: (type?: ViewMode) => void;
@@ -18,7 +21,68 @@ interface ChatViewProps {
   onAddMessage: (msg: ChatMessage) => void;
   onUpdateLastAssistant: (content: string, isStreaming: boolean) => void;
   onSetAction: (messageId: string, action: string) => void;
+  onUpdateTitle?: (title: string) => void;
 }
+
+// Templates for quick-start conversations
+const conversationTemplates = [
+  {
+    icon: FileText,
+    label: "PRD Template",
+    category: "Templates",
+    prompt: `Help me write a PRD using this structure:
+
+**Problem Statement**: [What problem are we solving?]
+**Target User**: [Who is this for?]
+**Success Metrics**: [How do we measure success?]
+**User Stories**: [Key user stories]
+**Scope**: [What's in/out of scope?]
+**Technical Considerations**: [Any constraints?]
+
+Let's start — ask me about the feature I'm building.`,
+  },
+  {
+    icon: Search,
+    label: "Competitive Analysis",
+    category: "Templates",
+    prompt: `Help me do a competitive analysis. I'll tell you my product and competitors, and I want you to create a comparison matrix covering:
+
+1. **Feature comparison table** (our product vs competitors)
+2. **Pricing comparison**
+3. **Target audience differences**
+4. **Strengths & weaknesses** of each
+5. **Differentiation opportunities**
+
+What product are we analyzing?`,
+  },
+  {
+    icon: Users,
+    label: "User Interview Guide",
+    category: "Templates",
+    prompt: `Help me create a user interview guide. I need:
+
+1. **Screening criteria** — who should I talk to?
+2. **Opening questions** — build rapport
+3. **Core discovery questions** — understand problems
+4. **Solution validation** — test assumptions
+5. **Wrap-up** — next steps and referrals
+
+What product or feature area are we researching?`,
+  },
+  {
+    icon: BarChart3,
+    label: "RICE Prioritization",
+    category: "Templates",
+    prompt: `Help me prioritize my backlog using the RICE framework. For each feature, we'll score:
+
+- **Reach**: How many users will this impact per quarter?
+- **Impact**: How much will it move the needle? (3=massive, 2=high, 1=medium, 0.5=low, 0.25=minimal)
+- **Confidence**: How sure are we? (100%, 80%, 50%)
+- **Effort**: How many person-months?
+
+List your features and I'll help you score them.`,
+  },
+];
 
 export function ChatView({
   onOpenWorkspace,
@@ -26,14 +90,17 @@ export function ChatView({
   onAddMessage,
   onUpdateLastAssistant,
   onSetAction,
+  onUpdateTitle,
 }: ChatViewProps) {
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [showTemplates, setShowTemplates] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const abortRef = useRef<AbortController | null>(null);
   const { toast } = useToast();
   const { uploading, pendingFiles, uploadFiles, removePending, clearPending, openFilePicker, inputRef } = useFileUpload();
   const profile = useUserProfile();
+  const workspaceContext = useWorkspaceContext();
 
   const scrollToBottom = useCallback(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -71,15 +138,16 @@ export function ChatView({
     return null;
   };
 
-  const handleSend = async () => {
-    const text = input.trim();
-    if ((!text && pendingFiles.length === 0) || isLoading) return;
+  const sendMessage = async (text: string, attachments?: any[]) => {
+    if ((!text && (!attachments || attachments.length === 0)) || isLoading) return;
+
+    const isFirstUserMessage = conversation.messages.filter((m) => m.role === "user").length === 0;
 
     const userMsg: ChatMessage = {
       id: crypto.randomUUID(),
       role: "user",
-      content: text || (pendingFiles.length > 0 ? `[Attached ${pendingFiles.length} file(s)]` : ""),
-      attachments: pendingFiles.length > 0 ? [...pendingFiles] : undefined,
+      content: text || (attachments && attachments.length > 0 ? `[Attached ${attachments.length} file(s)]` : ""),
+      attachments: attachments && attachments.length > 0 ? [...attachments] : undefined,
     };
     onAddMessage(userMsg);
     setInput("");
@@ -99,6 +167,13 @@ export function ChatView({
     const controller = new AbortController();
     abortRef.current = controller;
 
+    // Generate AI title for first user message
+    if (isFirstUserMessage && text && onUpdateTitle) {
+      generateTitle(text).then((title) => {
+        onUpdateTitle(title);
+      });
+    }
+
     try {
       const apiMessages = [...conversation.messages, userMsg]
         .filter((m) => !m.isStreaming)
@@ -106,6 +181,7 @@ export function ChatView({
 
       await streamChat({
         messages: apiMessages,
+        context: workspaceContext || undefined,
         onDelta: (chunk) => {
           fullContent += chunk;
           onUpdateLastAssistant(fullContent, true);
@@ -150,6 +226,11 @@ export function ChatView({
     }
   };
 
+  const handleSend = async () => {
+    const text = input.trim();
+    await sendMessage(text, pendingFiles.length > 0 ? [...pendingFiles] : undefined);
+  };
+
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
       uploadFiles(e.target.files);
@@ -180,7 +261,6 @@ export function ChatView({
 
     const userGoals = profile.productGoals.split(", ").map((g) => g.trim().toLowerCase());
 
-    // Score suggestions by goal match
     const scored = allSuggestions.map((s) => {
       const matchScore = s.goals.filter((g) =>
         userGoals.some((ug) => ug.includes(g.toLowerCase()) || g.toLowerCase().includes(ug))
@@ -198,62 +278,16 @@ export function ChatView({
     (conversation.messages.length === 1 && conversation.messages[0].id === "welcome");
 
   const handleSuggestionClick = (prompt: string) => {
-    setInput(prompt);
-    setTimeout(() => {
-      const fakeEvent = { key: "Enter", shiftKey: false } as React.KeyboardEvent;
-      // Trigger send directly
-      const text = prompt.trim();
-      if (!text || isLoading) return;
-      const userMsg: ChatMessage = {
-        id: crypto.randomUUID(),
-        role: "user",
-        content: text,
-      };
-      onAddMessage(userMsg);
-      setInput("");
-      setIsLoading(true);
-
-      const asstId = crypto.randomUUID();
-      const asstMsg: ChatMessage = { id: asstId, role: "assistant", content: "", isStreaming: true };
-      onAddMessage(asstMsg);
-
-      let fullContent = "";
-      const controller = new AbortController();
-      abortRef.current = controller;
-
-      const apiMessages = [...conversation.messages, userMsg]
-        .filter((m) => !m.isStreaming)
-        .map((m) => ({ role: m.role, content: m.content }));
-
-      streamChat({
-        messages: apiMessages,
-        onDelta: (chunk) => {
-          fullContent += chunk;
-          onUpdateLastAssistant(fullContent, true);
-        },
-        onDone: () => {
-          onUpdateLastAssistant(fullContent, false);
-          const ws = detectWorkspaceType(fullContent);
-          if (ws) {
-            setTimeout(() => onSetAction(asstId, ws.action), 300);
-          }
-          setIsLoading(false);
-          abortRef.current = null;
-        },
-        signal: controller.signal,
-      }).catch((err) => {
-        if (err.name === "AbortError") return;
-        console.error("Chat error:", err);
-        onUpdateLastAssistant(
-          fullContent || "Sorry, I encountered an error. Please try again.",
-          false
-        );
-        toast({ title: "Error", description: err.message || "Failed to get response", variant: "destructive" });
-        setIsLoading(false);
-        abortRef.current = null;
-      });
-    }, 0);
+    setShowTemplates(false);
+    sendMessage(prompt);
   };
+
+  const handleExport = () => {
+    exportChatAsMarkdown(conversation.title, conversation.messages);
+    toast({ title: "Exported", description: "Chat exported as Markdown" });
+  };
+
+  const hasMessages = conversation.messages.filter((m) => m.role === "user").length > 0;
 
   return (
     <div className="flex flex-col h-screen">
@@ -270,7 +304,18 @@ export function ChatView({
             <span>Lantid AI</span>
           </div>
         </div>
-        <NotificationBell />
+        <div className="flex items-center gap-1">
+          {hasMessages && (
+            <button
+              onClick={handleExport}
+              className="h-8 w-8 rounded-lg flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
+              title="Export chat as Markdown"
+            >
+              <Download className="h-4 w-4" />
+            </button>
+          )}
+          <NotificationBell />
+        </div>
       </header>
 
       {/* Messages */}
@@ -289,7 +334,7 @@ export function ChatView({
                 }`}
               >
                 {msg.role === "assistant" ? (
-                  <div className="prose prose-sm max-w-none dark:prose-invert [&>p]:my-1 [&>ul]:my-1 [&>ol]:my-1">
+                  <div className="prose prose-sm max-w-none dark:prose-invert [&>p]:my-1 [&>ul]:my-1 [&>ol]:my-1 [&>table]:my-2 [&>table]:text-xs [&_th]:px-2 [&_th]:py-1 [&_td]:px-2 [&_td]:py-1 [&_th]:border [&_td]:border [&_th]:border-border [&_td]:border-border [&_th]:bg-muted/50">
                     <ReactMarkdown remarkPlugins={[remarkGfm]}>
                       {msg.content || " "}
                     </ReactMarkdown>
@@ -324,22 +369,46 @@ export function ChatView({
             </div>
           ))}
 
-          {/* Starter Suggestions */}
+          {/* Starter Suggestions & Templates */}
           {isNewConversation && !isLoading && (
             <div className="animate-in fade-in slide-in-from-bottom-3 duration-500 delay-300">
-              <div className="grid grid-cols-2 gap-2 mt-4">
-                {starterSuggestions.map((suggestion, idx) => (
+              {/* Template toggle */}
+              <div className="flex items-center gap-2 mb-3">
+                <button
+                  onClick={() => setShowTemplates(false)}
+                  className={`text-xs font-medium px-3 py-1.5 rounded-lg transition-colors ${!showTemplates ? "bg-primary/10 text-primary" : "text-muted-foreground hover:text-foreground"}`}
+                >
+                  Quick Start
+                </button>
+                <button
+                  onClick={() => setShowTemplates(true)}
+                  className={`text-xs font-medium px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1.5 ${showTemplates ? "bg-primary/10 text-primary" : "text-muted-foreground hover:text-foreground"}`}
+                >
+                  <BookOpen className="h-3 w-3" />
+                  Templates
+                </button>
+              </div>
+
+              <div className="grid grid-cols-2 gap-2">
+                {(showTemplates ? conversationTemplates : starterSuggestions).map((item, idx) => (
                   <button
                     key={idx}
-                    onClick={() => handleSuggestionClick(suggestion.prompt)}
+                    onClick={() => handleSuggestionClick(item.prompt)}
                     className="flex items-start gap-3 p-3 rounded-xl border border-border/60 bg-card hover:bg-accent/50 hover:border-accent transition-all duration-200 text-left group"
                   >
                     <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0 group-hover:bg-primary/20 transition-colors">
-                      <suggestion.icon className="h-4 w-4 text-primary" />
+                      <item.icon className="h-4 w-4 text-primary" />
                     </div>
-                    <span className="text-sm font-medium text-foreground/80 group-hover:text-foreground transition-colors leading-tight pt-1">
-                      {suggestion.label}
-                    </span>
+                    <div>
+                      <span className="text-sm font-medium text-foreground/80 group-hover:text-foreground transition-colors leading-tight">
+                        {item.label}
+                      </span>
+                      {"category" in item && (
+                        <span className="block text-[10px] text-muted-foreground mt-0.5">
+                          {(item as any).category}
+                        </span>
+                      )}
+                    </div>
                   </button>
                 ))}
               </div>
@@ -400,6 +469,10 @@ export function ChatView({
               )}
             </button>
           </div>
+          {/* Keyboard shortcut hint */}
+          <p className="text-[10px] text-muted-foreground mt-1.5 text-center">
+            <kbd className="px-1 py-0.5 rounded bg-muted text-[9px] font-mono">⌘K</kbd> Search · <kbd className="px-1 py-0.5 rounded bg-muted text-[9px] font-mono">⌘N</kbd> New chat · <kbd className="px-1 py-0.5 rounded bg-muted text-[9px] font-mono">⌘1-7</kbd> Navigate
+          </p>
         </div>
       </div>
     </div>
