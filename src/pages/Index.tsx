@@ -41,18 +41,28 @@ const Index = () => {
 
   const renderView = () => {
     switch (viewMode) {
+      case "dashboard":
+        return (
+          <DashboardView
+            onNavigate={setViewMode}
+            onNewChat={() => {
+              createConversation();
+              setViewMode("chat");
+            }}
+          />
+        );
       case "workspace":
-        return <WorkspaceView onBack={() => setViewMode("chat")} />;
+        return <WorkspaceView onBack={() => setViewMode("dashboard")} />;
       case "slides":
-        return <SlideEditorView onBack={() => setViewMode("chat")} />;
+        return <SlideEditorView onBack={() => setViewMode("dashboard")} />;
       case "workflow":
-        return <WorkflowBuilderView onBack={() => setViewMode("chat")} />;
+        return <WorkflowBuilderView onBack={() => setViewMode("dashboard")} />;
       case "spreadsheet":
-        return <SpreadsheetView onBack={() => setViewMode("chat")} />;
+        return <SpreadsheetView onBack={() => setViewMode("dashboard")} />;
       case "team":
-        return <TeamPanel onBack={() => setViewMode("chat")} />;
+        return <TeamPanel onBack={() => setViewMode("dashboard")} />;
       case "settings":
-        return <SettingsView onBack={() => setViewMode("chat")} />;
+        return <SettingsView onBack={() => setViewMode("dashboard")} />;
       default:
         return (
           <ChatView
