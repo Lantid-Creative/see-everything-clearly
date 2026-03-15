@@ -57,6 +57,7 @@ interface AppSidebarProps {
   activeConversationId: string;
   onSelectConversation: (id: string) => void;
   onNewConversation: () => void;
+  onDeleteConversation: (id: string) => void;
 }
 
 export function AppSidebar({
