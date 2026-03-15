@@ -344,7 +344,7 @@ export default function Landing() {
                 and defining <span className="text-white font-medium">how it should work</span>.
               </p>
               <p className="text-white/50 leading-relaxed">
-                Carson is the missing layer — the AI that turns raw customer signal into
+                Lantid is the missing layer — the AI that turns raw customer signal into
                 actionable specs your coding agent can execute.
               </p>
             </motion.div>
