@@ -45,7 +45,7 @@ interface NodeResult {
 type NodeExecStatus = "idle" | "running" | "success" | "error";
 
 export function WorkflowBuilderView({ onBack }: WorkflowBuilderViewProps) {
-  const { nodes, setNodes: saveNodes, isDeployed, deploy, loaded } = useWorkflow();
+  const { nodes, setNodes: saveNodes, isDeployed, deploy, loaded, workflowId } = useWorkflow();
   const isMobile = useIsMobile();
   const [showPermissions, setShowPermissions] = useState(false);
   const [permissionScopes, setPermissionScopes] = useState<PermissionScope[]>([]);

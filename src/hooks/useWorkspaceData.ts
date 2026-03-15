@@ -214,7 +214,7 @@ export function useWorkflow() {
     }
   }, [workflowId]);
 
-  return { nodes, setNodes: saveNodes, isDeployed, deploy, loaded };
+  return { nodes, setNodes: saveNodes, isDeployed, deploy, loaded, workflowId };
 }
 
 // DB row → Lead type conversion
