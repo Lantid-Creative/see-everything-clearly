@@ -89,6 +89,7 @@ export function SlideEditorView({ onBack }: SlideEditorViewProps) {
   const [isGenerating, setIsGenerating] = useState(false);
   const [chatMessages, setChatMessages] = useState<{ role: "user" | "assistant"; content: string }[]>([]);
   const { toast } = useToast();
+  const isMobile = useIsMobile();
 
   const slide = slides[currentSlide];
 
