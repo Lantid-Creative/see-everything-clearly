@@ -40,8 +40,8 @@ const Index = () => {
     setViewMode("chat");
   }, [createConversation]);
 
-  const handleSelectTemplate = useCallback((templateId: string) => {
-    createConversation();
+  const handleSelectTemplate = useCallback(async (templateId: string) => {
+    await createConversation();
     setPendingTemplateId(templateId);
     setViewMode("chat");
   }, [createConversation]);

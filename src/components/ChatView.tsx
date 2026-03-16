@@ -127,12 +127,15 @@ export function ChatView({
 
   useEffect(() => {
     if (pendingTemplateId && templateMapRef.current[pendingTemplateId]) {
-      const prompt = templateMapRef.current[pendingTemplateId];
-      onTemplateSent?.();
-      // Small delay to let the new conversation render
-      setTimeout(() => sendMessage(prompt), 100);
+      // Only send when this is a fresh conversation (just the system message)
+      const userMessages = conversation.messages.filter((m) => m.role === "user");
+      if (userMessages.length === 0) {
+        const prompt = templateMapRef.current[pendingTemplateId];
+        onTemplateSent?.();
+        setTimeout(() => sendMessage(prompt), 200);
+      }
     }
-  }, [pendingTemplateId]);
+  }, [pendingTemplateId, conversation.id]);
 
   const detectWorkspaceType = (content: string): { action: string; type: ViewMode } | null => {
     const lower = content.toLowerCase();
