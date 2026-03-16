@@ -140,6 +140,7 @@ export function ChatView({
   onUpdateTitle,
   pendingTemplateId,
   onTemplateSent,
+  currentPhase,
 }: ChatViewProps) {
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
