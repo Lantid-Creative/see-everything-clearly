@@ -16,7 +16,7 @@ import { OnboardingChecklist } from "@/components/OnboardingChecklist";
 import { DashboardView } from "@/components/DashboardView";
 import { useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
 
-export type ViewMode = "dashboard" | "chat" | "workspace" | "slides" | "workflow" | "spreadsheet" | "team" | "settings";
+export type ViewMode = "dashboard" | "chat" | "workspace" | "slides" | "workflow" | "spreadsheet" | "team" | "settings" | "integrations";
 
 const Index = () => {
   const [viewMode, setViewMode] = useState<ViewMode>("dashboard");
