@@ -368,7 +368,7 @@ export function AppSidebar({
       <SidebarFooter className="px-1.5 pb-3">
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton className="text-sidebar-foreground hover:text-sidebar-primary hover:bg-sidebar-accent">
+            <SidebarMenuButton onClick={() => onSwitchView("integrations" as any)} className="text-sidebar-foreground hover:text-sidebar-primary hover:bg-sidebar-accent">
               <Puzzle className="h-4 w-4" />
               {!collapsed && <span>Integrations</span>}
             </SidebarMenuButton>
