@@ -84,16 +84,17 @@ export function SpreadsheetView({ onBack }: SpreadsheetViewProps) {
     setEditingCell(null);
   };
 
-  const addNewRow = () => {
+  const addNewRow = async () => {
     if (!newRow.name.trim()) {
       toast({ title: "Name is required", variant: "destructive" });
       return;
     }
-    const newLead = { ...newRow, id: Date.now().toString() } as any;
-    setLeads([...leads, newLead]);
-    setNewRow({ name: "", company: "", title: "", email: "", linkedin: "", status: "pending", source: "" });
-    setShowAddRow(false);
-    toast({ title: "Lead added" });
+    const result = await addLead(newRow);
+    if (result) {
+      setNewRow({ name: "", company: "", title: "", email: "", linkedin: "", status: "pending", source: "" });
+      setShowAddRow(false);
+      toast({ title: "Lead added" });
+    }
   };
 
   const statusStyles: Record<string, string> = {
