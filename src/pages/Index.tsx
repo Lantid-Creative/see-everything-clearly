@@ -85,6 +85,8 @@ const Index = () => {
         return <TeamPanel onBack={() => setViewMode("dashboard")} />;
       case "settings":
         return <SettingsView onBack={() => setViewMode("dashboard")} />;
+      case "integrations":
+        return <IntegrationsView onBack={() => setViewMode("dashboard")} />;
       default:
         return (
           <ChatView
