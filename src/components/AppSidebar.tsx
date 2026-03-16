@@ -20,6 +20,8 @@ import {
   Loader2,
   LayoutGrid,
   Table,
+  BookOpen,
+  BarChart3,
 } from "lucide-react";
 import { Logo } from "@/components/Logo";
 import { useAuth } from "@/hooks/useAuth";
