@@ -1,32 +1,27 @@
 import { useState, useEffect } from "react";
 import {
   Home,
-  Workflow,
   Settings,
   Puzzle,
   Search,
   Plus,
   MessageSquare,
   Presentation,
-  FileText,
   LogOut,
   Trash2,
   Sun,
   Moon,
-  Mail,
   Users,
   GitBranch,
   Loader2,
   LayoutGrid,
   Table,
-  BarChart3,
   Compass,
   ClipboardList,
   ListOrdered,
   Rocket,
   Activity,
   Hammer,
-  ChevronRight,
 } from "lucide-react";
 import { Logo } from "@/components/Logo";
 import { useAuth } from "@/hooks/useAuth";
@@ -50,73 +45,32 @@ import type { ViewMode } from "@/pages/Index";
 import type { Conversation } from "@/hooks/useConversations";
 import type { ProductPhase } from "@/hooks/useProductPhase";
 
-const PHASE_NAV: { id: ProductPhase; label: string; icon: typeof Compass; views: { label: string; view: ViewMode; icon: typeof MessageSquare }[] }[] = [
-  {
-    id: "discover",
-    label: "Discover",
-    icon: Compass,
-    views: [
-      { label: "AI Chat", view: "chat", icon: MessageSquare },
-      { label: "Workspace", view: "workspace", icon: LayoutGrid },
-    ],
-  },
-  {
-    id: "define",
-    label: "Define",
-    icon: ClipboardList,
-    views: [
-      { label: "AI Chat", view: "chat", icon: MessageSquare },
-      { label: "Slides", view: "slides", icon: Presentation },
-    ],
-  },
-  {
-    id: "prioritize",
-    label: "Prioritize",
-    icon: ListOrdered,
-    views: [
-      { label: "Spreadsheet", view: "spreadsheet", icon: Table },
-      { label: "AI Chat", view: "chat", icon: MessageSquare },
-    ],
-  },
-  {
-    id: "build",
-    label: "Build",
-    icon: Hammer,
-    views: [
-      { label: "Workflows", view: "workflow", icon: GitBranch },
-      { label: "Integrations", view: "integrations", icon: Puzzle },
-    ],
-  },
-  {
-    id: "launch",
-    label: "Launch",
-    icon: Rocket,
-    views: [
-      { label: "Workspace", view: "workspace", icon: LayoutGrid },
-      { label: "Slides", view: "slides", icon: Presentation },
-    ],
-  },
-  {
-    id: "measure",
-    label: "Measure",
-    icon: Activity,
-    views: [
-      { label: "AI Chat", view: "chat", icon: MessageSquare },
-      { label: "Spreadsheet", view: "spreadsheet", icon: Table },
-    ],
-  },
+const PHASES: { id: ProductPhase; label: string; icon: typeof Compass }[] = [
+  { id: "discover", label: "Discover", icon: Compass },
+  { id: "define", label: "Define", icon: ClipboardList },
+  { id: "prioritize", label: "Prioritize", icon: ListOrdered },
+  { id: "build", label: "Build", icon: Hammer },
+  { id: "launch", label: "Launch", icon: Rocket },
+  { id: "measure", label: "Measure", icon: Activity },
+];
+
+const TOOLS: { label: string; view: ViewMode; icon: typeof MessageSquare }[] = [
+  { label: "AI Chat", view: "chat", icon: MessageSquare },
+  { label: "Workspace", view: "workspace", icon: LayoutGrid },
+  { label: "Slides", view: "slides", icon: Presentation },
+  { label: "Spreadsheet", view: "spreadsheet", icon: Table },
+  { label: "Workflows", view: "workflow", icon: GitBranch },
 ];
 
 const iconForConversation = (title: string) => {
   if (title.toLowerCase().includes("present")) return Presentation;
-  if (title.toLowerCase().includes("compet")) return FileText;
   return MessageSquare;
 };
 
 const iconForResultType: Record<SearchResult["type"], typeof MessageSquare> = {
   conversation: MessageSquare,
   lead: Users,
-  email: Mail,
+  email: LayoutGrid,
   workflow: GitBranch,
 };
 
@@ -148,7 +102,6 @@ export function AppSidebar({
   onSelectConversation,
   onNewConversation,
   onDeleteConversation,
-  onSelectTemplate,
   searchFocusTrigger,
   currentPhase,
 }: AppSidebarProps) {
@@ -158,12 +111,7 @@ export function AppSidebar({
   const collapsed = state === "collapsed";
   const [searchQuery, setSearchQuery] = useState("");
   const [isSearchFocused, setIsSearchFocused] = useState(false);
-  const [expandedPhase, setExpandedPhase] = useState<ProductPhase | null>(currentPhase || null);
   const { results: searchResults, isSearching: isGlobalSearching } = useGlobalSearch(searchQuery);
-
-  useEffect(() => {
-    if (currentPhase && !expandedPhase) setExpandedPhase(currentPhase);
-  }, [currentPhase]);
 
   useEffect(() => {
     if (searchFocusTrigger && searchFocusTrigger > 0) {
@@ -192,6 +140,8 @@ export function AppSidebar({
   const filteredConversations = conversations.filter((c) =>
     c.title.toLowerCase().includes(searchQuery.toLowerCase())
   );
+
+  const currentPhaseIndex = PHASES.findIndex((p) => p.id === currentPhase);
 
   return (
     <Sidebar collapsible="icon" className="border-r-0">
@@ -300,57 +250,75 @@ export function AppSidebar({
               </SidebarGroupContent>
             </SidebarGroup>
 
-            {/* Product Lifecycle Phases */}
-            {!collapsed && (
+            {/* Phase Indicator — compact stepper showing where user is */}
+            {!collapsed && currentPhase && (
               <SidebarGroup>
                 <SidebarGroupLabel className="text-sidebar-muted text-[10px] uppercase tracking-wider font-semibold">
-                  Product Lifecycle
+                  Current Phase
                 </SidebarGroupLabel>
                 <SidebarGroupContent>
-                  <SidebarMenu>
-                    {PHASE_NAV.map((phase) => {
-                      const isExpanded = expandedPhase === phase.id;
-                      const isCurrent = currentPhase === phase.id;
-                      return (
-                        <div key={phase.id}>
-                          <SidebarMenuItem>
-                            <SidebarMenuButton
-                              onClick={() => setExpandedPhase(isExpanded ? null : phase.id)}
-                              className={`text-sidebar-foreground hover:text-sidebar-primary hover:bg-sidebar-accent text-xs ${
-                                isCurrent ? "text-primary font-semibold" : ""
-                              }`}
-                            >
-                              <phase.icon className={`h-3.5 w-3.5 ${isCurrent ? "text-primary" : ""}`} />
-                              <span className="flex-1">{phase.label}</span>
-                              {isCurrent && (
-                                <span className="h-1.5 w-1.5 rounded-full bg-primary shrink-0" />
-                              )}
-                              <ChevronRight className={`h-3 w-3 text-sidebar-muted transition-transform ${isExpanded ? "rotate-90" : ""}`} />
-                            </SidebarMenuButton>
-                          </SidebarMenuItem>
-                          {isExpanded && (
-                            <div className="ml-4 border-l border-sidebar-accent pl-2 space-y-0.5 py-0.5">
-                              {phase.views.map((view) => (
-                                <SidebarMenuItem key={`${phase.id}-${view.view}`}>
-                                  <SidebarMenuButton
-                                    onClick={() => onSwitchView(view.view)}
-                                    isActive={currentView === view.view}
-                                    className="text-sidebar-foreground hover:text-sidebar-primary hover:bg-sidebar-accent data-[active=true]:bg-sidebar-accent data-[active=true]:text-sidebar-primary text-[11px] h-7"
-                                  >
-                                    <view.icon className="h-3 w-3" />
-                                    <span>{view.label}</span>
-                                  </SidebarMenuButton>
-                                </SidebarMenuItem>
-                              ))}
-                            </div>
-                          )}
-                        </div>
-                      );
-                    })}
-                  </SidebarMenu>
+                  <div className="px-2 py-1.5">
+                    <div className="flex items-center gap-1 mb-2">
+                      {PHASES.map((phase, i) => {
+                        const isActive = phase.id === currentPhase;
+                        const isComplete = i < currentPhaseIndex;
+                        return (
+                          <div
+                            key={phase.id}
+                            className={`flex-1 h-1 rounded-full transition-colors ${
+                              isActive
+                                ? "bg-primary"
+                                : isComplete
+                                ? "bg-primary/40"
+                                : "bg-sidebar-accent"
+                            }`}
+                            title={phase.label}
+                          />
+                        );
+                      })}
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                      {(() => {
+                        const phase = PHASES.find((p) => p.id === currentPhase);
+                        if (!phase) return null;
+                        const PhaseIcon = phase.icon;
+                        return (
+                          <>
+                            <PhaseIcon className="h-3.5 w-3.5 text-primary" />
+                            <span className="text-xs font-medium text-sidebar-foreground">
+                              {phase.label}
+                            </span>
+                          </>
+                        );
+                      })()}
+                    </div>
+                  </div>
                 </SidebarGroupContent>
               </SidebarGroup>
             )}
+
+            {/* Tools — deduplicated flat list */}
+            <SidebarGroup>
+              <SidebarGroupLabel className="text-sidebar-muted text-[10px] uppercase tracking-wider font-semibold">
+                {collapsed ? "" : "Tools"}
+              </SidebarGroupLabel>
+              <SidebarGroupContent>
+                <SidebarMenu>
+                  {TOOLS.map((tool) => (
+                    <SidebarMenuItem key={tool.view}>
+                      <SidebarMenuButton
+                        onClick={() => onSwitchView(tool.view)}
+                        isActive={currentView === tool.view}
+                        className="text-sidebar-foreground hover:text-sidebar-primary hover:bg-sidebar-accent data-[active=true]:bg-sidebar-accent data-[active=true]:text-sidebar-primary text-xs"
+                      >
+                        <tool.icon className="h-4 w-4" />
+                        {!collapsed && <span>{tool.label}</span>}
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  ))}
+                </SidebarMenu>
+              </SidebarGroupContent>
+            </SidebarGroup>
 
             {/* Recent Conversations */}
             {!collapsed && (
