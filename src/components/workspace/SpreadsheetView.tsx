@@ -14,7 +14,7 @@ interface SpreadsheetViewProps {
 type FilterField = "status" | "source" | "all";
 
 export function SpreadsheetView({ onBack }: SpreadsheetViewProps) {
-  const { leads, setLeads, loaded } = useSpreadsheetLeads();
+  const { leads, setLeads, loaded, addLead, updateLead, deleteLeads } = useSpreadsheetLeads();
   const isMobile = useIsMobile();
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedRows, setSelectedRows] = useState<Set<string>>(new Set());
@@ -28,9 +28,7 @@ export function SpreadsheetView({ onBack }: SpreadsheetViewProps) {
   const [showAddRow, setShowAddRow] = useState(false);
   const [newRow, setNewRow] = useState({ name: "", company: "", title: "", email: "", linkedin: "", status: "pending" as const, source: "" });
   const { toast } = useToast();
-  const [chatMessages, setChatMessages] = useState<{ role: "user" | "assistant"; content: string }[]>([
-    { role: "assistant", content: "Research complete. Found 15 founders across 7 companies with verified emails and LinkedIn profiles. The data is enriched with company details, roles, and sources." },
-  ]);
+  const [chatMessages, setChatMessages] = useState<{ role: "user" | "assistant"; content: string }[]>([]);
 
   if (!loaded) {
     return (
@@ -67,10 +65,11 @@ export function SpreadsheetView({ onBack }: SpreadsheetViewProps) {
     else setSelectedRows(new Set(filteredLeads.map((l) => l.id)));
   };
 
-  const deleteSelected = () => {
+  const deleteSelected = async () => {
     if (selectedRows.size === 0) return;
-    setLeads(leads.filter((l) => !selectedRows.has(l.id)));
-    toast({ title: `Deleted ${selectedRows.size} leads` });
+    const ids = Array.from(selectedRows);
+    await deleteLeads(ids);
+    toast({ title: `Deleted ${ids.length} leads` });
     setSelectedRows(new Set());
   };
 
@@ -79,25 +78,23 @@ export function SpreadsheetView({ onBack }: SpreadsheetViewProps) {
     setEditCellValue(value);
   };
 
-  const saveEditCell = () => {
+  const saveEditCell = async () => {
     if (!editingCell) return;
-    setLeads(leads.map((l) => {
-      if (l.id !== editingCell.id) return l;
-      return { ...l, [editingCell.field]: editCellValue };
-    }));
+    await updateLead(editingCell.id, editingCell.field, editCellValue);
     setEditingCell(null);
   };
 
-  const addNewRow = () => {
+  const addNewRow = async () => {
     if (!newRow.name.trim()) {
       toast({ title: "Name is required", variant: "destructive" });
       return;
     }
-    const newLead = { ...newRow, id: Date.now().toString() } as any;
-    setLeads([...leads, newLead]);
-    setNewRow({ name: "", company: "", title: "", email: "", linkedin: "", status: "pending", source: "" });
-    setShowAddRow(false);
-    toast({ title: "Lead added" });
+    const result = await addLead(newRow);
+    if (result) {
+      setNewRow({ name: "", company: "", title: "", email: "", linkedin: "", status: "pending", source: "" });
+      setShowAddRow(false);
+      toast({ title: "Lead added" });
+    }
   };
 
   const statusStyles: Record<string, string> = {
