@@ -1,4 +1,5 @@
 import { useState, useCallback } from "react";
+import { IntegrationsView } from "@/components/IntegrationsView";
 import { WelcomeModal } from "@/components/WelcomeModal";
 import { AppSidebar } from "@/components/AppSidebar";
 import { ChatView } from "@/components/ChatView";
