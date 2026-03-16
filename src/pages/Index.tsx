@@ -40,11 +40,10 @@ const Index = () => {
     setViewMode("chat");
   }, [createConversation]);
 
-  const handleSelectTemplate = useCallback(async (templateId: string) => {
-    await createConversation();
+  const handleSelectTemplate = useCallback((templateId: string) => {
     setPendingTemplateId(templateId);
     setViewMode("chat");
-  }, [createConversation]);
+  }, []);
 
   const handleToggleSearch = useCallback(() => {
     setSearchFocusTrigger((prev) => prev + 1);

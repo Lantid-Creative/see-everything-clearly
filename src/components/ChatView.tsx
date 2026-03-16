@@ -114,7 +114,7 @@ export function ChatView({
     scrollToBottom();
   }, [conversation.messages, scrollToBottom]);
 
-  // Auto-send template when selected from sidebar
+  // Populate input when template selected from sidebar
   const templateMapRef = useRef<Record<string, string>>({});
   useEffect(() => {
     const map: Record<string, string> = {};
@@ -127,13 +127,8 @@ export function ChatView({
 
   useEffect(() => {
     if (pendingTemplateId && templateMapRef.current[pendingTemplateId]) {
-      // Only send when this is a fresh conversation (just the system message)
-      const userMessages = conversation.messages.filter((m) => m.role === "user");
-      if (userMessages.length === 0) {
-        const prompt = templateMapRef.current[pendingTemplateId];
-        onTemplateSent?.();
-        setTimeout(() => sendMessage(prompt), 200);
-      }
+      setInput(templateMapRef.current[pendingTemplateId]);
+      onTemplateSent?.();
     }
   }, [pendingTemplateId, conversation.id]);
 
