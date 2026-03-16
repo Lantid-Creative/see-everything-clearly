@@ -79,6 +79,13 @@ const labelForResultType: Record<SearchResult["type"], string> = {
   workflow: "Workflows",
 };
 
+const sidebarTemplates = [
+  { icon: FileText, label: "PRD Template", id: "prd" },
+  { icon: Search, label: "Competitive Analysis", id: "competitive" },
+  { icon: Users, label: "User Interview Guide", id: "interview" },
+  { icon: BarChart3, label: "RICE Prioritization", id: "rice" },
+];
+
 interface AppSidebarProps {
   onSwitchView: (view: ViewMode) => void;
   currentView: ViewMode;
@@ -87,6 +94,7 @@ interface AppSidebarProps {
   onSelectConversation: (id: string) => void;
   onNewConversation: () => void;
   onDeleteConversation: (id: string) => void;
+  onSelectTemplate?: (templateId: string) => void;
   searchFocusTrigger?: number;
 }
 
