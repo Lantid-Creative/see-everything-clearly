@@ -145,6 +145,14 @@ serve(async (req) => {
           ...messages,
         ],
         stream: true,
+        tools: [
+          {
+            type: "builtin_function",
+            function: {
+              name: "$web_search",
+            },
+          },
+        ],
       }),
     });
 
