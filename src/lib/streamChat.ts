@@ -10,6 +10,7 @@ export interface WorkspaceContext {
   company?: string | null;
   productGoals?: string | null;
   connectedIntegrations?: string[];
+  currentPhase?: string | null;
 }
 
 const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/lantid-chat`;

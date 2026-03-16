@@ -24,6 +24,7 @@ interface ChatViewProps {
   onUpdateTitle?: (title: string) => void;
   pendingTemplateId?: string | null;
   onTemplateSent?: () => void;
+  currentPhase?: string | null;
 }
 
 // Templates for quick-start conversations
@@ -139,6 +140,7 @@ export function ChatView({
   onUpdateTitle,
   pendingTemplateId,
   onTemplateSent,
+  currentPhase,
 }: ChatViewProps) {
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
