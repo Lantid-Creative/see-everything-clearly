@@ -65,10 +65,11 @@ export function SpreadsheetView({ onBack }: SpreadsheetViewProps) {
     else setSelectedRows(new Set(filteredLeads.map((l) => l.id)));
   };
 
-  const deleteSelected = () => {
+  const deleteSelected = async () => {
     if (selectedRows.size === 0) return;
-    setLeads(leads.filter((l) => !selectedRows.has(l.id)));
-    toast({ title: `Deleted ${selectedRows.size} leads` });
+    const ids = Array.from(selectedRows);
+    await deleteLeads(ids);
+    toast({ title: `Deleted ${ids.length} leads` });
     setSelectedRows(new Set());
   };
 
