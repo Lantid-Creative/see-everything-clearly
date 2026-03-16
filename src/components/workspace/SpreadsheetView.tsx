@@ -78,12 +78,9 @@ export function SpreadsheetView({ onBack }: SpreadsheetViewProps) {
     setEditCellValue(value);
   };
 
-  const saveEditCell = () => {
+  const saveEditCell = async () => {
     if (!editingCell) return;
-    setLeads(leads.map((l) => {
-      if (l.id !== editingCell.id) return l;
-      return { ...l, [editingCell.field]: editCellValue };
-    }));
+    await updateLead(editingCell.id, editingCell.field, editCellValue);
     setEditingCell(null);
   };
 
