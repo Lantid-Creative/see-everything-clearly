@@ -15,6 +15,9 @@ import { GettingStartedTour } from "@/components/GettingStartedTour";
 import { OnboardingChecklist } from "@/components/OnboardingChecklist";
 import { DashboardView } from "@/components/DashboardView";
 import { useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
+import { useWorkspaceContext } from "@/hooks/useWorkspaceContext";
+import { useUserProfile } from "@/hooks/useUserProfile";
+import { useProductPhase } from "@/hooks/useProductPhase";
 
 export type ViewMode = "dashboard" | "chat" | "workspace" | "slides" | "workflow" | "spreadsheet" | "team" | "settings" | "integrations";
 
@@ -35,6 +38,22 @@ const Index = () => {
     updateConversationTitle,
     loaded,
   } = useConversations();
+
+  const workspaceContext = useWorkspaceContext();
+  const profile = useUserProfile();
+
+  const phaseData = useProductPhase(
+    workspaceContext && profile
+      ? {
+          totalLeads: workspaceContext.totalLeads,
+          totalConversations: workspaceContext.totalConversations,
+          totalWorkflows: workspaceContext.totalWorkflows,
+          emailsSent: workspaceContext.emailsSent,
+          teamMembers: workspaceContext.teamMembers,
+          profile,
+        }
+      : null
+  );
 
   const handleNewChat = useCallback(() => {
     createConversation();
@@ -67,12 +86,7 @@ const Index = () => {
   const renderView = () => {
     switch (viewMode) {
       case "dashboard":
-        return (
-          <DashboardView
-            onNavigate={setViewMode}
-            onNewChat={handleNewChat}
-          />
-        );
+        return <DashboardView onNavigate={setViewMode} onNewChat={handleNewChat} />;
       case "workspace":
         return <WorkspaceView onBack={() => setViewMode("dashboard")} />;
       case "slides":
@@ -104,6 +118,7 @@ const Index = () => {
             }
             pendingTemplateId={pendingTemplateId}
             onTemplateSent={() => setPendingTemplateId(null)}
+            currentPhase={phaseData?.currentPhase || null}
           />
         );
     }
@@ -128,6 +143,7 @@ const Index = () => {
           onDeleteConversation={deleteConversation}
           onSelectTemplate={handleSelectTemplate}
           searchFocusTrigger={searchFocusTrigger}
+          currentPhase={phaseData?.currentPhase || null}
         />
         <main className="flex-1 flex flex-col min-w-0">
           {renderView()}
