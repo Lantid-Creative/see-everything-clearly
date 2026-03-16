@@ -20,6 +20,7 @@ export type ViewMode = "dashboard" | "chat" | "workspace" | "slides" | "workflow
 const Index = () => {
   const [viewMode, setViewMode] = useState<ViewMode>("dashboard");
   const [searchFocusTrigger, setSearchFocusTrigger] = useState(0);
+  const [pendingTemplateId, setPendingTemplateId] = useState<string | null>(null);
   const {
     conversations,
     activeConversation,
