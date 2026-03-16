@@ -27,62 +27,106 @@ interface ChatViewProps {
 }
 
 // Templates for quick-start conversations
-const conversationTemplates = [
-  {
-    icon: FileText,
-    label: "PRD Template",
-    category: "Templates",
-    prompt: `Help me write a PRD using this structure:
+type TemplateCategory = "discovery" | "specs" | "strategy" | "growth" | "ops";
 
-**Problem Statement**: [What problem are we solving?]
-**Target User**: [Who is this for?]
-**Success Metrics**: [How do we measure success?]
-**User Stories**: [Key user stories]
-**Scope**: [What's in/out of scope?]
-**Technical Considerations**: [Any constraints?]
+interface ConversationTemplate {
+  icon: typeof FileText;
+  label: string;
+  category: TemplateCategory;
+  prompt: string;
+}
 
-Let's start — ask me about the feature I'm building.`,
-  },
+const CATEGORY_META: Record<TemplateCategory, { label: string; icon: typeof FileText }> = {
+  discovery: { label: "Discovery", icon: Search },
+  specs: { label: "Specs & PRDs", icon: FileText },
+  strategy: { label: "Strategy", icon: BarChart3 },
+  growth: { label: "Growth", icon: Target },
+  ops: { label: "Team & Ops", icon: Users },
+};
+
+const conversationTemplates: ConversationTemplate[] = [
+  // Discovery
   {
     icon: Search,
-    label: "Competitive Analysis",
-    category: "Templates",
-    prompt: `Help me do a competitive analysis. I'll tell you my product and competitors, and I want you to create a comparison matrix covering:
-
-1. **Feature comparison table** (our product vs competitors)
-2. **Pricing comparison**
-3. **Target audience differences**
-4. **Strengths & weaknesses** of each
-5. **Differentiation opportunities**
-
-What product are we analyzing?`,
+    label: "User Interview Guide",
+    category: "discovery",
+    prompt: `Help me create a user interview guide. I need:\n\n1. **Screening criteria** — who should I talk to?\n2. **Opening questions** — build rapport\n3. **Core discovery questions** — understand problems\n4. **Solution validation** — test assumptions\n5. **Wrap-up** — next steps and referrals\n\nWhat product or feature area are we researching?`,
   },
   {
     icon: Users,
-    label: "User Interview Guide",
-    category: "Templates",
-    prompt: `Help me create a user interview guide. I need:
-
-1. **Screening criteria** — who should I talk to?
-2. **Opening questions** — build rapport
-3. **Core discovery questions** — understand problems
-4. **Solution validation** — test assumptions
-5. **Wrap-up** — next steps and referrals
-
-What product or feature area are we researching?`,
+    label: "User Persona Builder",
+    category: "discovery",
+    prompt: `Help me build a user persona. Walk me through defining:\n\n- **Demographics & role**\n- **Goals & motivations**\n- **Pain points & frustrations**\n- **Current tools & workarounds**\n- **Decision-making factors**\n\nWhat product or user segment should we focus on?`,
+  },
+  {
+    icon: MessageSquare,
+    label: "Feedback Synthesis",
+    category: "discovery",
+    prompt: `Help me synthesize user feedback. I'll share raw feedback (NPS comments, support tickets, interview notes) and I need you to:\n\n1. **Categorize** into themes\n2. **Quantify** frequency of each theme\n3. **Identify** top pain points vs feature requests\n4. **Recommend** action items\n\nPaste your feedback below.`,
+  },
+  // Specs & PRDs
+  {
+    icon: FileText,
+    label: "PRD Template",
+    category: "specs",
+    prompt: `Help me write a PRD using this structure:\n\n**Problem Statement**: [What problem are we solving?]\n**Target User**: [Who is this for?]\n**Success Metrics**: [How do we measure success?]\n**User Stories**: [Key user stories]\n**Scope**: [What's in/out of scope?]\n**Technical Considerations**: [Any constraints?]\n\nLet's start — ask me about the feature I'm building.`,
+  },
+  {
+    icon: FileText,
+    label: "Feature Brief",
+    category: "specs",
+    prompt: `Help me write a concise feature brief (1-pager) covering:\n\n- **What** we're building\n- **Why** it matters (business + user value)\n- **How** it works (key flows)\n- **Success criteria** (metrics + acceptance criteria)\n- **Dependencies & risks**\n\nWhat feature are we speccing?`,
+  },
+  {
+    icon: Zap,
+    label: "User Stories & Tasks",
+    category: "specs",
+    prompt: `Help me break down a feature into user stories and engineering tasks.\n\nFor each story, generate:\n- User story in "As a [user], I want [goal], so that [benefit]" format\n- Acceptance criteria\n- Estimated complexity (S/M/L)\n- Sub-tasks for engineering\n\nWhat feature should we break down?`,
+  },
+  // Strategy
+  {
+    icon: Search,
+    label: "Competitive Analysis",
+    category: "strategy",
+    prompt: `Help me do a competitive analysis. I'll tell you my product and competitors, and I want you to create:\n\n1. **Feature comparison table**\n2. **Pricing comparison**\n3. **Target audience differences**\n4. **Strengths & weaknesses** of each\n5. **Differentiation opportunities**\n\nWhat product are we analyzing?`,
   },
   {
     icon: BarChart3,
     label: "RICE Prioritization",
-    category: "Templates",
-    prompt: `Help me prioritize my backlog using the RICE framework. For each feature, we'll score:
-
-- **Reach**: How many users will this impact per quarter?
-- **Impact**: How much will it move the needle? (3=massive, 2=high, 1=medium, 0.5=low, 0.25=minimal)
-- **Confidence**: How sure are we? (100%, 80%, 50%)
-- **Effort**: How many person-months?
-
-List your features and I'll help you score them.`,
+    category: "strategy",
+    prompt: `Help me prioritize my backlog using the RICE framework. For each feature, we'll score:\n\n- **Reach**: How many users will this impact per quarter?\n- **Impact**: How much will it move the needle? (3=massive, 2=high, 1=medium, 0.5=low, 0.25=minimal)\n- **Confidence**: How sure are we? (100%, 80%, 50%)\n- **Effort**: How many person-months?\n\nList your features and I'll help you score them.`,
+  },
+  {
+    icon: BarChart3,
+    label: "Roadmap Planning",
+    category: "strategy",
+    prompt: `Help me build a product roadmap. I need to organize features into:\n\n- **Now** (this sprint/month)\n- **Next** (next quarter)\n- **Later** (future consideration)\n\nFor each item, let's define:\n- Priority rationale\n- Dependencies\n- Expected impact\n\nWhat's your current product area and goals?`,
+  },
+  // Growth
+  {
+    icon: Target,
+    label: "Go-to-Market Plan",
+    category: "growth",
+    prompt: `Help me create a go-to-market plan for a new feature or product launch:\n\n1. **Target audience** & positioning\n2. **Messaging** — value prop, tagline, key messages\n3. **Launch channels** — where to announce\n4. **Success metrics** — what to track\n5. **Timeline** — pre-launch, launch day, post-launch\n\nWhat are we launching?`,
+  },
+  {
+    icon: Target,
+    label: "A/B Test Plan",
+    category: "growth",
+    prompt: `Help me design an A/B test:\n\n- **Hypothesis**: What do we believe and why?\n- **Variants**: Control vs treatment\n- **Primary metric**: What are we measuring?\n- **Sample size**: How many users do we need?\n- **Duration**: How long should it run?\n- **Decision criteria**: What constitutes a win?\n\nWhat are we testing?`,
+  },
+  // Ops
+  {
+    icon: Users,
+    label: "Sprint Retrospective",
+    category: "ops",
+    prompt: `Run a sprint retrospective for me. Guide me through:\n\n1. **What went well** — celebrate wins\n2. **What didn't go well** — identify blockers\n3. **What to improve** — actionable changes\n4. **Action items** — assign owners and deadlines\n\nWhat sprint or time period are we reflecting on?`,
+  },
+  {
+    icon: Users,
+    label: "Stakeholder Update",
+    category: "ops",
+    prompt: `Help me draft a stakeholder update email covering:\n\n- **Summary** — TL;DR of progress\n- **Key milestones** hit this period\n- **Metrics & KPIs** — how we're tracking\n- **Blockers & risks** — what needs attention\n- **Next steps** — what's coming\n\nWhat project or product should we update on?`,
   },
 ];
 
@@ -99,6 +143,7 @@ export function ChatView({
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [showTemplates, setShowTemplates] = useState(false);
+  const [templateCategory, setTemplateCategory] = useState<TemplateCategory | "all">("all");
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const abortRef = useRef<AbortController | null>(null);
   const { toast } = useToast();
@@ -394,7 +439,7 @@ export function ChatView({
           {/* Starter Suggestions & Templates */}
           {isNewConversation && !isLoading && (
             <div className="animate-in fade-in slide-in-from-bottom-3 duration-500 delay-300">
-              {/* Template toggle */}
+              {/* Tab toggle */}
               <div className="flex items-center gap-2 mb-3">
                 <button
                   onClick={() => setShowTemplates(false)}
@@ -403,7 +448,7 @@ export function ChatView({
                   Quick Start
                 </button>
                 <button
-                  onClick={() => setShowTemplates(true)}
+                  onClick={() => { setShowTemplates(true); setTemplateCategory("all"); }}
                   className={`text-xs font-medium px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1.5 ${showTemplates ? "bg-primary/10 text-primary" : "text-muted-foreground hover:text-foreground"}`}
                 >
                   <BookOpen className="h-3 w-3" />
@@ -411,8 +456,37 @@ export function ChatView({
                 </button>
               </div>
 
+              {/* Category pills for templates */}
+              {showTemplates && (
+                <div className="flex items-center gap-1.5 mb-3 flex-wrap">
+                  <button
+                    onClick={() => setTemplateCategory("all")}
+                    className={`px-2.5 py-1 rounded-full text-[10px] font-medium transition-colors ${
+                      templateCategory === "all" ? "bg-primary text-primary-foreground" : "bg-secondary text-muted-foreground hover:text-foreground"
+                    }`}
+                  >
+                    All
+                  </button>
+                  {(Object.entries(CATEGORY_META) as [TemplateCategory, { label: string; icon: typeof FileText }][]).map(([key, meta]) => (
+                    <button
+                      key={key}
+                      onClick={() => setTemplateCategory(key)}
+                      className={`px-2.5 py-1 rounded-full text-[10px] font-medium transition-colors flex items-center gap-1 ${
+                        templateCategory === key ? "bg-primary text-primary-foreground" : "bg-secondary text-muted-foreground hover:text-foreground"
+                      }`}
+                    >
+                      <meta.icon className="h-2.5 w-2.5" />
+                      {meta.label}
+                    </button>
+                  ))}
+                </div>
+              )}
+
               <div className="grid grid-cols-2 gap-2">
-                {(showTemplates ? conversationTemplates : starterSuggestions).map((item, idx) => (
+                {(showTemplates
+                  ? conversationTemplates.filter((t) => templateCategory === "all" || t.category === templateCategory)
+                  : starterSuggestions
+                ).map((item, idx) => (
                   <button
                     key={idx}
                     onClick={() => handleSuggestionClick(item.prompt)}
@@ -427,7 +501,7 @@ export function ChatView({
                       </span>
                       {"category" in item && (
                         <span className="block text-[10px] text-muted-foreground mt-0.5">
-                          {(item as any).category}
+                          {CATEGORY_META[(item as ConversationTemplate).category]?.label}
                         </span>
                       )}
                     </div>
