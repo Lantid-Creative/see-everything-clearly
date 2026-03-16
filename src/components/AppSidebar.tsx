@@ -106,6 +106,7 @@ export function AppSidebar({
   onSelectConversation,
   onNewConversation,
   onDeleteConversation,
+  onSelectTemplate,
   searchFocusTrigger,
 }: AppSidebarProps) {
   const { state } = useSidebar();
