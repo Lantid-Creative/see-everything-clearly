@@ -100,6 +100,8 @@ const Index = () => {
             onUpdateTitle={(title) =>
               updateConversationTitle(activeConversationId, title)
             }
+            pendingTemplateId={pendingTemplateId}
+            onTemplateSent={() => setPendingTemplateId(null)}
           />
         );
     }
