@@ -67,6 +67,21 @@ function buildContextPrompt(context: any): string {
   if (context.company) parts.push(`- **Company**: ${context.company}`);
   if (context.productGoals) parts.push(`- **Goals**: ${context.productGoals}`);
 
+  // Product lifecycle phase
+  if (context.currentPhase) {
+    const phaseDescriptions: Record<string, string> = {
+      discover: "They are in the DISCOVER phase — identifying problems worth solving, running user interviews, building personas, and synthesizing feedback.",
+      define: "They are in the DEFINE phase — writing PRDs, generating user stories, and creating feature specs for engineering handoff.",
+      prioritize: "They are in the PRIORITIZE phase — scoring features with RICE, building roadmaps, and running competitive analysis.",
+      build: "They are in the BUILD phase — creating automation workflows, connecting integrations, and setting up processes.",
+      launch: "They are in the LAUNCH phase — drafting GTM plans, sending outreach emails, and building stakeholder presentations.",
+      measure: "They are in the MEASURE phase — defining success metrics, planning A/B tests, and running retrospectives.",
+    };
+    parts.push(`\n### Product Lifecycle Phase`);
+    parts.push(phaseDescriptions[context.currentPhase] || `Current phase: ${context.currentPhase}`);
+    parts.push(`Tailor your responses to this phase. Proactively suggest the next logical step in their product lifecycle.`);
+  }
+
   parts.push(`\n### Workspace Stats`);
   parts.push(`- ${context.totalLeads ?? 0} leads in their pipeline`);
   parts.push(`- ${context.totalConversations ?? 0} conversations`);
@@ -78,7 +93,6 @@ function buildContextPrompt(context: any): string {
   if ((context.totalWorkflows ?? 0) === 0) parts.push(`- ⚠️ No workflows yet — suggest automations`);
   if ((context.teamMembers ?? 0) === 0) parts.push(`- ⚠️ Solo user — may benefit from team collaboration tips`);
 
-  // Connected integrations
   const integrations = context.connectedIntegrations || [];
   if (integrations.length > 0) {
     parts.push(`\n### Connected Integrations`);
@@ -88,7 +102,7 @@ function buildContextPrompt(context: any): string {
     parts.push(`\n- ⚠️ No integrations connected — suggest connecting tools like Slack, Notion, or Gmail in the Integrations page`);
   }
 
-  parts.push(`\nUse this context to personalize your responses. Reference their actual data when relevant.`);
+  parts.push(`\nUse this context to personalize your responses. Reference their actual data when relevant. When finishing a task, suggest the next phase in the product lifecycle.`);
 
   return parts.join("\n");
 }
