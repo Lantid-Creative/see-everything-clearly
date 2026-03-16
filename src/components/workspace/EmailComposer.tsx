@@ -27,7 +27,7 @@ export function EmailComposer({ lead, onSend, isTemplateMode, onTemplateCreated 
   const { uploading, pendingFiles, uploadFiles, removePending, clearPending, openFilePicker, inputRef } = useFileUpload();
   const profile = useUserProfile();
 
-  const senderName = profile?.display_name?.split(" ")[0] || "there";
+  const senderName = profile?.displayName?.split(" ")[0] || "there";
   const companyName = profile?.company || "our team";
 
   useEffect(() => {
