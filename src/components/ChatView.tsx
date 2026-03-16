@@ -114,6 +114,26 @@ export function ChatView({
     scrollToBottom();
   }, [conversation.messages, scrollToBottom]);
 
+  // Auto-send template when selected from sidebar
+  const templateMapRef = useRef<Record<string, string>>({});
+  useEffect(() => {
+    const map: Record<string, string> = {};
+    conversationTemplates.forEach((t, i) => {
+      const ids = ["prd", "competitive", "interview", "rice"];
+      if (ids[i]) map[ids[i]] = t.prompt;
+    });
+    templateMapRef.current = map;
+  }, []);
+
+  useEffect(() => {
+    if (pendingTemplateId && templateMapRef.current[pendingTemplateId]) {
+      const prompt = templateMapRef.current[pendingTemplateId];
+      onTemplateSent?.();
+      // Small delay to let the new conversation render
+      setTimeout(() => sendMessage(prompt), 100);
+    }
+  }, [pendingTemplateId]);
+
   const detectWorkspaceType = (content: string): { action: string; type: ViewMode } | null => {
     const lower = content.toLowerCase();
     if (
