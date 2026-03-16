@@ -439,7 +439,7 @@ export function ChatView({
           {/* Starter Suggestions & Templates */}
           {isNewConversation && !isLoading && (
             <div className="animate-in fade-in slide-in-from-bottom-3 duration-500 delay-300">
-              {/* Template toggle */}
+              {/* Tab toggle */}
               <div className="flex items-center gap-2 mb-3">
                 <button
                   onClick={() => setShowTemplates(false)}
@@ -448,7 +448,7 @@ export function ChatView({
                   Quick Start
                 </button>
                 <button
-                  onClick={() => setShowTemplates(true)}
+                  onClick={() => { setShowTemplates(true); setTemplateCategory("all"); }}
                   className={`text-xs font-medium px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1.5 ${showTemplates ? "bg-primary/10 text-primary" : "text-muted-foreground hover:text-foreground"}`}
                 >
                   <BookOpen className="h-3 w-3" />
@@ -456,8 +456,37 @@ export function ChatView({
                 </button>
               </div>
 
+              {/* Category pills for templates */}
+              {showTemplates && (
+                <div className="flex items-center gap-1.5 mb-3 flex-wrap">
+                  <button
+                    onClick={() => setTemplateCategory("all")}
+                    className={`px-2.5 py-1 rounded-full text-[10px] font-medium transition-colors ${
+                      templateCategory === "all" ? "bg-primary text-primary-foreground" : "bg-secondary text-muted-foreground hover:text-foreground"
+                    }`}
+                  >
+                    All
+                  </button>
+                  {(Object.entries(CATEGORY_META) as [TemplateCategory, { label: string; icon: typeof FileText }][]).map(([key, meta]) => (
+                    <button
+                      key={key}
+                      onClick={() => setTemplateCategory(key)}
+                      className={`px-2.5 py-1 rounded-full text-[10px] font-medium transition-colors flex items-center gap-1 ${
+                        templateCategory === key ? "bg-primary text-primary-foreground" : "bg-secondary text-muted-foreground hover:text-foreground"
+                      }`}
+                    >
+                      <meta.icon className="h-2.5 w-2.5" />
+                      {meta.label}
+                    </button>
+                  ))}
+                </div>
+              )}
+
               <div className="grid grid-cols-2 gap-2">
-                {(showTemplates ? conversationTemplates : starterSuggestions).map((item, idx) => (
+                {(showTemplates
+                  ? conversationTemplates.filter((t) => templateCategory === "all" || t.category === templateCategory)
+                  : starterSuggestions
+                ).map((item, idx) => (
                   <button
                     key={idx}
                     onClick={() => handleSuggestionClick(item.prompt)}
@@ -472,7 +501,7 @@ export function ChatView({
                       </span>
                       {"category" in item && (
                         <span className="block text-[10px] text-muted-foreground mt-0.5">
-                          {(item as any).category}
+                          {CATEGORY_META[(item as ConversationTemplate).category]?.label}
                         </span>
                       )}
                     </div>
