@@ -124,7 +124,7 @@ const Index = () => {
           }}
           onNewConversation={handleNewChat}
           onDeleteConversation={deleteConversation}
-          searchFocusTrigger={searchFocusTrigger}
+          onSelectTemplate={handleSelectTemplate}
         />
         <main className="flex-1 flex flex-col min-w-0">
           {renderView()}
