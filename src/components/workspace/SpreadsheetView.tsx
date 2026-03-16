@@ -14,7 +14,7 @@ interface SpreadsheetViewProps {
 type FilterField = "status" | "source" | "all";
 
 export function SpreadsheetView({ onBack }: SpreadsheetViewProps) {
-  const { leads, setLeads, loaded } = useSpreadsheetLeads();
+  const { leads, setLeads, loaded, addLead, updateLead, deleteLeads } = useSpreadsheetLeads();
   const isMobile = useIsMobile();
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedRows, setSelectedRows] = useState<Set<string>>(new Set());
@@ -28,9 +28,7 @@ export function SpreadsheetView({ onBack }: SpreadsheetViewProps) {
   const [showAddRow, setShowAddRow] = useState(false);
   const [newRow, setNewRow] = useState({ name: "", company: "", title: "", email: "", linkedin: "", status: "pending" as const, source: "" });
   const { toast } = useToast();
-  const [chatMessages, setChatMessages] = useState<{ role: "user" | "assistant"; content: string }[]>([
-    { role: "assistant", content: "Research complete. Found 15 founders across 7 companies with verified emails and LinkedIn profiles. The data is enriched with company details, roles, and sources." },
-  ]);
+  const [chatMessages, setChatMessages] = useState<{ role: "user" | "assistant"; content: string }[]>([]);
 
   if (!loaded) {
     return (
