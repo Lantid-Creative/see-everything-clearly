@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import {
   Home,
-  Inbox,
   Workflow,
   Settings,
   Puzzle,
@@ -20,8 +19,14 @@ import {
   Loader2,
   LayoutGrid,
   Table,
-  BookOpen,
   BarChart3,
+  Compass,
+  ClipboardList,
+  ListOrdered,
+  Rocket,
+  Activity,
+  Hammer,
+  ChevronRight,
 } from "lucide-react";
 import { Logo } from "@/components/Logo";
 import { useAuth } from "@/hooks/useAuth";
@@ -41,23 +46,66 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import type { ViewMode } from "@/pages/Index";
 import type { Conversation } from "@/hooks/useConversations";
+import type { ProductPhase } from "@/hooks/useProductPhase";
 
-const mainNav = [
-  { title: "Home", icon: Home, id: "home", view: "dashboard" as ViewMode },
-  { title: "Inbox", icon: Inbox, id: "inbox", view: "chat" as ViewMode, badge: 15 },
-  { title: "Workflows", icon: Workflow, id: "workflows", view: "workflow" as ViewMode },
+const PHASE_NAV: { id: ProductPhase; label: string; icon: typeof Compass; views: { label: string; view: ViewMode; icon: typeof MessageSquare }[] }[] = [
+  {
+    id: "discover",
+    label: "Discover",
+    icon: Compass,
+    views: [
+      { label: "AI Chat", view: "chat", icon: MessageSquare },
+      { label: "Workspace", view: "workspace", icon: LayoutGrid },
+    ],
+  },
+  {
+    id: "define",
+    label: "Define",
+    icon: ClipboardList,
+    views: [
+      { label: "AI Chat", view: "chat", icon: MessageSquare },
+      { label: "Slides", view: "slides", icon: Presentation },
+    ],
+  },
+  {
+    id: "prioritize",
+    label: "Prioritize",
+    icon: ListOrdered,
+    views: [
+      { label: "Spreadsheet", view: "spreadsheet", icon: Table },
+      { label: "AI Chat", view: "chat", icon: MessageSquare },
+    ],
+  },
+  {
+    id: "build",
+    label: "Build",
+    icon: Hammer,
+    views: [
+      { label: "Workflows", view: "workflow", icon: GitBranch },
+      { label: "Integrations", view: "integrations", icon: Puzzle },
+    ],
+  },
+  {
+    id: "launch",
+    label: "Launch",
+    icon: Rocket,
+    views: [
+      { label: "Workspace", view: "workspace", icon: LayoutGrid },
+      { label: "Slides", view: "slides", icon: Presentation },
+    ],
+  },
+  {
+    id: "measure",
+    label: "Measure",
+    icon: Activity,
+    views: [
+      { label: "AI Chat", view: "chat", icon: MessageSquare },
+      { label: "Spreadsheet", view: "spreadsheet", icon: Table },
+    ],
+  },
 ];
-
-const workspaceNav = [
-  { title: "Workspace", icon: LayoutGrid, id: "workspace", view: "workspace" as ViewMode },
-  { title: "Slides", icon: Presentation, id: "slides", view: "slides" as ViewMode },
-  { title: "Spreadsheet", icon: Table, id: "spreadsheet", view: "spreadsheet" as ViewMode },
-];
-
-// Team members are now loaded dynamically from the database
 
 const iconForConversation = (title: string) => {
   if (title.toLowerCase().includes("present")) return Presentation;
@@ -79,13 +127,6 @@ const labelForResultType: Record<SearchResult["type"], string> = {
   workflow: "Workflows",
 };
 
-const sidebarTemplates = [
-  { icon: FileText, label: "PRD Template", id: "prd" },
-  { icon: Search, label: "Competitive Analysis", id: "competitive" },
-  { icon: Users, label: "User Interview Guide", id: "interview" },
-  { icon: BarChart3, label: "RICE Prioritization", id: "rice" },
-];
-
 interface AppSidebarProps {
   onSwitchView: (view: ViewMode) => void;
   currentView: ViewMode;
@@ -96,6 +137,7 @@ interface AppSidebarProps {
   onDeleteConversation: (id: string) => void;
   onSelectTemplate?: (templateId: string) => void;
   searchFocusTrigger?: number;
+  currentPhase?: ProductPhase | null;
 }
 
 export function AppSidebar({
@@ -108,17 +150,21 @@ export function AppSidebar({
   onDeleteConversation,
   onSelectTemplate,
   searchFocusTrigger,
+  currentPhase,
 }: AppSidebarProps) {
   const { state } = useSidebar();
   const { user, signOut } = useAuth();
   const { theme, toggleTheme } = useTheme();
   const collapsed = state === "collapsed";
-  const [activeItem, setActiveItem] = useState("home");
   const [searchQuery, setSearchQuery] = useState("");
   const [isSearchFocused, setIsSearchFocused] = useState(false);
+  const [expandedPhase, setExpandedPhase] = useState<ProductPhase | null>(currentPhase || null);
   const { results: searchResults, isSearching: isGlobalSearching } = useGlobalSearch(searchQuery);
 
-  // Focus search when triggered by keyboard shortcut
+  useEffect(() => {
+    if (currentPhase && !expandedPhase) setExpandedPhase(currentPhase);
+  }, [currentPhase]);
+
   useEffect(() => {
     if (searchFocusTrigger && searchFocusTrigger > 0) {
       setIsSearchFocused(true);
@@ -127,7 +173,6 @@ export function AppSidebar({
 
   const hasQuery = searchQuery.trim().length > 0;
 
-  // Group search results by type
   const groupedResults = searchResults.reduce<Record<string, SearchResult[]>>((acc, r) => {
     (acc[r.type] = acc[r.type] || []).push(r);
     return acc;
@@ -135,18 +180,10 @@ export function AppSidebar({
 
   const handleSearchResultClick = (result: SearchResult) => {
     switch (result.type) {
-      case "conversation":
-        onSelectConversation(result.id);
-        break;
-      case "lead":
-        onSwitchView("workspace");
-        break;
-      case "email":
-        onSwitchView("workspace");
-        break;
-      case "workflow":
-        onSwitchView("workflow");
-        break;
+      case "conversation": onSelectConversation(result.id); break;
+      case "lead": onSwitchView("workspace"); break;
+      case "email": onSwitchView("workspace"); break;
+      case "workflow": onSwitchView("workflow"); break;
     }
     setSearchQuery("");
     setIsSearchFocused(false);
@@ -170,7 +207,6 @@ export function AppSidebar({
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 onBlur={() => {
-                  // Delay to allow click on results
                   setTimeout(() => {
                     if (!searchQuery) setIsSearchFocused(false);
                   }, 200);
@@ -246,61 +282,75 @@ export function AppSidebar({
         {/* Main Navigation — hide when searching */}
         {!hasQuery && (
           <>
+            {/* Home */}
             <SidebarGroup>
               <SidebarGroupContent>
                 <SidebarMenu>
-                 {mainNav.map((item) => (
-                    <SidebarMenuItem key={item.id}>
-                      <SidebarMenuButton
-                        onClick={() => {
-                          setActiveItem(item.id);
-                          onSwitchView(item.view);
-                        }}
-                        isActive={activeItem === item.id || currentView === item.view}
-                        className="text-sidebar-foreground hover:text-sidebar-primary hover:bg-sidebar-accent data-[active=true]:bg-sidebar-accent data-[active=true]:text-sidebar-primary"
-                      >
-                        <item.icon className="h-4 w-4" />
-                        {!collapsed && <span>{item.title}</span>}
-                        {!collapsed && item.badge && (
-                          <span className="ml-auto text-[10px] bg-primary text-primary-foreground rounded-full px-1.5 py-0.5 leading-none font-medium">
-                            {item.badge}
-                          </span>
-                        )}
-                      </SidebarMenuButton>
-                    </SidebarMenuItem>
-                  ))}
+                  <SidebarMenuItem>
+                    <SidebarMenuButton
+                      onClick={() => onSwitchView("dashboard")}
+                      isActive={currentView === "dashboard"}
+                      className="text-sidebar-foreground hover:text-sidebar-primary hover:bg-sidebar-accent data-[active=true]:bg-sidebar-accent data-[active=true]:text-sidebar-primary"
+                    >
+                      <Home className="h-4 w-4" />
+                      {!collapsed && <span>Home</span>}
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
                 </SidebarMenu>
               </SidebarGroupContent>
             </SidebarGroup>
 
-            {/* Workspace Tools */}
+            {/* Product Lifecycle Phases */}
             {!collapsed && (
               <SidebarGroup>
                 <SidebarGroupLabel className="text-sidebar-muted text-[10px] uppercase tracking-wider font-semibold">
-                  Tools
+                  Product Lifecycle
                 </SidebarGroupLabel>
                 <SidebarGroupContent>
                   <SidebarMenu>
-                    {workspaceNav.map((item) => (
-                      <SidebarMenuItem key={item.id}>
-                        <SidebarMenuButton
-                          onClick={() => {
-                            setActiveItem(item.id);
-                            onSwitchView(item.view);
-                          }}
-                          isActive={currentView === item.view}
-                          className="text-sidebar-foreground hover:text-sidebar-primary hover:bg-sidebar-accent data-[active=true]:bg-sidebar-accent data-[active=true]:text-sidebar-primary text-xs"
-                        >
-                          <item.icon className="h-3.5 w-3.5" />
-                          <span>{item.title}</span>
-                        </SidebarMenuButton>
-                      </SidebarMenuItem>
-                    ))}
+                    {PHASE_NAV.map((phase) => {
+                      const isExpanded = expandedPhase === phase.id;
+                      const isCurrent = currentPhase === phase.id;
+                      return (
+                        <div key={phase.id}>
+                          <SidebarMenuItem>
+                            <SidebarMenuButton
+                              onClick={() => setExpandedPhase(isExpanded ? null : phase.id)}
+                              className={`text-sidebar-foreground hover:text-sidebar-primary hover:bg-sidebar-accent text-xs ${
+                                isCurrent ? "text-primary font-semibold" : ""
+                              }`}
+                            >
+                              <phase.icon className={`h-3.5 w-3.5 ${isCurrent ? "text-primary" : ""}`} />
+                              <span className="flex-1">{phase.label}</span>
+                              {isCurrent && (
+                                <span className="h-1.5 w-1.5 rounded-full bg-primary shrink-0" />
+                              )}
+                              <ChevronRight className={`h-3 w-3 text-sidebar-muted transition-transform ${isExpanded ? "rotate-90" : ""}`} />
+                            </SidebarMenuButton>
+                          </SidebarMenuItem>
+                          {isExpanded && (
+                            <div className="ml-4 border-l border-sidebar-accent pl-2 space-y-0.5 py-0.5">
+                              {phase.views.map((view) => (
+                                <SidebarMenuItem key={`${phase.id}-${view.view}`}>
+                                  <SidebarMenuButton
+                                    onClick={() => onSwitchView(view.view)}
+                                    isActive={currentView === view.view}
+                                    className="text-sidebar-foreground hover:text-sidebar-primary hover:bg-sidebar-accent data-[active=true]:bg-sidebar-accent data-[active=true]:text-sidebar-primary text-[11px] h-7"
+                                  >
+                                    <view.icon className="h-3 w-3" />
+                                    <span>{view.label}</span>
+                                  </SidebarMenuButton>
+                                </SidebarMenuItem>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
                   </SidebarMenu>
                 </SidebarGroupContent>
               </SidebarGroup>
             )}
-
 
             {/* Recent Conversations */}
             {!collapsed && (
@@ -350,8 +400,9 @@ export function AppSidebar({
                   <SidebarMenu>
                     <SidebarMenuItem>
                       <SidebarMenuButton
-                        onClick={() => onSwitchView("team" as any)}
-                        className="text-sidebar-foreground hover:text-sidebar-primary hover:bg-sidebar-accent text-xs"
+                        onClick={() => onSwitchView("team")}
+                        isActive={currentView === "team"}
+                        className="text-sidebar-foreground hover:text-sidebar-primary hover:bg-sidebar-accent data-[active=true]:bg-sidebar-accent data-[active=true]:text-sidebar-primary text-xs"
                       >
                         <Users className="h-4 w-4" />
                         <span>Manage Team</span>
@@ -368,7 +419,11 @@ export function AppSidebar({
       <SidebarFooter className="px-1.5 pb-3">
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton onClick={() => onSwitchView("integrations" as any)} className="text-sidebar-foreground hover:text-sidebar-primary hover:bg-sidebar-accent">
+            <SidebarMenuButton
+              onClick={() => onSwitchView("integrations")}
+              isActive={currentView === "integrations"}
+              className="text-sidebar-foreground hover:text-sidebar-primary hover:bg-sidebar-accent data-[active=true]:bg-sidebar-accent data-[active=true]:text-sidebar-primary"
+            >
               <Puzzle className="h-4 w-4" />
               {!collapsed && <span>Integrations</span>}
             </SidebarMenuButton>
@@ -384,8 +439,9 @@ export function AppSidebar({
           </SidebarMenuItem>
           <SidebarMenuItem>
             <SidebarMenuButton
-              onClick={() => onSwitchView("settings" as any)}
-              className="text-sidebar-foreground hover:text-sidebar-primary hover:bg-sidebar-accent"
+              onClick={() => onSwitchView("settings")}
+              isActive={currentView === "settings"}
+              className="text-sidebar-foreground hover:text-sidebar-primary hover:bg-sidebar-accent data-[active=true]:bg-sidebar-accent data-[active=true]:text-sidebar-primary"
             >
               <Settings className="h-4 w-4" />
               {!collapsed && <span>Settings</span>}
