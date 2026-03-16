@@ -22,6 +22,8 @@ interface ChatViewProps {
   onUpdateLastAssistant: (content: string, isStreaming: boolean) => void;
   onSetAction: (messageId: string, action: string) => void;
   onUpdateTitle?: (title: string) => void;
+  pendingTemplateId?: string | null;
+  onTemplateSent?: () => void;
 }
 
 // Templates for quick-start conversations
