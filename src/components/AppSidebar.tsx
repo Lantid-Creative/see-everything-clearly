@@ -301,6 +301,31 @@ export function AppSidebar({
               </SidebarGroup>
             )}
 
+            {/* Templates */}
+            {!collapsed && (
+              <SidebarGroup>
+                <SidebarGroupLabel className="text-sidebar-muted text-[10px] uppercase tracking-wider font-semibold flex items-center gap-1.5">
+                  <BookOpen className="h-3 w-3" />
+                  Templates
+                </SidebarGroupLabel>
+                <SidebarGroupContent>
+                  <SidebarMenu>
+                    {sidebarTemplates.map((tmpl) => (
+                      <SidebarMenuItem key={tmpl.id}>
+                        <SidebarMenuButton
+                          onClick={() => onSelectTemplate?.(tmpl.id)}
+                          className="text-sidebar-foreground hover:text-sidebar-primary hover:bg-sidebar-accent text-xs"
+                        >
+                          <tmpl.icon className="h-3.5 w-3.5" />
+                          <span>{tmpl.label}</span>
+                        </SidebarMenuButton>
+                      </SidebarMenuItem>
+                    ))}
+                  </SidebarMenu>
+                </SidebarGroupContent>
+              </SidebarGroup>
+            )}
+
             {/* Recent Conversations */}
             {!collapsed && (
               <SidebarGroup>
