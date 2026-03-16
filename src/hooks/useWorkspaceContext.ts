@@ -13,12 +13,13 @@ export function useWorkspaceContext(): WorkspaceContext | null {
     if (!user) return;
 
     async function load() {
-      const [leadsRes, convsRes, workflowsRes, emailsRes, teamRes] = await Promise.all([
+      const [leadsRes, convsRes, workflowsRes, emailsRes, teamRes, integrationsRes] = await Promise.all([
         supabase.from("leads").select("*", { count: "exact", head: true }).eq("user_id", user!.id),
         supabase.from("conversations").select("*", { count: "exact", head: true }).eq("user_id", user!.id),
         supabase.from("workflows").select("*", { count: "exact", head: true }).eq("user_id", user!.id),
         supabase.from("email_drafts").select("*", { count: "exact", head: true }).eq("user_id", user!.id).eq("sent", true),
         supabase.from("team_members").select("*", { count: "exact", head: true }).eq("user_id", user!.id),
+        supabase.from("user_integrations").select("provider").eq("user_id", user!.id).eq("is_connected", true),
       ]);
 
       setContext({
@@ -30,6 +31,7 @@ export function useWorkspaceContext(): WorkspaceContext | null {
         userRole: profile?.role,
         company: profile?.company,
         productGoals: profile?.productGoals,
+        connectedIntegrations: (integrationsRes.data || []).map((r: any) => r.provider),
       });
     }
 

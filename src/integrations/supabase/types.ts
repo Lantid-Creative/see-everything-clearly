@@ -390,6 +390,42 @@ export type Database = {
         }
         Relationships: []
       }
+      user_integrations: {
+        Row: {
+          api_key: string | null
+          config: Json | null
+          created_at: string
+          display_name: string
+          id: string
+          is_connected: boolean
+          provider: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          api_key?: string | null
+          config?: Json | null
+          created_at?: string
+          display_name?: string
+          id?: string
+          is_connected?: boolean
+          provider: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          api_key?: string | null
+          config?: Json | null
+          created_at?: string
+          display_name?: string
+          id?: string
+          is_connected?: boolean
+          provider?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       workflows: {
         Row: {
           created_at: string

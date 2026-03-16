@@ -78,6 +78,16 @@ function buildContextPrompt(context: any): string {
   if ((context.totalWorkflows ?? 0) === 0) parts.push(`- ⚠️ No workflows yet — suggest automations`);
   if ((context.teamMembers ?? 0) === 0) parts.push(`- ⚠️ Solo user — may benefit from team collaboration tips`);
 
+  // Connected integrations
+  const integrations = context.connectedIntegrations || [];
+  if (integrations.length > 0) {
+    parts.push(`\n### Connected Integrations`);
+    parts.push(`The user has connected: ${integrations.join(", ")}`);
+    parts.push(`You can reference these integrations in your responses and suggest using them in workflows.`);
+  } else {
+    parts.push(`\n- ⚠️ No integrations connected — suggest connecting tools like Slack, Notion, or Gmail in the Integrations page`);
+  }
+
   parts.push(`\nUse this context to personalize your responses. Reference their actual data when relevant.`);
 
   return parts.join("\n");
