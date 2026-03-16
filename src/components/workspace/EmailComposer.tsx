@@ -2,6 +2,7 @@ import { useState, useRef, useEffect, useCallback, KeyboardEvent } from "react";
 import { Send, Mail, Check, Loader2, ArrowRight, Paperclip, X, FileIcon } from "lucide-react";
 import type { Lead } from "@/components/WorkspaceView";
 import { useFileUpload, formatFileSize, isImageFile, type FileAttachment } from "@/hooks/useFileUpload";
+import { useUserProfile } from "@/hooks/useUserProfile";
 
 interface EmailComposerProps {
   lead: Lead;
@@ -24,20 +25,24 @@ export function EmailComposer({ lead, onSend, isTemplateMode, onTemplateCreated 
   const [activeField, setActiveField] = useState(-1);
   const bodyRef = useRef<HTMLTextAreaElement>(null);
   const { uploading, pendingFiles, uploadFiles, removePending, clearPending, openFilePicker, inputRef } = useFileUpload();
+  const profile = useUserProfile();
+
+  const senderName = profile?.display_name?.split(" ")[0] || "there";
+  const companyName = profile?.company || "our team";
 
   useEffect(() => {
     if (!lead.sent) {
       if (isTemplateMode) {
-        setSubject(`Quick intro — {{company}} x ClosedAI`);
-        setBody(`Hi {{first_name}},\n\nI came across {{company}} and was really impressed by what you're building. {{hook}}\n\n{{value_prop}}\n\nWould you be open to a quick 15-minute chat this week?\n\nBest,\nSid`);
+        setSubject(`Quick intro — {{company}} x ${companyName}`);
+        setBody(`Hi {{first_name}},\n\nI came across {{company}} and was really impressed by what you're building. {{hook}}\n\n{{value_prop}}\n\nWould you be open to a quick 15-minute chat this week?\n\nBest,\n${senderName}`);
       } else {
-        setSubject(`Quick intro — ${lead.company} x ClosedAI`);
-        setBody(`Hi ${lead.name.split(" ")[0]},\n\nI came across ${lead.company} and was really impressed by what you're building. I think there could be a great synergy between ${lead.company} and ClosedAI.\n\nWould you be open to a quick 15-minute chat this week?\n\nBest,\nSid`);
+        setSubject(`Quick intro — ${lead.company} x ${companyName}`);
+        setBody(`Hi ${lead.name.split(" ")[0]},\n\nI came across ${lead.company} and was really impressed by what you're building.\n\nWould you be open to a quick 15-minute chat this week?\n\nBest,\n${senderName}`);
       }
     }
     setActiveField(-1);
     clearPending();
-  }, [lead, isTemplateMode]);
+  }, [lead, isTemplateMode, senderName, companyName]);
 
   const handleKeyDown = (e: KeyboardEvent) => {
     if (e.key === "Tab" && isTemplateMode && !lead.sent) {
