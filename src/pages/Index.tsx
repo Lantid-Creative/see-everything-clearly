@@ -20,6 +20,7 @@ export type ViewMode = "dashboard" | "chat" | "workspace" | "slides" | "workflow
 const Index = () => {
   const [viewMode, setViewMode] = useState<ViewMode>("dashboard");
   const [searchFocusTrigger, setSearchFocusTrigger] = useState(0);
+  const [pendingTemplateId, setPendingTemplateId] = useState<string | null>(null);
   const {
     conversations,
     activeConversation,
@@ -36,6 +37,12 @@ const Index = () => {
 
   const handleNewChat = useCallback(() => {
     createConversation();
+    setViewMode("chat");
+  }, [createConversation]);
+
+  const handleSelectTemplate = useCallback((templateId: string) => {
+    createConversation();
+    setPendingTemplateId(templateId);
     setViewMode("chat");
   }, [createConversation]);
 
@@ -93,6 +100,8 @@ const Index = () => {
             onUpdateTitle={(title) =>
               updateConversationTitle(activeConversationId, title)
             }
+            pendingTemplateId={pendingTemplateId}
+            onTemplateSent={() => setPendingTemplateId(null)}
           />
         );
     }
@@ -115,6 +124,7 @@ const Index = () => {
           }}
           onNewConversation={handleNewChat}
           onDeleteConversation={deleteConversation}
+          onSelectTemplate={handleSelectTemplate}
           searchFocusTrigger={searchFocusTrigger}
         />
         <main className="flex-1 flex flex-col min-w-0">

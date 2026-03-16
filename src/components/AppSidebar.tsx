@@ -20,6 +20,8 @@ import {
   Loader2,
   LayoutGrid,
   Table,
+  BookOpen,
+  BarChart3,
 } from "lucide-react";
 import { Logo } from "@/components/Logo";
 import { useAuth } from "@/hooks/useAuth";
@@ -77,6 +79,13 @@ const labelForResultType: Record<SearchResult["type"], string> = {
   workflow: "Workflows",
 };
 
+const sidebarTemplates = [
+  { icon: FileText, label: "PRD Template", id: "prd" },
+  { icon: Search, label: "Competitive Analysis", id: "competitive" },
+  { icon: Users, label: "User Interview Guide", id: "interview" },
+  { icon: BarChart3, label: "RICE Prioritization", id: "rice" },
+];
+
 interface AppSidebarProps {
   onSwitchView: (view: ViewMode) => void;
   currentView: ViewMode;
@@ -85,6 +94,7 @@ interface AppSidebarProps {
   onSelectConversation: (id: string) => void;
   onNewConversation: () => void;
   onDeleteConversation: (id: string) => void;
+  onSelectTemplate?: (templateId: string) => void;
   searchFocusTrigger?: number;
 }
 
@@ -96,6 +106,7 @@ export function AppSidebar({
   onSelectConversation,
   onNewConversation,
   onDeleteConversation,
+  onSelectTemplate,
   searchFocusTrigger,
 }: AppSidebarProps) {
   const { state } = useSidebar();
@@ -282,6 +293,31 @@ export function AppSidebar({
                         >
                           <item.icon className="h-3.5 w-3.5" />
                           <span>{item.title}</span>
+                        </SidebarMenuButton>
+                      </SidebarMenuItem>
+                    ))}
+                  </SidebarMenu>
+                </SidebarGroupContent>
+              </SidebarGroup>
+            )}
+
+            {/* Templates */}
+            {!collapsed && (
+              <SidebarGroup>
+                <SidebarGroupLabel className="text-sidebar-muted text-[10px] uppercase tracking-wider font-semibold flex items-center gap-1.5">
+                  <BookOpen className="h-3 w-3" />
+                  Templates
+                </SidebarGroupLabel>
+                <SidebarGroupContent>
+                  <SidebarMenu>
+                    {sidebarTemplates.map((tmpl) => (
+                      <SidebarMenuItem key={tmpl.id}>
+                        <SidebarMenuButton
+                          onClick={() => onSelectTemplate?.(tmpl.id)}
+                          className="text-sidebar-foreground hover:text-sidebar-primary hover:bg-sidebar-accent text-xs"
+                        >
+                          <tmpl.icon className="h-3.5 w-3.5" />
+                          <span>{tmpl.label}</span>
                         </SidebarMenuButton>
                       </SidebarMenuItem>
                     ))}
