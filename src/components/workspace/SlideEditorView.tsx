@@ -95,6 +95,19 @@ export function SlideEditorView({ onBack, initialContent, onContentConsumed }: S
   const { toast } = useToast();
   const isMobile = useIsMobile();
 
+  // When new initialContent arrives, parse and apply it
+  useEffect(() => {
+    if (initialContent) {
+      const parsed = parseAIContentToSlides(initialContent);
+      if (parsed && parsed.length > 0) {
+        setSlides(parsed);
+        setCurrentSlide(0);
+        toast({ title: "Deck created", description: `${parsed.length} slides generated from AI` });
+      }
+      onContentConsumed?.();
+    }
+  }, [initialContent]);
+
   const slide = slides[currentSlide];
 
   const startEdit = (field: string, value: string) => {
