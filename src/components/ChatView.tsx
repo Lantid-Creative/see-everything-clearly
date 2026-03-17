@@ -329,6 +329,26 @@ export function ChatView({
     open_spreadsheet: { label: "Open spreadsheet", icon: Table, type: "spreadsheet" },
   };
 
+  const TOOL_ICONS: Record<string, { icon: any; type: ViewMode }> = {
+    slides: { icon: Presentation, type: "slides" },
+    workflow: { icon: GitBranch, type: "workflow" },
+    workspace: { icon: LayoutGrid, type: "workspace" },
+    spreadsheet: { icon: Table, type: "spreadsheet" },
+  };
+
+  const ACTION_LINK_REGEX = /\[\[action:(\w+)\|(.+?)\]\]/g;
+
+  function parseActionLinks(content: string): { cleanContent: string; actions: { tool: string; label: string }[] } {
+    const actions: { tool: string; label: string }[] = [];
+    const cleanContent = content.replace(ACTION_LINK_REGEX, (_, tool, label) => {
+      if (TOOL_ICONS[tool]) {
+        actions.push({ tool, label });
+      }
+      return "";
+    }).replace(/→\s*\n?/g, "").trimEnd();
+    return { cleanContent, actions };
+  }
+
   const getStarterSuggestions = () => {
     const allSuggestions = [
       { icon: Search, label: "Validate a product idea", prompt: "I have a product idea and I want to validate it. Can you help me structure a discovery process — who to talk to, what to ask, and how to evaluate if it's worth building?", goals: ["Discover what to build next"] },
@@ -405,53 +425,84 @@ export function ChatView({
       {/* Messages */}
       <div className="flex-1 overflow-y-auto px-4 py-6">
         <div className="max-w-2xl mx-auto space-y-4">
-          {conversation.messages.map((msg) => (
-            <div
-              key={msg.id}
-              className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"} animate-in fade-in slide-in-from-bottom-2 duration-300`}
-            >
+          {conversation.messages.map((msg) => {
+            const parsed = msg.role === "assistant" && !msg.isStreaming
+              ? parseActionLinks(msg.content)
+              : null;
+            const displayContent = parsed ? parsed.cleanContent : msg.content;
+            const inlineActions = parsed?.actions || [];
+
+            return (
               <div
-                className={`max-w-[80%] rounded-2xl px-4 py-2.5 text-sm leading-relaxed ${
-                  msg.role === "user"
-                    ? "bg-chat-bubble-user text-chat-bubble-user-foreground"
-                    : "bg-chat-bubble-ai text-chat-bubble-ai-foreground"
-                }`}
+                key={msg.id}
+                className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"} animate-in fade-in slide-in-from-bottom-2 duration-300`}
               >
-                {msg.role === "assistant" ? (
-                  <div className="prose prose-sm max-w-none dark:prose-invert [&>p]:my-1 [&>ul]:my-1 [&>ol]:my-1 [&>table]:my-2 [&>table]:text-xs [&_th]:px-2 [&_th]:py-1 [&_td]:px-2 [&_td]:py-1 [&_th]:border [&_td]:border [&_th]:border-border [&_td]:border-border [&_th]:bg-muted/50">
-                    <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                      {msg.content || " "}
-                    </ReactMarkdown>
-                    {msg.isStreaming && (
-                      <span className="inline-block w-1.5 h-4 bg-foreground/60 animate-pulse ml-0.5 align-middle" />
-                    )}
-                  </div>
-                ) : (
-                  <p>{msg.content}</p>
-                )}
-                {msg.attachments && <MessageAttachments attachments={msg.attachments} />}
-                {msg.action === "Used spreadsheet research" && (
-                  <div className="mt-2 text-xs opacity-70 flex items-center gap-1">
-                    <Sparkles className="h-3 w-3" />
-                    <span>Used spreadsheet research</span>
-                  </div>
-                )}
-                {msg.action && actionConfig[msg.action] && (
-                  <button
-                    onClick={() => onOpenWorkspace(actionConfig[msg.action!].type)}
-                    className="mt-3 flex items-center gap-2 text-xs font-medium bg-foreground/10 hover:bg-foreground/15 rounded-lg px-3 py-2 transition-colors"
-                  >
-                    {(() => {
-                      const Icon = actionConfig[msg.action!].icon;
-                      return <Icon className="h-3.5 w-3.5" />;
-                    })()}
-                    <span>{actionConfig[msg.action!].label}</span>
-                    <ArrowRight className="h-3 w-3" />
-                  </button>
-                )}
+                <div
+                  className={`max-w-[80%] rounded-2xl px-4 py-2.5 text-sm leading-relaxed ${
+                    msg.role === "user"
+                      ? "bg-chat-bubble-user text-chat-bubble-user-foreground"
+                      : "bg-chat-bubble-ai text-chat-bubble-ai-foreground"
+                  }`}
+                >
+                  {msg.role === "assistant" ? (
+                    <div className="prose prose-sm max-w-none dark:prose-invert [&>p]:my-1 [&>ul]:my-1 [&>ol]:my-1 [&>table]:my-2 [&>table]:text-xs [&_th]:px-2 [&_th]:py-1 [&_td]:px-2 [&_td]:py-1 [&_th]:border [&_td]:border [&_th]:border-border [&_td]:border-border [&_th]:bg-muted/50">
+                      <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                        {displayContent || " "}
+                      </ReactMarkdown>
+                      {msg.isStreaming && (
+                        <span className="inline-block w-1.5 h-4 bg-foreground/60 animate-pulse ml-0.5 align-middle" />
+                      )}
+                    </div>
+                  ) : (
+                    <p>{msg.content}</p>
+                  )}
+                  {msg.attachments && <MessageAttachments attachments={msg.attachments} />}
+
+                  {/* Inline tool action buttons parsed from AI response */}
+                  {inlineActions.length > 0 && (
+                    <div className="mt-3 flex flex-wrap gap-2">
+                      {inlineActions.map((action, i) => {
+                        const toolMeta = TOOL_ICONS[action.tool];
+                        if (!toolMeta) return null;
+                        const Icon = toolMeta.icon;
+                        return (
+                          <button
+                            key={i}
+                            onClick={() => onOpenWorkspace(toolMeta.type)}
+                            className="flex items-center gap-2 text-xs font-medium bg-primary/10 hover:bg-primary/20 text-primary rounded-lg px-3 py-2 transition-colors"
+                          >
+                            <Icon className="h-3.5 w-3.5" />
+                            <span>{action.label}</span>
+                            <ArrowRight className="h-3 w-3" />
+                          </button>
+                        );
+                      })}
+                    </div>
+                  )}
+
+                  {msg.action === "Used spreadsheet research" && (
+                    <div className="mt-2 text-xs opacity-70 flex items-center gap-1">
+                      <Sparkles className="h-3 w-3" />
+                      <span>Used spreadsheet research</span>
+                    </div>
+                  )}
+                  {msg.action && actionConfig[msg.action] && (
+                    <button
+                      onClick={() => onOpenWorkspace(actionConfig[msg.action!].type)}
+                      className="mt-3 flex items-center gap-2 text-xs font-medium bg-foreground/10 hover:bg-foreground/15 rounded-lg px-3 py-2 transition-colors"
+                    >
+                      {(() => {
+                        const Icon = actionConfig[msg.action!].icon;
+                        return <Icon className="h-3.5 w-3.5" />;
+                      })()}
+                      <span>{actionConfig[msg.action!].label}</span>
+                      <ArrowRight className="h-3 w-3" />
+                    </button>
+                  )}
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
 
           {/* Starter Suggestions & Templates */}
           {isNewConversation && !isLoading && (

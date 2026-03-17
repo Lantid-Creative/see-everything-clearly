@@ -17,8 +17,9 @@ import { DashboardView } from "@/components/DashboardView";
 import { useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
 import { useWorkspaceContext } from "@/hooks/useWorkspaceContext";
 import { useUserProfile } from "@/hooks/useUserProfile";
-import { useProductPhase } from "@/hooks/useProductPhase";
+import { useProductPhase, PHASE_GUIDES, type ProductPhase } from "@/hooks/useProductPhase";
 import { useProducts } from "@/hooks/useProducts";
+import { useToast } from "@/hooks/use-toast";
 
 export type ViewMode = "dashboard" | "chat" | "workspace" | "slides" | "workflow" | "spreadsheet" | "team" | "settings" | "integrations";
 
@@ -69,11 +70,31 @@ const Index = () => {
 
   const [pendingPrompt, setPendingPrompt] = useState<string | null>(null);
 
+  const { toast } = useToast();
+
   const handleNewChat = useCallback((prompt?: string) => {
     createConversation();
     if (prompt) setPendingPrompt(prompt);
     setViewMode("chat");
   }, [createConversation]);
+
+  const handlePhaseSwitch = useCallback((phase: ProductPhase | null) => {
+    setPhaseOverride(phase);
+    const guide = phase ? PHASE_GUIDES[phase as keyof typeof PHASE_GUIDES] : null;
+    if (guide) {
+      toast({
+        title: `${guide.emoji} Switched to ${guide.label}`,
+        description: guide.tagline,
+      });
+      // Start a fresh conversation for the new phase
+      createConversation();
+    } else {
+      toast({
+        title: "🔄 Phase auto-detect enabled",
+        description: "Phase will be determined by your activity",
+      });
+    }
+  }, [setPhaseOverride, createConversation, toast]);
 
   const handleSelectTemplate = useCallback((templateId: string) => {
     setPendingTemplateId(templateId);
@@ -101,7 +122,7 @@ const Index = () => {
   const renderView = () => {
     switch (viewMode) {
       case "dashboard":
-        return <DashboardView onNavigate={setViewMode} onNewChat={handleNewChat} activeProductId={activeProductId} onSetPhase={setPhaseOverride} />;
+        return <DashboardView onNavigate={setViewMode} onNewChat={handleNewChat} activeProductId={activeProductId} onSetPhase={handlePhaseSwitch} />;
       case "workspace":
         return <WorkspaceView onBack={() => setViewMode("dashboard")} />;
       case "slides":
@@ -161,7 +182,7 @@ const Index = () => {
           onSelectTemplate={handleSelectTemplate}
           searchFocusTrigger={searchFocusTrigger}
           currentPhase={effectivePhase}
-          onSetPhase={setPhaseOverride}
+          onSetPhase={handlePhaseSwitch}
           products={products}
           activeProduct={activeProduct}
           onSelectProduct={setActiveProductId}
