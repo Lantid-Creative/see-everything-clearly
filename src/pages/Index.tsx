@@ -182,7 +182,7 @@ const Index = () => {
           onSelectTemplate={handleSelectTemplate}
           searchFocusTrigger={searchFocusTrigger}
           currentPhase={effectivePhase}
-          onSetPhase={setPhaseOverride}
+          onSetPhase={handlePhaseSwitch}
           products={products}
           activeProduct={activeProduct}
           onSelectProduct={setActiveProductId}
