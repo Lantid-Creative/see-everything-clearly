@@ -504,6 +504,23 @@ export function ChatView({
             );
           })}
 
+          {/* Context nudge — show when product details are empty */}
+          {isNewConversation && !isLoading && workspaceContext && !workspaceContext.productDetails?.vision && !workspaceContext.productDetails?.key_objectives && (
+            <button
+              onClick={() => onOpenWorkspace("command-center" as ViewMode)}
+              className="w-full flex items-center gap-3 p-3 rounded-xl border border-destructive/30 bg-destructive/5 hover:bg-destructive/10 transition-colors text-left mb-4 animate-in fade-in slide-in-from-bottom-2 duration-300"
+            >
+              <div className="h-8 w-8 rounded-lg bg-destructive/15 flex items-center justify-center shrink-0">
+                <Target className="h-4 w-4 text-destructive" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium text-foreground">Fill in your Command Center first</p>
+                <p className="text-xs text-muted-foreground">Add your product vision, objectives & audience so the AI can give you tailored responses and generate decks.</p>
+              </div>
+              <ArrowRight className="h-4 w-4 text-muted-foreground shrink-0" />
+            </button>
+          )}
+
           {/* Starter Suggestions & Templates */}
           {isNewConversation && !isLoading && (
             <div className="animate-in fade-in slide-in-from-bottom-3 duration-500 delay-300">
