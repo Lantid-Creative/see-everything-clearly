@@ -426,25 +426,39 @@ export function AppSidebar({
               </SidebarGroup>
             )}
 
-            {/* Tools */}
+            {/* Tools — highlighted by phase */}
             <SidebarGroup>
               <SidebarGroupLabel className="text-sidebar-muted text-[10px] uppercase tracking-wider font-semibold">
                 {collapsed ? "" : "Tools"}
               </SidebarGroupLabel>
               <SidebarGroupContent>
                 <SidebarMenu>
-                  {TOOLS.map((tool) => (
-                    <SidebarMenuItem key={tool.view}>
-                      <SidebarMenuButton
-                        onClick={() => onSwitchView(tool.view)}
-                        isActive={currentView === tool.view}
-                        className="text-sidebar-foreground hover:text-sidebar-primary hover:bg-sidebar-accent data-[active=true]:bg-sidebar-accent data-[active=true]:text-sidebar-primary text-xs"
-                      >
-                        <tool.icon className="h-4 w-4" />
-                        {!collapsed && <span>{tool.label}</span>}
-                      </SidebarMenuButton>
-                    </SidebarMenuItem>
-                  ))}
+                  {TOOLS.map((tool) => {
+                    const isPhaseRelevant = currentPhase
+                      ? PHASE_GUIDES[currentPhase]?.tools?.includes(tool.view)
+                      : false;
+                    return (
+                      <SidebarMenuItem key={tool.view}>
+                        <SidebarMenuButton
+                          onClick={() => onSwitchView(tool.view)}
+                          isActive={currentView === tool.view}
+                          className={`text-sidebar-foreground hover:text-sidebar-primary hover:bg-sidebar-accent data-[active=true]:bg-sidebar-accent data-[active=true]:text-sidebar-primary text-xs ${
+                            isPhaseRelevant && currentView !== tool.view ? "font-semibold" : ""
+                          }`}
+                        >
+                          <tool.icon className="h-4 w-4" />
+                          {!collapsed && (
+                            <span className="flex items-center gap-1.5">
+                              {tool.label}
+                              {isPhaseRelevant && (
+                                <span className="h-1.5 w-1.5 rounded-full bg-primary shrink-0" />
+                              )}
+                            </span>
+                          )}
+                        </SidebarMenuButton>
+                      </SidebarMenuItem>
+                    );
+                  })}
                 </SidebarMenu>
               </SidebarGroupContent>
             </SidebarGroup>
