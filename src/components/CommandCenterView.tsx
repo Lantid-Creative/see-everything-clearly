@@ -55,9 +55,9 @@ export function CommandCenterView({
 }: CommandCenterViewProps) {
   const { user } = useAuth();
   const workspace = useWorkspaceContext();
-  const { completedItems } = useChecklistProgress(activeProductId);
-
-  const [details, setDetails] = useState<ProductDetails | null>(null);
+  const checklistHook = useChecklistProgress(activeProductId);
+  const guide = currentPhase ? PHASE_GUIDES[currentPhase] : null;
+  const completedCount = guide ? guide.checklist.filter((_, i) => checklistHook.isCompleted(`${currentPhase}-${i}`)).length : 0;
   const [saving, setSaving] = useState(false);
   const [dirty, setDirty] = useState(false);
   const [loaded, setLoaded] = useState(false);

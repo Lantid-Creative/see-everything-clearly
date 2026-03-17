@@ -14,6 +14,7 @@ import { useConversations } from "@/hooks/useConversations";
 import { GettingStartedTour } from "@/components/GettingStartedTour";
 import { OnboardingChecklist } from "@/components/OnboardingChecklist";
 import { DashboardView } from "@/components/DashboardView";
+import { CommandCenterView } from "@/components/CommandCenterView";
 import { useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
 import { useWorkspaceContext } from "@/hooks/useWorkspaceContext";
 import { useUserProfile } from "@/hooks/useUserProfile";
