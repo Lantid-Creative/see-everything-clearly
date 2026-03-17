@@ -4,7 +4,8 @@ import { useAuth } from "@/hooks/useAuth";
 import { useUserProfile } from "@/hooks/useUserProfile";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { NotificationBell } from "@/components/NotificationBell";
-import { motion } from "framer-motion";
+import { Progress } from "@/components/ui/progress";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   Users,
   Workflow,
@@ -12,12 +13,6 @@ import {
   Mail,
   ArrowRight,
   Sparkles,
-  FileText,
-  BarChart3,
-  Zap,
-  Search,
-  Presentation,
-  LayoutGrid,
   Clock,
   Compass,
   ClipboardList,
@@ -25,11 +20,20 @@ import {
   Hammer,
   Rocket,
   Activity,
+  Check,
+  Circle,
   ChevronRight,
-  Target,
+  BookOpen,
+  Lightbulb,
 } from "lucide-react";
 import type { ViewMode } from "@/pages/Index";
-import { useProductPhase, type ProductPhase, type PhaseInfo } from "@/hooks/useProductPhase";
+import {
+  useProductPhase,
+  PHASE_GUIDES,
+  type ProductPhase,
+  type PhaseInfo,
+  type ChecklistItem,
+} from "@/hooks/useProductPhase";
 
 interface DashboardStats {
   totalLeads: number;
@@ -50,7 +54,7 @@ interface RecentItem {
 
 interface DashboardViewProps {
   onNavigate: (view: ViewMode) => void;
-  onNewChat: () => void;
+  onNewChat: (prompt?: string) => void;
 }
 
 const PHASE_ICONS: Record<ProductPhase, typeof Compass> = {
@@ -62,46 +66,13 @@ const PHASE_ICONS: Record<ProductPhase, typeof Compass> = {
   measure: Activity,
 };
 
-const PHASE_COLORS: Record<ProductPhase, { bg: string; text: string; ring: string }> = {
-  discover: { bg: "bg-blue-500/10", text: "text-blue-600", ring: "ring-blue-500/30" },
-  define: { bg: "bg-violet-500/10", text: "text-violet-600", ring: "ring-violet-500/30" },
-  prioritize: { bg: "bg-amber-500/10", text: "text-amber-600", ring: "ring-amber-500/30" },
-  build: { bg: "bg-emerald-500/10", text: "text-emerald-600", ring: "ring-emerald-500/30" },
-  launch: { bg: "bg-orange-500/10", text: "text-orange-600", ring: "ring-orange-500/30" },
-  measure: { bg: "bg-rose-500/10", text: "text-rose-600", ring: "ring-rose-500/30" },
-};
-
-const PHASE_ACTIONS: Record<ProductPhase, { label: string; icon: typeof MessageSquare; view: ViewMode }[]> = {
-  discover: [
-    { label: "Run user interviews", icon: MessageSquare, view: "chat" },
-    { label: "Build user personas", icon: Users, view: "chat" },
-    { label: "Explore leads & contacts", icon: LayoutGrid, view: "workspace" },
-  ],
-  define: [
-    { label: "Write a PRD", icon: FileText, view: "chat" },
-    { label: "Generate user stories", icon: Zap, view: "chat" },
-    { label: "Create a spec deck", icon: Presentation, view: "slides" },
-  ],
-  prioritize: [
-    { label: "RICE score features", icon: BarChart3, view: "chat" },
-    { label: "Build roadmap spreadsheet", icon: BarChart3, view: "spreadsheet" },
-    { label: "Competitive analysis", icon: Search, view: "chat" },
-  ],
-  build: [
-    { label: "Create automation workflow", icon: Zap, view: "workflow" },
-    { label: "Set up integrations", icon: Zap, view: "integrations" },
-    { label: "Configure team access", icon: Users, view: "team" },
-  ],
-  launch: [
-    { label: "Draft GTM plan", icon: Target, view: "chat" },
-    { label: "Send outreach emails", icon: Mail, view: "workspace" },
-    { label: "Build launch deck", icon: Presentation, view: "slides" },
-  ],
-  measure: [
-    { label: "Define success metrics", icon: Target, view: "chat" },
-    { label: "Plan A/B tests", icon: BarChart3, view: "chat" },
-    { label: "Run sprint retro", icon: Users, view: "chat" },
-  ],
+const PHASE_COLORS: Record<ProductPhase, { bg: string; text: string; ring: string; bar: string }> = {
+  discover: { bg: "bg-blue-500/10", text: "text-blue-600 dark:text-blue-400", ring: "ring-blue-500/30", bar: "bg-blue-500" },
+  define: { bg: "bg-violet-500/10", text: "text-violet-600 dark:text-violet-400", ring: "ring-violet-500/30", bar: "bg-violet-500" },
+  prioritize: { bg: "bg-amber-500/10", text: "text-amber-600 dark:text-amber-400", ring: "ring-amber-500/30", bar: "bg-amber-500" },
+  build: { bg: "bg-emerald-500/10", text: "text-emerald-600 dark:text-emerald-400", ring: "ring-emerald-500/30", bar: "bg-emerald-500" },
+  launch: { bg: "bg-orange-500/10", text: "text-orange-600 dark:text-orange-400", ring: "ring-orange-500/30", bar: "bg-orange-500" },
+  measure: { bg: "bg-rose-500/10", text: "text-rose-600 dark:text-rose-400", ring: "ring-rose-500/30", bar: "bg-rose-500" },
 };
 
 function timeAgo(dateStr: string): string {
@@ -172,7 +143,7 @@ export function DashboardView({ onNavigate, onNewChat }: DashboardViewProps) {
         items.push({ id: l.id, type: "lead", title: l.name, subtitle: l.company, time: l.updated_at, icon: Users });
       });
       items.sort((a, b) => new Date(b.time).getTime() - new Date(a.time).getTime());
-      setRecentItems(items.slice(0, 6));
+      setRecentItems(items.slice(0, 5));
       setLoading(false);
     }
 
@@ -188,6 +159,26 @@ export function DashboardView({ onNavigate, onNewChat }: DashboardViewProps) {
 
   const currentPhase = phaseData?.currentPhaseInfo;
   const phases = phaseData?.phases || [];
+  const phaseInput = phaseData?.input;
+
+  // Get the full guide for the current phase
+  const currentGuide = currentPhase ? PHASE_GUIDES[currentPhase.id as ProductPhase] : null;
+  const checklist = currentPhase && phaseInput ? currentGuide?.checklist(phaseInput) || [] : [];
+  const completedCount = checklist.filter((c) => c.isComplete).length;
+  const progressPct = checklist.length > 0 ? Math.round((completedCount / checklist.length) * 100) : 0;
+  const colors = currentPhase ? PHASE_COLORS[currentPhase.id as ProductPhase] : null;
+
+  const handleChecklistAction = (item: ChecklistItem) => {
+    if (item.action.type === "chat") {
+      onNewChat(item.action.prompt);
+    } else {
+      onNavigate(item.action.target as ViewMode);
+    }
+  };
+
+  const handleTemplateClick = (prompt: string) => {
+    onNewChat(prompt);
+  };
 
   return (
     <div className="flex flex-col h-screen">
@@ -201,52 +192,52 @@ export function DashboardView({ onNavigate, onNewChat }: DashboardViewProps) {
 
       <div className="flex-1 overflow-y-auto">
         <div className="max-w-5xl mx-auto px-6 py-8 space-y-8">
-          {/* Greeting */}
+          {/* Greeting + Phase Context */}
           <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
             <h1 className="text-2xl font-serif tracking-tight text-foreground">
               {greeting()}{profile?.displayName ? `, ${profile.displayName}` : ""}
             </h1>
-            <p className="text-sm text-muted-foreground mt-1">
-              {currentPhase
-                ? `You're in the ${currentPhase.label} phase — ${currentPhase.description.toLowerCase()}.`
-                : "Here's what's happening with your product work."}
-            </p>
+            {currentGuide && (
+              <p className="text-sm text-muted-foreground mt-1">
+                {currentGuide.emoji} <span className="font-medium">{currentGuide.tagline}</span> — {currentGuide.description}
+              </p>
+            )}
           </motion.div>
 
-          {/* Phase Progress Bar */}
+          {/* Phase Timeline */}
           {phases.length > 0 && (
             <motion.div
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.4, delay: 0.1 }}
+              transition={{ duration: 0.4, delay: 0.05 }}
               className="flex items-center gap-1"
             >
               {phases.map((phase, idx) => {
                 const Icon = PHASE_ICONS[phase.id];
-                const colors = PHASE_COLORS[phase.id];
+                const pColors = PHASE_COLORS[phase.id];
+                const isCurrent = phase.isActive;
+                const currentIdx = phases.findIndex((p) => p.isActive);
+                const isPast = idx < currentIdx;
                 return (
                   <div key={phase.id} className="flex items-center flex-1 min-w-0">
-                    <button
-                      onClick={() => {
-                        const actions = PHASE_ACTIONS[phase.id];
-                        if (actions.length > 0) {
-                          if (actions[0].view === "chat") onNewChat();
-                          else onNavigate(actions[0].view);
-                        }
-                      }}
-                      className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[10px] font-medium transition-all whitespace-nowrap ${
-                        phase.isActive
-                          ? `${colors.bg} ${colors.text} ring-1 ${colors.ring}`
-                          : "text-muted-foreground hover:text-foreground hover:bg-accent/50"
+                    <div
+                      className={`flex items-center gap-1.5 px-2 py-1.5 rounded-lg text-[10px] font-medium transition-all whitespace-nowrap ${
+                        isCurrent
+                          ? `${pColors.bg} ${pColors.text} ring-1 ${pColors.ring}`
+                          : isPast
+                          ? "text-muted-foreground/70 line-through"
+                          : "text-muted-foreground/50"
                       }`}
                     >
-                      <Icon className="h-3 w-3 shrink-0" />
+                      {isPast ? (
+                        <Check className="h-3 w-3 shrink-0" />
+                      ) : (
+                        <Icon className="h-3 w-3 shrink-0" />
+                      )}
                       <span className="hidden sm:inline">{phase.label}</span>
-                    </button>
+                    </div>
                     {idx < phases.length - 1 && (
-                      <div className={`h-px flex-1 mx-1 ${
-                        phase.progress >= 80 ? "bg-primary/40" : "bg-border"
-                      }`} />
+                      <div className={`h-px flex-1 mx-1 ${isPast ? "bg-primary/40" : "bg-border"}`} />
                     )}
                   </div>
                 );
@@ -254,8 +245,92 @@ export function DashboardView({ onNavigate, onNewChat }: DashboardViewProps) {
             </motion.div>
           )}
 
-          {/* Current Phase Actions */}
-          {currentPhase && (
+          {/* Main Guided Flow Card */}
+          {currentGuide && colors && (
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4, delay: 0.1 }}
+              className="border border-border rounded-2xl bg-card overflow-hidden"
+            >
+              {/* Phase header */}
+              <div className={`px-6 py-4 ${colors.bg} border-b border-border`}>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className={`h-10 w-10 rounded-xl ${colors.bg} ring-1 ${colors.ring} flex items-center justify-center`}>
+                      {(() => { const Icon = PHASE_ICONS[currentPhase!.id as ProductPhase]; return <Icon className={`h-5 w-5 ${colors.text}`} />; })()}
+                    </div>
+                    <div>
+                      <h2 className={`text-sm font-semibold ${colors.text}`}>
+                        {currentGuide.label} Phase
+                      </h2>
+                      <p className="text-xs text-muted-foreground">
+                        🎯 {currentGuide.goal}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <p className={`text-lg font-bold ${colors.text}`}>{progressPct}%</p>
+                    <p className="text-[10px] text-muted-foreground">{completedCount}/{checklist.length} complete</p>
+                  </div>
+                </div>
+                <div className="mt-3 h-1.5 rounded-full bg-background/50 overflow-hidden">
+                  <motion.div
+                    className={`h-full rounded-full ${colors.bar}`}
+                    initial={{ width: 0 }}
+                    animate={{ width: `${progressPct}%` }}
+                    transition={{ duration: 0.8, ease: "easeOut" }}
+                  />
+                </div>
+              </div>
+
+              {/* Checklist */}
+              <div className="p-4 space-y-1">
+                <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider px-2 mb-2">
+                  Guided Steps
+                </p>
+                {checklist.map((item, idx) => (
+                  <button
+                    key={item.id}
+                    onClick={() => handleChecklistAction(item)}
+                    className={`w-full flex items-start gap-3 px-3 py-2.5 rounded-xl text-left transition-all group ${
+                      item.isComplete
+                        ? "opacity-60 hover:opacity-80"
+                        : "hover:bg-accent/50"
+                    }`}
+                  >
+                    <div className={`mt-0.5 h-5 w-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-colors ${
+                      item.isComplete
+                        ? `${colors.bar} border-transparent`
+                        : `border-muted-foreground/30 group-hover:border-primary`
+                    }`}>
+                      {item.isComplete && <Check className="h-3 w-3 text-white" />}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className={`text-sm font-medium ${item.isComplete ? "line-through text-muted-foreground" : "text-foreground"}`}>
+                        {item.label}
+                      </p>
+                      <p className="text-[11px] text-muted-foreground mt-0.5">{item.description}</p>
+                    </div>
+                    {!item.isComplete && (
+                      <ChevronRight className="h-4 w-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity mt-0.5 shrink-0" />
+                    )}
+                  </button>
+                ))}
+              </div>
+
+              {/* Transition hint */}
+              {currentGuide.nextPhase && progressPct >= 80 && (
+                <div className="px-6 py-3 bg-accent/30 border-t border-border flex items-center gap-2">
+                  <Lightbulb className="h-4 w-4 text-primary shrink-0" />
+                  <p className="text-xs text-muted-foreground">{currentGuide.transitionHint}</p>
+                </div>
+              )}
+            </motion.div>
+          )}
+
+          {/* Templates for this phase */}
+          {currentGuide && (
             <motion.div
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
@@ -263,27 +338,22 @@ export function DashboardView({ onNavigate, onNewChat }: DashboardViewProps) {
               className="space-y-3"
             >
               <div className="flex items-center gap-2">
+                <BookOpen className="h-3.5 w-3.5 text-muted-foreground" />
                 <h2 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                  {currentPhase.label} Phase — Next Steps
+                  {currentGuide.label} Templates
                 </h2>
-                <Sparkles className="h-3 w-3 text-primary" />
               </div>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                {PHASE_ACTIONS[currentPhase.id as ProductPhase].map((action, idx) => (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                {currentGuide.templates.map((template, idx) => (
                   <button
                     key={idx}
-                    onClick={() => {
-                      if (action.view === "chat") onNewChat();
-                      else onNavigate(action.view);
-                    }}
-                    className="flex items-center gap-3 p-4 rounded-xl border border-border bg-card hover:bg-accent/50 hover:border-accent transition-all text-left group"
+                    onClick={() => handleTemplateClick(template.prompt)}
+                    className="flex items-center gap-3 p-3 rounded-xl border border-border bg-card hover:bg-accent/50 hover:border-accent transition-all text-left group"
                   >
-                    <div className={`h-9 w-9 rounded-lg ${PHASE_COLORS[currentPhase.id as ProductPhase].bg} flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform`}>
-                      <action.icon className={`h-4 w-4 ${PHASE_COLORS[currentPhase.id as ProductPhase].text}`} />
+                    <div className={`h-8 w-8 rounded-lg ${colors!.bg} flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform`}>
+                      <Sparkles className={`h-3.5 w-3.5 ${colors!.text}`} />
                     </div>
-                    <div className="min-w-0 flex-1">
-                      <p className="text-sm font-medium text-foreground">{action.label}</p>
-                    </div>
+                    <span className="text-sm font-medium text-foreground flex-1">{template.label}</span>
                     <ArrowRight className="h-3.5 w-3.5 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
                   </button>
                 ))}
@@ -291,6 +361,7 @@ export function DashboardView({ onNavigate, onNewChat }: DashboardViewProps) {
             </motion.div>
           )}
 
+          {/* Bottom row: Stats + Activity */}
           <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
             {/* Stats */}
             <motion.div
@@ -346,7 +417,7 @@ export function DashboardView({ onNavigate, onNewChat }: DashboardViewProps) {
                     <Sparkles className="h-8 w-8 text-muted-foreground/40 mx-auto mb-3" />
                     <p className="text-sm text-muted-foreground">No activity yet. Start with discovery!</p>
                     <button
-                      onClick={onNewChat}
+                      onClick={() => onNewChat()}
                       className="mt-3 inline-flex items-center gap-1.5 text-xs font-medium text-primary hover:text-primary/80 transition-colors"
                     >
                       Start a conversation
