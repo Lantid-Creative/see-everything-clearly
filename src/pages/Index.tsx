@@ -144,7 +144,16 @@ const Index = () => {
       default:
         return (
           <ChatView
-            onOpenWorkspace={(type) => setViewMode(type || "workspace")}
+            onOpenWorkspace={(type) => {
+              if (type === "slides") {
+                // Grab the last assistant message content for slide generation
+                const lastAssistant = [...activeConversation.messages].reverse().find(m => m.role === "assistant");
+                if (lastAssistant?.content) {
+                  setPendingSlideContent(lastAssistant.content);
+                }
+              }
+              setViewMode(type || "workspace");
+            }}
             conversation={activeConversation}
             onAddMessage={(msg) => addMessage(activeConversationId, msg)}
             onUpdateLastAssistant={(content, isStreaming) =>
