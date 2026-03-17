@@ -14,6 +14,7 @@ import { useConversations } from "@/hooks/useConversations";
 import { GettingStartedTour } from "@/components/GettingStartedTour";
 import { OnboardingChecklist } from "@/components/OnboardingChecklist";
 import { DashboardView } from "@/components/DashboardView";
+import { CommandCenterView } from "@/components/CommandCenterView";
 import { useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
 import { useWorkspaceContext } from "@/hooks/useWorkspaceContext";
 import { useUserProfile } from "@/hooks/useUserProfile";
@@ -21,7 +22,7 @@ import { useProductPhase, PHASE_GUIDES, type ProductPhase } from "@/hooks/usePro
 import { useProducts } from "@/hooks/useProducts";
 import { useToast } from "@/hooks/use-toast";
 
-export type ViewMode = "dashboard" | "chat" | "workspace" | "slides" | "workflow" | "spreadsheet" | "team" | "settings" | "integrations";
+export type ViewMode = "dashboard" | "chat" | "workspace" | "slides" | "workflow" | "spreadsheet" | "team" | "settings" | "integrations" | "command-center";
 
 const Index = () => {
   const [viewMode, setViewMode] = useState<ViewMode>("dashboard");
@@ -123,6 +124,8 @@ const Index = () => {
     switch (viewMode) {
       case "dashboard":
         return <DashboardView onNavigate={setViewMode} onNewChat={handleNewChat} activeProductId={activeProductId} onSetPhase={handlePhaseSwitch} />;
+      case "command-center":
+        return <CommandCenterView activeProductId={activeProductId} activeProductName={activeProduct?.name} currentPhase={effectivePhase} onNavigate={setViewMode} />;
       case "workspace":
         return <WorkspaceView onBack={() => setViewMode("dashboard")} />;
       case "slides":

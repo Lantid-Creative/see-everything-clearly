@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import {
   Home,
+  Crosshair,
   Settings,
   Puzzle,
   Search,
@@ -330,6 +331,16 @@ export function AppSidebar({
                     >
                       <Home className="h-4 w-4" />
                       {!collapsed && <span>Home</span>}
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                  <SidebarMenuItem>
+                    <SidebarMenuButton
+                      onClick={() => onSwitchView("command-center")}
+                      isActive={currentView === "command-center"}
+                      className="text-sidebar-foreground hover:text-sidebar-primary hover:bg-sidebar-accent data-[active=true]:bg-sidebar-accent data-[active=true]:text-sidebar-primary"
+                    >
+                      <Crosshair className="h-4 w-4" />
+                      {!collapsed && <span>Command Center</span>}
                     </SidebarMenuButton>
                   </SidebarMenuItem>
                 </SidebarMenu>
