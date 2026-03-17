@@ -22,6 +22,9 @@ import {
   Rocket,
   Activity,
   Hammer,
+  ChevronDown,
+  Check,
+  Package,
 } from "lucide-react";
 import { Logo } from "@/components/Logo";
 import { useAuth } from "@/hooks/useAuth";
@@ -40,10 +43,16 @@ import {
   SidebarFooter,
   useSidebar,
 } from "@/components/ui/sidebar";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 
 import type { ViewMode } from "@/pages/Index";
 import type { Conversation } from "@/hooks/useConversations";
 import type { ProductPhase } from "@/hooks/useProductPhase";
+import type { Product } from "@/hooks/useProducts";
 
 const PHASES: { id: ProductPhase; label: string; icon: typeof Compass }[] = [
   { id: "discover", label: "Discover", icon: Compass },
@@ -92,6 +101,11 @@ interface AppSidebarProps {
   onSelectTemplate?: (templateId: string) => void;
   searchFocusTrigger?: number;
   currentPhase?: ProductPhase | null;
+  onSetPhase?: (phase: ProductPhase | null) => void;
+  products?: Product[];
+  activeProduct?: Product | null;
+  onSelectProduct?: (id: string) => void;
+  onCreateProduct?: (name: string) => void;
 }
 
 export function AppSidebar({
@@ -104,6 +118,11 @@ export function AppSidebar({
   onDeleteConversation,
   searchFocusTrigger,
   currentPhase,
+  onSetPhase,
+  products = [],
+  activeProduct,
+  onSelectProduct,
+  onCreateProduct,
 }: AppSidebarProps) {
   const { state } = useSidebar();
   const { user, signOut } = useAuth();
@@ -112,6 +131,9 @@ export function AppSidebar({
   const [searchQuery, setSearchQuery] = useState("");
   const [isSearchFocused, setIsSearchFocused] = useState(false);
   const { results: searchResults, isSearching: isGlobalSearching } = useGlobalSearch(searchQuery);
+  const [phaseOpen, setPhaseOpen] = useState(false);
+  const [productOpen, setProductOpen] = useState(false);
+  const [newProductName, setNewProductName] = useState("");
 
   useEffect(() => {
     if (searchFocusTrigger && searchFocusTrigger > 0) {
@@ -149,8 +171,71 @@ export function AppSidebar({
         <div className="flex items-center gap-2">
           <Logo size="sm" />
         </div>
+
+        {/* Product Switcher */}
+        {!collapsed && products.length > 0 && (
+          <Popover open={productOpen} onOpenChange={setProductOpen}>
+            <PopoverTrigger asChild>
+              <button className="mt-2 w-full flex items-center gap-2 rounded-md bg-sidebar-accent px-2.5 py-1.5 text-xs font-medium text-sidebar-foreground hover:text-sidebar-primary transition-colors">
+                <Package className="h-3.5 w-3.5 text-primary shrink-0" />
+                <span className="truncate flex-1 text-left">{activeProduct?.name || "Select Product"}</span>
+                <ChevronDown className="h-3 w-3 shrink-0 text-sidebar-muted" />
+              </button>
+            </PopoverTrigger>
+            <PopoverContent align="start" className="w-56 p-1.5" sideOffset={4}>
+              <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-semibold px-2 py-1">
+                Products
+              </p>
+              {products.map((product) => (
+                <button
+                  key={product.id}
+                  onClick={() => {
+                    onSelectProduct?.(product.id);
+                    setProductOpen(false);
+                  }}
+                  className="w-full flex items-center gap-2 rounded-md px-2 py-1.5 text-xs hover:bg-accent transition-colors"
+                >
+                  <Package className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+                  <span className="truncate flex-1 text-left">{product.name}</span>
+                  {product.id === activeProduct?.id && (
+                    <Check className="h-3 w-3 text-primary shrink-0" />
+                  )}
+                </button>
+              ))}
+              <div className="border-t border-border mt-1 pt-1">
+                <form
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    const name = newProductName.trim();
+                    if (name) {
+                      onCreateProduct?.(name);
+                      setNewProductName("");
+                      setProductOpen(false);
+                    }
+                  }}
+                  className="flex items-center gap-1 px-1"
+                >
+                  <input
+                    type="text"
+                    value={newProductName}
+                    onChange={(e) => setNewProductName(e.target.value)}
+                    placeholder="New product..."
+                    className="flex-1 rounded px-2 py-1 text-xs bg-muted text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring"
+                  />
+                  <button
+                    type="submit"
+                    className="h-6 w-6 rounded flex items-center justify-center text-primary hover:bg-accent transition-colors"
+                  >
+                    <Plus className="h-3.5 w-3.5" />
+                  </button>
+                </form>
+              </div>
+            </PopoverContent>
+          </Popover>
+        )}
+
         {!collapsed && (
-          <div className="mt-3 flex items-center gap-2">
+          <div className="mt-2 flex items-center gap-2">
             {isSearchFocused || hasQuery ? (
               <input
                 type="text"
@@ -229,7 +314,7 @@ export function AppSidebar({
           </SidebarGroup>
         )}
 
-        {/* Main Navigation — hide when searching */}
+        {/* Main Navigation */}
         {!hasQuery && (
           <>
             {/* Home */}
@@ -250,14 +335,15 @@ export function AppSidebar({
               </SidebarGroupContent>
             </SidebarGroup>
 
-            {/* Phase Indicator — compact stepper showing where user is */}
+            {/* Phase Indicator — clickable */}
             {!collapsed && currentPhase && (
               <SidebarGroup>
                 <SidebarGroupLabel className="text-sidebar-muted text-[10px] uppercase tracking-wider font-semibold">
-                  Current Phase
+                  Product Phase
                 </SidebarGroupLabel>
                 <SidebarGroupContent>
                   <div className="px-2 py-1.5">
+                    {/* Progress bar */}
                     <div className="flex items-center gap-1 mb-2">
                       {PHASES.map((phase, i) => {
                         const isActive = phase.id === currentPhase;
@@ -277,27 +363,69 @@ export function AppSidebar({
                         );
                       })}
                     </div>
-                    <div className="flex items-center gap-1.5">
-                      {(() => {
-                        const phase = PHASES.find((p) => p.id === currentPhase);
-                        if (!phase) return null;
-                        const PhaseIcon = phase.icon;
-                        return (
-                          <>
-                            <PhaseIcon className="h-3.5 w-3.5 text-primary" />
-                            <span className="text-xs font-medium text-sidebar-foreground">
-                              {phase.label}
-                            </span>
-                          </>
-                        );
-                      })()}
-                    </div>
+
+                    {/* Clickable phase selector */}
+                    <Popover open={phaseOpen} onOpenChange={setPhaseOpen}>
+                      <PopoverTrigger asChild>
+                        <button className="w-full flex items-center gap-1.5 rounded-md px-1.5 py-1 hover:bg-sidebar-accent transition-colors group">
+                          {(() => {
+                            const phase = PHASES.find((p) => p.id === currentPhase);
+                            if (!phase) return null;
+                            const PhaseIcon = phase.icon;
+                            return (
+                              <>
+                                <PhaseIcon className="h-3.5 w-3.5 text-primary" />
+                                <span className="text-xs font-medium text-sidebar-foreground flex-1 text-left">
+                                  {phase.label}
+                                </span>
+                                <ChevronDown className="h-3 w-3 text-sidebar-muted opacity-0 group-hover:opacity-100 transition-opacity" />
+                              </>
+                            );
+                          })()}
+                        </button>
+                      </PopoverTrigger>
+                      <PopoverContent align="start" className="w-48 p-1.5" sideOffset={4}>
+                        <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-semibold px-2 py-1">
+                          Set Phase
+                        </p>
+                        {PHASES.map((phase) => {
+                          const PhaseIcon = phase.icon;
+                          return (
+                            <button
+                              key={phase.id}
+                              onClick={() => {
+                                onSetPhase?.(phase.id);
+                                setPhaseOpen(false);
+                              }}
+                              className="w-full flex items-center gap-2 rounded-md px-2 py-1.5 text-xs hover:bg-accent transition-colors"
+                            >
+                              <PhaseIcon className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+                              <span className="flex-1 text-left">{phase.label}</span>
+                              {phase.id === currentPhase && (
+                                <Check className="h-3 w-3 text-primary shrink-0" />
+                              )}
+                            </button>
+                          );
+                        })}
+                        <div className="border-t border-border mt-1 pt-1">
+                          <button
+                            onClick={() => {
+                              onSetPhase?.(null);
+                              setPhaseOpen(false);
+                            }}
+                            className="w-full flex items-center gap-2 rounded-md px-2 py-1.5 text-[11px] text-muted-foreground hover:bg-accent transition-colors"
+                          >
+                            Auto-detect phase
+                          </button>
+                        </div>
+                      </PopoverContent>
+                    </Popover>
                   </div>
                 </SidebarGroupContent>
               </SidebarGroup>
             )}
 
-            {/* Tools — deduplicated flat list */}
+            {/* Tools */}
             <SidebarGroup>
               <SidebarGroupLabel className="text-sidebar-muted text-[10px] uppercase tracking-wider font-semibold">
                 {collapsed ? "" : "Tools"}
