@@ -421,6 +421,7 @@ export function DashboardView({ onNavigate, onNewChat, activeProductId, onSetPha
               )}
             </motion.div>
           )}
+          </AnimatePresence>
 
           {/* Templates for this phase */}
           {currentGuide && (
