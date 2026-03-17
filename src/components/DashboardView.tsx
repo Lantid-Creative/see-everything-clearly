@@ -376,8 +376,41 @@ export function DashboardView({ onNavigate, onNewChat, activeProductId, onSetPha
                 ))}
               </div>
 
-              {/* Transition hint */}
-              {currentGuide.nextPhase && progressPct >= 80 && (
+              {/* Phase completion celebration */}
+              <AnimatePresence>
+                {allComplete && currentGuide.nextPhase && (
+                  <motion.div
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: "auto" }}
+                    exit={{ opacity: 0, height: 0 }}
+                    className="border-t border-border overflow-hidden"
+                  >
+                    <div className="px-6 py-5 bg-gradient-to-r from-primary/10 via-accent/20 to-primary/10 flex items-center gap-4">
+                      <div className="h-10 w-10 rounded-xl bg-primary/20 flex items-center justify-center shrink-0">
+                        <Sparkles className="h-5 w-5 text-primary" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-semibold text-foreground">
+                          🎉 {currentGuide.label} phase complete!
+                        </p>
+                        <p className="text-xs text-muted-foreground mt-0.5">
+                          You've finished all steps. Ready to move to <span className="font-medium text-foreground">{PHASE_GUIDES[currentGuide.nextPhase]?.label}</span>?
+                        </p>
+                      </div>
+                      <button
+                        onClick={handleAdvancePhase}
+                        className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 transition-colors shrink-0"
+                      >
+                        Advance
+                        <ArrowRight className="h-3.5 w-3.5" />
+                      </button>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+
+              {/* Transition hint (before completion) */}
+              {!allComplete && currentGuide.nextPhase && progressPct >= 80 && (
                 <div className="px-6 py-3 bg-accent/30 border-t border-border flex items-center gap-2">
                   <Lightbulb className="h-4 w-4 text-primary shrink-0" />
                   <p className="text-xs text-muted-foreground">{currentGuide.transitionHint}</p>
