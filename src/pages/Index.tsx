@@ -130,7 +130,7 @@ const Index = () => {
       case "workspace":
         return <WorkspaceView onBack={() => setViewMode("dashboard")} />;
       case "slides":
-        return <SlideEditorView onBack={() => setViewMode("dashboard")} />;
+        return <SlideEditorView onBack={() => setViewMode("dashboard")} initialContent={pendingSlideContent} onContentConsumed={() => setPendingSlideContent(null)} />;
       case "workflow":
         return <WorkflowBuilderView onBack={() => setViewMode("dashboard")} />;
       case "spreadsheet":
