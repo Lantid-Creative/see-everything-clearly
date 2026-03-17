@@ -70,6 +70,7 @@ const Index = () => {
   const effectivePhase = activeProduct?.current_phase || phaseData?.currentPhase || null;
 
   const [pendingPrompt, setPendingPrompt] = useState<string | null>(null);
+  const [pendingSlideContent, setPendingSlideContent] = useState<string | null>(null);
 
   const { toast } = useToast();
 
