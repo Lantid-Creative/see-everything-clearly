@@ -25,6 +25,13 @@ import {
   Check,
   Plug,
   LayoutDashboard,
+  Crosshair,
+  Presentation,
+  Table,
+  Compass,
+  Keyboard,
+  Download,
+  StickyNote,
 } from "lucide-react";
 
 const fadeUp = {
@@ -53,14 +60,25 @@ const TABS = [
     },
   },
   {
-    id: "define",
-    label: "PRD Generation",
-    icon: FileText,
-    title: "From insight to spec in seconds",
-    description: "Lantid drafts product requirements, user stories, acceptance criteria, and UI proposals — structured for your coding agent to execute.",
+    id: "command",
+    label: "Command Center",
+    icon: Crosshair,
+    title: "Your single source of truth",
+    description: "A living project brief with vision, goals, target audience, and context notes — all persisted and fed into every AI conversation for maximum relevance.",
     mockup: {
-      userMessage: "Generate a PRD for the collaborative workspaces feature",
-      aiResponse: `**PRD: Collaborative Workspaces** v0.1\n\n**Problem Statement**\nTeams lack a shared context for product decisions, leading to duplicated research and misaligned priorities.\n\n**User Stories**\n✅ As a PM, I can invite team members to a shared workspace\n✅ As a team lead, I can see all research and decisions in one feed\n✅ As a designer, I can access customer quotes relevant to my work\n\n**Data Model Changes**\n\`workspaces\`, \`workspace_members\`, \`shared_artifacts\`\n\n**Dev Tasks (5)** → Ready for Cursor / Claude Code`,
+      userMessage: "Show me the Command Center for my product",
+      aiResponse: `**Command Center — My Product**\n\n🎯 **Vision:** AI-native PM platform for product discovery\n👥 **Audience:** Product managers at Series A-C startups\n📊 **Key Metrics:** DAU, PRDs generated, time-to-spec\n\n**Progress:**\n✅ 12 leads · 8 conversations · 3 workflows deployed\n📋 Phase: Define (75% complete)\n\n📝 **Context Notes:** Competing with ProductBoard on discovery. Our edge: AI-native specs that coding agents can execute directly.`,
+    },
+  },
+  {
+    id: "slides",
+    label: "Slides",
+    icon: Presentation,
+    title: "Present your strategy beautifully",
+    description: "Build pitch decks and strategy presentations with AI-assisted content. Add slides, edit bullets, and let AI sync your narrative — all within the platform.",
+    mockup: {
+      userMessage: "Build a 5-slide launch deck for our new feature",
+      aiResponse: `**Launch Deck Created** 🎬\n\n**Slide 1:** Title — "Collaborative Workspaces"\n**Slide 2:** Problem — Teams lack shared product context\n**Slide 3:** Solution — Real-time shared workspaces with AI\n**Slide 4:** Traction — 68% customer demand, 9.2 impact score\n**Slide 5:** Roadmap — Beta in 4 weeks, GA in 8 weeks\n\n✅ 5 slides ready. [[action:slides|Open in Slide Editor]]`,
     },
   },
   {
@@ -68,10 +86,21 @@ const TABS = [
     label: "Workflows",
     icon: Workflow,
     title: "Automate the discovery loop",
-    description: "Build multi-step workflows that connect research to action — from feedback triggers to stakeholder outreach to development handoff.",
+    description: "Build multi-step AI-driven automations — from NPS alert pipelines to feedback synthesis to stakeholder outreach — all deployable with one click.",
     mockup: {
       userMessage: "Create a workflow: when NPS drops below 7, analyze feedback and alert the team",
       aiResponse: `**Workflow Created: NPS Alert Pipeline** ⚡\n\n**Trigger:** NPS score < 7 detected\n↓\n**Step 1:** Aggregate recent detractor feedback\n↓\n**Step 2:** AI analysis — extract themes & root causes\n↓\n**Step 3:** Generate summary with recommended actions\n↓\n**Step 4:** Post to #product-alerts + assign to PM on-call\n\n✅ Workflow deployed. Monitoring active.`,
+    },
+  },
+  {
+    id: "spreadsheet",
+    label: "Spreadsheet",
+    icon: Table,
+    title: "Manage leads and data at scale",
+    description: "Inline-editable spreadsheet with filtering, bulk actions, and lead management. Create rows, update statuses, and export — all without leaving Lantid.",
+    mockup: {
+      userMessage: "Show me all verified leads from LinkedIn",
+      aiResponse: `**Filtered: 24 verified leads from LinkedIn**\n\n| Name | Company | Status | Source |\n|------|---------|--------|--------|\n| Sarah Chen | Stripe | Verified | LinkedIn |\n| Marcus Wu | Notion | Contacted | LinkedIn |\n| Priya Patel | Linear | Replied | LinkedIn |\n| ... and 21 more\n\n📊 **Actions:** Edit inline · Bulk delete · Export CSV\n🔍 **Filters active:** Status = Verified, Source = LinkedIn`,
     },
   },
   {
@@ -79,7 +108,7 @@ const TABS = [
     label: "Team",
     icon: Users,
     title: "Align your team around what matters",
-    description: "Role-based workspaces with real-time chat, activity feeds, and shared context. Everyone stays aligned on what's being built and why.",
+    description: "Role-based workspaces with real-time chat, activity feeds, notifications, and shared context. Everyone stays aligned on what's being built and why.",
     mockup: {
       userMessage: "Show me what the team worked on this week",
       aiResponse: `**Team Activity — This Week**\n\n👤 **Sarah** (PM)\n• Completed discovery for checkout redesign\n• Generated PRD — awaiting review\n\n👤 **Marcus** (Eng Lead)\n• Reviewed 3 PRDs, approved 2\n• Deployed NPS alert workflow\n\n👤 **Priya** (Research)\n• Uploaded 12 customer interviews\n• Tagged 47 insights across 3 themes\n\n📈 **Team Score:** 94% alignment on Q2 priorities`,
@@ -90,28 +119,58 @@ const TABS = [
 const FEATURES = [
   {
     icon: MessageSquare,
-    title: "Natural Language Discovery",
-    desc: "Ask questions about your customers, market, and product — get answers backed by real data.",
+    title: "AI Chat with Context",
+    desc: "Phase-aware AI assistant that knows your product vision, goals, and data — every conversation is grounded in real context.",
+  },
+  {
+    icon: Crosshair,
+    title: "Command Center",
+    desc: "A living project brief with vision, goals, metrics, and notes. Your single source of truth — exportable as reports.",
+  },
+  {
+    icon: Compass,
+    title: "Phase-Guided Lifecycle",
+    desc: "Six PM phases (Discover → Measure) with guided checklists, confetti celebrations, and automatic phase progression.",
   },
   {
     icon: Target,
     title: "Opportunity Scoring",
-    desc: "AI ranks features by impact, effort, and strategic fit. No more gut-feeling prioritization.",
+    desc: "AI ranks features by impact, effort, and strategic fit using RICE scoring. No more gut-feeling prioritization.",
   },
   {
     icon: FileText,
     title: "Auto-Generated Specs",
-    desc: "PRDs, user stories, and acceptance criteria — structured for AI coding agents.",
+    desc: "PRDs, user stories, and acceptance criteria — structured for AI coding agents like Cursor and Claude Code.",
+  },
+  {
+    icon: Presentation,
+    title: "Slide Editor",
+    desc: "Build strategy decks and launch presentations with AI-assisted content, inline editing, and one-click export.",
+  },
+  {
+    icon: Table,
+    title: "Spreadsheet & Lead Management",
+    desc: "Inline-editable data grid with filtering, bulk actions, lead creation, and CSV export.",
   },
   {
     icon: Workflow,
     title: "Workflow Automation",
-    desc: "Connect discovery to execution with multi-step automated pipelines.",
+    desc: "Build and deploy multi-step AI-driven pipelines — from NPS alerts to feedback synthesis to outreach.",
   },
   {
     icon: Users,
     title: "Team Collaboration",
-    desc: "Real-time chat, activity feeds, and shared context across your product team.",
+    desc: "Role-based teams with real-time chat, activity feeds, notifications, and shared product context.",
+  },
+  {
+    icon: Download,
+    title: "Export & Reports",
+    desc: "Download project snapshots, chat transcripts, slides, and spreadsheets as CSV or Markdown files.",
+  },
+  {
+    icon: Keyboard,
+    title: "Keyboard Shortcuts",
+    desc: "Power-user shortcuts: ⌘K search, ⌘N new chat, ⌘1-7 view navigation. Built for speed.",
   },
   {
     icon: Bot,
@@ -121,10 +180,10 @@ const FEATURES = [
 ];
 
 const STEPS = [
-  { num: "01", title: "Ingest", desc: "Upload interviews, surveys, tickets, and analytics.", icon: Upload, color: "from-blue-500 to-cyan-500" },
-  { num: "02", title: "Synthesize", desc: "AI surfaces themes, scores opportunities, explains why.", icon: BrainCircuit, color: "from-violet-500 to-purple-500" },
-  { num: "03", title: "Define", desc: "Get specs, UI proposals, data models, and dev tasks.", icon: Layers, color: "from-primary to-orange-400" },
-  { num: "04", title: "Ship", desc: "Hand off to your coding agent. Measure. Repeat.", icon: Zap, color: "from-emerald-500 to-green-500" },
+  { num: "01", title: "Set Up", desc: "Create your product, define vision & goals in Command Center.", icon: Crosshair, color: "from-blue-500 to-cyan-500" },
+  { num: "02", title: "Discover", desc: "Upload interviews, chat with AI, surface opportunities.", icon: Search, color: "from-violet-500 to-purple-500" },
+  { num: "03", title: "Define", desc: "Generate PRDs, build decks, create roadmaps with RICE scoring.", icon: Layers, color: "from-primary to-orange-400" },
+  { num: "04", title: "Ship", desc: "Deploy workflows, hand off to coding agents. Measure & repeat.", icon: Zap, color: "from-emerald-500 to-green-500" },
 ];
 
 export default function Landing() {
@@ -437,7 +496,7 @@ export default function Landing() {
             whileInView="visible"
             viewport={{ once: true, margin: "-80px" }}
             variants={stagger}
-            className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4"
+            className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4"
           >
             {FEATURES.map((f, i) => (
               <motion.div
@@ -515,9 +574,11 @@ export default function Landing() {
                 tokens: "5,000",
                 features: [
                   "5,000 tokens / month",
-                  "AI Discovery & synthesis",
+                  "AI Chat & Discovery",
+                  "Command Center",
                   "PRD generation",
                   "3 active workflows",
+                  "Slide editor",
                   "Email support",
                 ],
                 cta: "Get started",
@@ -534,7 +595,8 @@ export default function Landing() {
                   "Everything in Starter",
                   "Unlimited workflows",
                   "Team collaboration (up to 10)",
-                  "Slide deck generation",
+                  "Spreadsheet & lead management",
+                  "Export & reports",
                   "Priority support",
                 ],
                 cta: "Start free trial",
