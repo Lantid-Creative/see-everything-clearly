@@ -1,6 +1,6 @@
-import { useState, useEffect } from "react";
-import { ArrowLeft, ChevronLeft, ChevronRight, MessageSquare, Edit3, Plus, Loader2, Sparkles, Download, Trash2, Send } from "lucide-react";
-import { exportSlidesAsMarkdown } from "@/lib/exportUtils";
+import { useState, useEffect, useRef } from "react";
+import { ArrowLeft, ChevronLeft, ChevronRight, MessageSquare, Edit3, Plus, Loader2, Sparkles, Download, Trash2, Send, FileText, FileSpreadsheet, ChevronDown } from "lucide-react";
+import { exportSlidesAsMarkdown, exportSlidesAsPPTX, exportSlidesAsPDF } from "@/lib/exportUtils";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { streamChat } from "@/lib/streamChat";
