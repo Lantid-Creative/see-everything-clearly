@@ -18,6 +18,7 @@ import { useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
 import { useWorkspaceContext } from "@/hooks/useWorkspaceContext";
 import { useUserProfile } from "@/hooks/useUserProfile";
 import { useProductPhase } from "@/hooks/useProductPhase";
+import { useProducts } from "@/hooks/useProducts";
 
 export type ViewMode = "dashboard" | "chat" | "workspace" | "slides" | "workflow" | "spreadsheet" | "team" | "settings" | "integrations";
 
@@ -41,6 +42,14 @@ const Index = () => {
 
   const workspaceContext = useWorkspaceContext();
   const profile = useUserProfile();
+  const {
+    products,
+    activeProduct,
+    activeProductId,
+    setActiveProductId,
+    createProduct,
+    setPhaseOverride,
+  } = useProducts();
 
   const phaseData = useProductPhase(
     workspaceContext && profile
@@ -54,6 +63,9 @@ const Index = () => {
         }
       : null
   );
+
+  // If the active product has a manual phase override, use it; otherwise auto-detect
+  const effectivePhase = activeProduct?.current_phase || phaseData?.currentPhase || null;
 
   const handleNewChat = useCallback(() => {
     createConversation();
@@ -118,7 +130,7 @@ const Index = () => {
             }
             pendingTemplateId={pendingTemplateId}
             onTemplateSent={() => setPendingTemplateId(null)}
-            currentPhase={phaseData?.currentPhase || null}
+            currentPhase={effectivePhase}
           />
         );
     }
@@ -143,7 +155,12 @@ const Index = () => {
           onDeleteConversation={deleteConversation}
           onSelectTemplate={handleSelectTemplate}
           searchFocusTrigger={searchFocusTrigger}
-          currentPhase={phaseData?.currentPhase || null}
+          currentPhase={effectivePhase}
+          onSetPhase={setPhaseOverride}
+          products={products}
+          activeProduct={activeProduct}
+          onSelectProduct={setActiveProductId}
+          onCreateProduct={createProduct}
         />
         <main className="flex-1 flex flex-col min-w-0">
           {renderView()}
