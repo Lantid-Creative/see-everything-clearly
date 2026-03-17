@@ -17,8 +17,9 @@ import { DashboardView } from "@/components/DashboardView";
 import { useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
 import { useWorkspaceContext } from "@/hooks/useWorkspaceContext";
 import { useUserProfile } from "@/hooks/useUserProfile";
-import { useProductPhase } from "@/hooks/useProductPhase";
+import { useProductPhase, PHASE_GUIDES } from "@/hooks/useProductPhase";
 import { useProducts } from "@/hooks/useProducts";
+import { useToast } from "@/hooks/use-toast";
 
 export type ViewMode = "dashboard" | "chat" | "workspace" | "slides" | "workflow" | "spreadsheet" | "team" | "settings" | "integrations";
 
