@@ -57,6 +57,7 @@ interface DashboardViewProps {
   onNavigate: (view: ViewMode) => void;
   onNewChat: (prompt?: string) => void;
   activeProductId?: string | null;
+  onSetPhase?: (phase: ProductPhase | null) => void;
 }
 
 const PHASE_ICONS: Record<ProductPhase, typeof Compass> = {
@@ -88,7 +89,7 @@ function timeAgo(dateStr: string): string {
   return date.toLocaleDateString();
 }
 
-export function DashboardView({ onNavigate, onNewChat, activeProductId }: DashboardViewProps) {
+export function DashboardView({ onNavigate, onNewChat, activeProductId, onSetPhase }: DashboardViewProps) {
   const { user } = useAuth();
   const profile = useUserProfile();
   const [stats, setStats] = useState<DashboardStats>({
@@ -230,13 +231,15 @@ export function DashboardView({ onNavigate, onNewChat, activeProductId }: Dashbo
                 const isPast = idx < currentIdx;
                 return (
                   <div key={phase.id} className="flex items-center flex-1 min-w-0">
-                    <div
-                      className={`flex items-center gap-1.5 px-2 py-1.5 rounded-lg text-[10px] font-medium transition-all whitespace-nowrap ${
+                    <button
+                      onClick={() => onSetPhase?.(isCurrent ? null : phase.id)}
+                      title={isCurrent ? "Reset to auto-detect" : `Switch to ${phase.label}`}
+                      className={`flex items-center gap-1.5 px-2 py-1.5 rounded-lg text-[10px] font-medium transition-all whitespace-nowrap cursor-pointer hover:ring-1 hover:ring-primary/40 ${
                         isCurrent
                           ? `${pColors.bg} ${pColors.text} ring-1 ${pColors.ring}`
                           : isPast
-                          ? "text-muted-foreground/70 line-through"
-                          : "text-muted-foreground/50"
+                          ? "text-muted-foreground/70 line-through hover:text-muted-foreground"
+                          : "text-muted-foreground/50 hover:text-muted-foreground"
                       }`}
                     >
                       {isPast ? (
@@ -245,7 +248,7 @@ export function DashboardView({ onNavigate, onNewChat, activeProductId }: Dashbo
                         <Icon className="h-3 w-3 shrink-0" />
                       )}
                       <span className="hidden sm:inline">{phase.label}</span>
-                    </div>
+                    </button>
                     {idx < phases.length - 1 && (
                       <div className={`h-px flex-1 mx-1 ${isPast ? "bg-primary/40" : "bg-border"}`} />
                     )}
