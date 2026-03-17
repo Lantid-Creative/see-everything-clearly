@@ -25,6 +25,8 @@ interface ChatViewProps {
   pendingTemplateId?: string | null;
   onTemplateSent?: () => void;
   currentPhase?: string | null;
+  pendingPrompt?: string | null;
+  onPromptConsumed?: () => void;
 }
 
 // Templates for quick-start conversations
@@ -141,6 +143,8 @@ export function ChatView({
   pendingTemplateId,
   onTemplateSent,
   currentPhase,
+  pendingPrompt,
+  onPromptConsumed,
 }: ChatViewProps) {
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -178,6 +182,14 @@ export function ChatView({
       onTemplateSent?.();
     }
   }, [pendingTemplateId, conversation.id]);
+
+  // Handle prompt from guided flow
+  useEffect(() => {
+    if (pendingPrompt && conversation.messages.length === 0) {
+      setInput(pendingPrompt);
+      onPromptConsumed?.();
+    }
+  }, [pendingPrompt, conversation.id]);
 
   const detectWorkspaceType = (content: string): { action: string; type: ViewMode } | null => {
     const lower = content.toLowerCase();

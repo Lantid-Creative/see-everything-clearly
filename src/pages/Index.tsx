@@ -67,8 +67,11 @@ const Index = () => {
   // If the active product has a manual phase override, use it; otherwise auto-detect
   const effectivePhase = activeProduct?.current_phase || phaseData?.currentPhase || null;
 
-  const handleNewChat = useCallback(() => {
+  const [pendingPrompt, setPendingPrompt] = useState<string | null>(null);
+
+  const handleNewChat = useCallback((prompt?: string) => {
     createConversation();
+    if (prompt) setPendingPrompt(prompt);
     setViewMode("chat");
   }, [createConversation]);
 
@@ -131,6 +134,8 @@ const Index = () => {
             pendingTemplateId={pendingTemplateId}
             onTemplateSent={() => setPendingTemplateId(null)}
             currentPhase={effectivePhase}
+            pendingPrompt={pendingPrompt}
+            onPromptConsumed={() => setPendingPrompt(null)}
           />
         );
     }
