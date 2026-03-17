@@ -1,6 +1,6 @@
-import { useState, useEffect } from "react";
-import { ArrowLeft, ChevronLeft, ChevronRight, MessageSquare, Edit3, Plus, Loader2, Sparkles, Download, Trash2, Send } from "lucide-react";
-import { exportSlidesAsMarkdown } from "@/lib/exportUtils";
+import { useState, useEffect, useRef } from "react";
+import { ArrowLeft, ChevronLeft, ChevronRight, MessageSquare, Edit3, Plus, Loader2, Sparkles, Download, Trash2, Send, FileText, FileSpreadsheet, ChevronDown } from "lucide-react";
+import { exportSlidesAsMarkdown, exportSlidesAsPPTX, exportSlidesAsPDF } from "@/lib/exportUtils";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { streamChat } from "@/lib/streamChat";
@@ -78,8 +78,19 @@ export function SlideEditorView({ onBack, initialContent, onContentConsumed }: S
   const [chatInput, setChatInput] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
   const [chatMessages, setChatMessages] = useState<{ role: "user" | "assistant"; content: string }[]>([]);
+  const [showExportMenu, setShowExportMenu] = useState(false);
+  const exportRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
   const isMobile = useIsMobile();
+
+  // Close export menu on outside click
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (exportRef.current && !exportRef.current.contains(e.target as Node)) setShowExportMenu(false);
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, []);
 
   // When new initialContent arrives, parse and apply it
   useEffect(() => {
@@ -268,13 +279,41 @@ If they ask a question without requesting changes, just answer naturally. Always
           </span>
         </div>
         <div className="flex items-center gap-2">
-          <button
-            onClick={() => exportSlidesAsMarkdown(slides)}
-            className="h-8 px-3 text-xs text-muted-foreground hover:text-foreground border rounded-lg flex items-center gap-1.5 transition-colors"
-          >
-            <Download className="h-3.5 w-3.5" />
-            Export
-          </button>
+          <div className="relative" ref={exportRef}>
+            <button
+              onClick={() => setShowExportMenu(!showExportMenu)}
+              className="h-8 px-3 text-xs text-muted-foreground hover:text-foreground border rounded-lg flex items-center gap-1.5 transition-colors"
+            >
+              <Download className="h-3.5 w-3.5" />
+              Export
+              <ChevronDown className="h-3 w-3" />
+            </button>
+            {showExportMenu && (
+              <div className="absolute right-0 top-full mt-1 w-48 bg-popover border rounded-lg shadow-lg z-50 py-1">
+                <button
+                  onClick={() => { exportSlidesAsMarkdown(slides); setShowExportMenu(false); toast({ title: "Exported as Markdown" }); }}
+                  className="w-full px-3 py-2 text-xs text-left hover:bg-accent flex items-center gap-2 transition-colors"
+                >
+                  <FileText className="h-3.5 w-3.5 text-muted-foreground" />
+                  Markdown (.md)
+                </button>
+                <button
+                  onClick={async () => { setShowExportMenu(false); toast({ title: "Generating PDF…" }); await exportSlidesAsPDF(slides); toast({ title: "PDF exported" }); }}
+                  className="w-full px-3 py-2 text-xs text-left hover:bg-accent flex items-center gap-2 transition-colors"
+                >
+                  <FileText className="h-3.5 w-3.5 text-muted-foreground" />
+                  PDF (.pdf)
+                </button>
+                <button
+                  onClick={async () => { setShowExportMenu(false); toast({ title: "Generating PowerPoint…" }); await exportSlidesAsPPTX(slides); toast({ title: "PowerPoint exported" }); }}
+                  className="w-full px-3 py-2 text-xs text-left hover:bg-accent flex items-center gap-2 transition-colors"
+                >
+                  <FileSpreadsheet className="h-3.5 w-3.5 text-muted-foreground" />
+                  PowerPoint (.pptx)
+                </button>
+              </div>
+            )}
+          </div>
           <button
             onClick={() => setShowComments(!showComments)}
             className={`h-7 px-2 rounded-md text-xs flex items-center gap-1 transition-colors ${showComments ? "bg-primary text-primary-foreground" : "hover:bg-secondary text-muted-foreground"}`}
