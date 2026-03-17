@@ -185,9 +185,12 @@ export function ChatView({
 
   // Handle prompt from guided flow
   useEffect(() => {
-    if (pendingPrompt && conversation.messages.length === 0) {
-      setInput(pendingPrompt);
-      onPromptConsumed?.();
+    if (pendingPrompt) {
+      const hasUserMessages = conversation.messages.some((m) => m.role === "user");
+      if (!hasUserMessages) {
+        setInput(pendingPrompt);
+        onPromptConsumed?.();
+      }
     }
   }, [pendingPrompt, conversation.id]);
 
