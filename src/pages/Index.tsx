@@ -101,7 +101,7 @@ const Index = () => {
   const renderView = () => {
     switch (viewMode) {
       case "dashboard":
-        return <DashboardView onNavigate={setViewMode} onNewChat={handleNewChat} />;
+        return <DashboardView onNavigate={setViewMode} onNewChat={handleNewChat} activeProductId={activeProductId} />;
       case "workspace":
         return <WorkspaceView onBack={() => setViewMode("dashboard")} />;
       case "slides":

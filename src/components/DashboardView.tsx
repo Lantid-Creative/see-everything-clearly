@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useUserProfile } from "@/hooks/useUserProfile";
+import { useChecklistProgress } from "@/hooks/useChecklistProgress";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { NotificationBell } from "@/components/NotificationBell";
 import { Progress } from "@/components/ui/progress";
@@ -55,6 +56,7 @@ interface RecentItem {
 interface DashboardViewProps {
   onNavigate: (view: ViewMode) => void;
   onNewChat: (prompt?: string) => void;
+  activeProductId?: string | null;
 }
 
 const PHASE_ICONS: Record<ProductPhase, typeof Compass> = {
@@ -86,7 +88,7 @@ function timeAgo(dateStr: string): string {
   return date.toLocaleDateString();
 }
 
-export function DashboardView({ onNavigate, onNewChat }: DashboardViewProps) {
+export function DashboardView({ onNavigate, onNewChat, activeProductId }: DashboardViewProps) {
   const { user } = useAuth();
   const profile = useUserProfile();
   const [stats, setStats] = useState<DashboardStats>({
@@ -161,9 +163,17 @@ export function DashboardView({ onNavigate, onNewChat }: DashboardViewProps) {
   const phases = phaseData?.phases || [];
   const phaseInput = phaseData?.input;
 
+  // Persistent checklist progress
+  const { isCompleted, toggleItem } = useChecklistProgress(activeProductId ?? null);
+
   // Get the full guide for the current phase
   const currentGuide = currentPhase ? PHASE_GUIDES[currentPhase.id as ProductPhase] : null;
-  const checklist = currentPhase && phaseInput ? currentGuide?.checklist(phaseInput) || [] : [];
+  const rawChecklist = currentPhase && phaseInput ? currentGuide?.checklist(phaseInput) || [] : [];
+  // Override isComplete with persistent DB state
+  const checklist = rawChecklist.map((item) => ({
+    ...item,
+    isComplete: item.isComplete || isCompleted(item.id),
+  }));
   const completedCount = checklist.filter((c) => c.isComplete).length;
   const progressPct = checklist.length > 0 ? Math.round((completedCount / checklist.length) * 100) : 0;
   const colors = currentPhase ? PHASE_COLORS[currentPhase.id as ProductPhase] : null;
@@ -290,32 +300,40 @@ export function DashboardView({ onNavigate, onNewChat }: DashboardViewProps) {
                   Guided Steps
                 </p>
                 {checklist.map((item, idx) => (
-                  <button
+                  <div
                     key={item.id}
-                    onClick={() => handleChecklistAction(item)}
                     className={`w-full flex items-start gap-3 px-3 py-2.5 rounded-xl text-left transition-all group ${
                       item.isComplete
                         ? "opacity-60 hover:opacity-80"
                         : "hover:bg-accent/50"
                     }`}
                   >
-                    <div className={`mt-0.5 h-5 w-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-colors ${
-                      item.isComplete
-                        ? `${colors.bar} border-transparent`
-                        : `border-muted-foreground/30 group-hover:border-primary`
-                    }`}>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        toggleItem(item.id);
+                      }}
+                      className={`mt-0.5 h-5 w-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-colors ${
+                        item.isComplete
+                          ? `${colors.bar} border-transparent`
+                          : `border-muted-foreground/30 hover:border-primary`
+                      }`}
+                    >
                       {item.isComplete && <Check className="h-3 w-3 text-white" />}
-                    </div>
-                    <div className="flex-1 min-w-0">
+                    </button>
+                    <button
+                      onClick={() => handleChecklistAction(item)}
+                      className="flex-1 min-w-0 text-left"
+                    >
                       <p className={`text-sm font-medium ${item.isComplete ? "line-through text-muted-foreground" : "text-foreground"}`}>
                         {item.label}
                       </p>
                       <p className="text-[11px] text-muted-foreground mt-0.5">{item.description}</p>
-                    </div>
+                    </button>
                     {!item.isComplete && (
                       <ChevronRight className="h-4 w-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity mt-0.5 shrink-0" />
                     )}
-                  </button>
+                  </div>
                 ))}
               </div>
 

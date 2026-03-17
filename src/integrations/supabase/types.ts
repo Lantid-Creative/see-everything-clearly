@@ -14,6 +14,38 @@ export type Database = {
   }
   public: {
     Tables: {
+      checklist_progress: {
+        Row: {
+          completed_at: string
+          id: string
+          item_id: string
+          product_id: string | null
+          user_id: string
+        }
+        Insert: {
+          completed_at?: string
+          id?: string
+          item_id: string
+          product_id?: string | null
+          user_id: string
+        }
+        Update: {
+          completed_at?: string
+          id?: string
+          item_id?: string
+          product_id?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "checklist_progress_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       conversations: {
         Row: {
           created_at: string
