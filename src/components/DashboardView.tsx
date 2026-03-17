@@ -163,9 +163,17 @@ export function DashboardView({ onNavigate, onNewChat, activeProductId }: Dashbo
   const phases = phaseData?.phases || [];
   const phaseInput = phaseData?.input;
 
+  // Persistent checklist progress
+  const { isCompleted, toggleItem } = useChecklistProgress(activeProductId ?? null);
+
   // Get the full guide for the current phase
   const currentGuide = currentPhase ? PHASE_GUIDES[currentPhase.id as ProductPhase] : null;
-  const checklist = currentPhase && phaseInput ? currentGuide?.checklist(phaseInput) || [] : [];
+  const rawChecklist = currentPhase && phaseInput ? currentGuide?.checklist(phaseInput) || [] : [];
+  // Override isComplete with persistent DB state
+  const checklist = rawChecklist.map((item) => ({
+    ...item,
+    isComplete: item.isComplete || isCompleted(item.id),
+  }));
   const completedCount = checklist.filter((c) => c.isComplete).length;
   const progressPct = checklist.length > 0 ? Math.round((completedCount / checklist.length) * 100) : 0;
   const colors = currentPhase ? PHASE_COLORS[currentPhase.id as ProductPhase] : null;
