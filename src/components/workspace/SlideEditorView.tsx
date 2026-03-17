@@ -32,48 +32,34 @@ interface SlideEditorViewProps {
 }
 
 function parseAIContentToSlides(content: string): Slide[] | null {
-  // Try to parse "**Slide N:** Title — bullets" or "Slide N: Title - bullets" patterns
-  const slideRegex = /\*?\*?Slide\s+(\d+)\*?\*?[:\s—–-]+\*?\*?(.+?)\*?\*?\s*(?:[-—–]\s*)?(.+?)(?=\*?\*?Slide\s+\d|$)/gis;
-  const matches = [...content.matchAll(slideRegex)];
-  
-  if (matches.length < 2) {
-    // Also try "**Slide N:** Title\n- bullet" pattern
-    const altRegex = /\*?\*?Slide\s+(\d+)[:\s]*\*?\*?\s*(.+?)(?:\n)((?:[-•*]\s*.+\n?)*)/gis;
-    const altMatches = [...content.matchAll(altRegex)];
-    if (altMatches.length >= 2) {
-      return altMatches.map((m, i) => {
-        const title = m[2].replace(/\*\*/g, '').replace(/[-—–]\s*$/, '').trim();
-        const bulletText = m[3] || '';
-        const bullets = bulletText.split('\n')
-          .map(b => b.replace(/^[-•*]\s*/, '').trim())
-          .filter(b => b.length > 0);
-        return {
-          id: Date.now().toString() + i,
-          title,
-          subtitle: i === 0 ? undefined : undefined,
-          bullets: bullets.length > 0 ? bullets : undefined,
-          layout: i === 0 ? "title" as const : "content" as const,
-          brandColor: "hsl(var(--primary))",
-        };
-      });
-    }
-    return null;
-  }
+  // Split content by slide headers like "**Slide 1:**", "Slide 1:", etc.
+  const sections = content.split(/(?=\*{0,2}Slide\s+\d+\*{0,2}\s*[:\s—–-])/i);
+  const slides: Slide[] = [];
 
-  return matches.map((m, i) => {
-    const title = m[2].replace(/\*\*/g, '').replace(/[-—–]\s*$/, '').trim();
-    const bulletContent = m[3] || '';
-    const bullets = bulletContent.split(/[,\n]/)
-      .map(b => b.replace(/^[-•*]\s*/, '').replace(/\*\*/g, '').trim())
-      .filter(b => b.length > 0 && !b.match(/^\*?\*?Slide/i));
-    return {
-      id: Date.now().toString() + i,
+  for (const section of sections) {
+    // Match the slide header
+    const headerMatch = section.match(/\*{0,2}Slide\s+(\d+)\*{0,2}\s*[:\s—–-]+\s*\*{0,2}(.+?)\*{0,2}\s*$/im);
+    if (!headerMatch) continue;
+
+    const title = headerMatch[2].replace(/\*\*/g, '').replace(/[-—–]\s*$/, '').trim();
+    
+    // Extract bullets from the rest of the section
+    const restOfSection = section.slice(headerMatch.index! + headerMatch[0].length);
+    const bullets = restOfSection
+      .split('\n')
+      .map(line => line.replace(/^[-•*]\s*/, '').replace(/\*\*/g, '').trim())
+      .filter(line => line.length > 0 && !line.match(/^\*?\*?Slide\s+\d/i) && !line.match(/^\[\[action:/));
+
+    slides.push({
+      id: Date.now().toString() + slides.length,
       title,
       bullets: bullets.length > 0 ? bullets : undefined,
-      layout: i === 0 ? "title" as const : "content" as const,
+      layout: slides.length === 0 ? "title" as const : "content" as const,
       brandColor: "hsl(var(--primary))",
-    };
-  });
+    });
+  }
+
+  return slides.length >= 2 ? slides : null;
 }
 
 export function SlideEditorView({ onBack, initialContent, onContentConsumed }: SlideEditorViewProps) {
