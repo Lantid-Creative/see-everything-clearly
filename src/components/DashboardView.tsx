@@ -295,11 +295,14 @@ export function DashboardView({ onNavigate, onNewChat, activeProductId, onSetPha
           )}
 
           {/* Main Guided Flow Card */}
+          <AnimatePresence mode="wait">
           {currentGuide && colors && (
             <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.4, delay: 0.1 }}
+              key={currentPhase?.id ?? "none"}
+              initial={{ opacity: 0, x: 40 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -40 }}
+              transition={{ duration: 0.35, ease: "easeInOut" }}
               className="border border-border rounded-2xl bg-card overflow-hidden"
             >
               {/* Phase header */}
