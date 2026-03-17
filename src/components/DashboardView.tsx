@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useUserProfile } from "@/hooks/useUserProfile";
@@ -7,6 +7,7 @@ import { SidebarTrigger } from "@/components/ui/sidebar";
 import { NotificationBell } from "@/components/NotificationBell";
 import { Progress } from "@/components/ui/progress";
 import { motion, AnimatePresence } from "framer-motion";
+import confetti from "canvas-confetti";
 import {
   Users,
   Workflow,
@@ -178,6 +179,41 @@ export function DashboardView({ onNavigate, onNewChat, activeProductId, onSetPha
   const completedCount = checklist.filter((c) => c.isComplete).length;
   const progressPct = checklist.length > 0 ? Math.round((completedCount / checklist.length) * 100) : 0;
   const colors = currentPhase ? PHASE_COLORS[currentPhase.id as ProductPhase] : null;
+  const allComplete = checklist.length > 0 && completedCount === checklist.length;
+  const hasCelebrated = useRef<string | null>(null);
+
+  // Fire confetti when all items complete
+  useEffect(() => {
+    if (allComplete && currentPhase && hasCelebrated.current !== currentPhase.id) {
+      hasCelebrated.current = currentPhase.id;
+      const duration = 2000;
+      const end = Date.now() + duration;
+      const frame = () => {
+        confetti({
+          particleCount: 3,
+          angle: 60,
+          spread: 55,
+          origin: { x: 0, y: 0.7 },
+          colors: ["hsl(25, 95%, 53%)", "hsl(280, 68%, 51%)", "hsl(142, 71%, 45%)"],
+        });
+        confetti({
+          particleCount: 3,
+          angle: 120,
+          spread: 55,
+          origin: { x: 1, y: 0.7 },
+          colors: ["hsl(25, 95%, 53%)", "hsl(280, 68%, 51%)", "hsl(142, 71%, 45%)"],
+        });
+        if (Date.now() < end) requestAnimationFrame(frame);
+      };
+      frame();
+    }
+  }, [allComplete, currentPhase]);
+
+  const handleAdvancePhase = () => {
+    if (currentGuide?.nextPhase && onSetPhase) {
+      onSetPhase(currentGuide.nextPhase);
+    }
+  };
 
   const handleChecklistAction = (item: ChecklistItem) => {
     if (item.action.type === "chat") {
@@ -340,8 +376,41 @@ export function DashboardView({ onNavigate, onNewChat, activeProductId, onSetPha
                 ))}
               </div>
 
-              {/* Transition hint */}
-              {currentGuide.nextPhase && progressPct >= 80 && (
+              {/* Phase completion celebration */}
+              <AnimatePresence>
+                {allComplete && currentGuide.nextPhase && (
+                  <motion.div
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: "auto" }}
+                    exit={{ opacity: 0, height: 0 }}
+                    className="border-t border-border overflow-hidden"
+                  >
+                    <div className="px-6 py-5 bg-gradient-to-r from-primary/10 via-accent/20 to-primary/10 flex items-center gap-4">
+                      <div className="h-10 w-10 rounded-xl bg-primary/20 flex items-center justify-center shrink-0">
+                        <Sparkles className="h-5 w-5 text-primary" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-semibold text-foreground">
+                          🎉 {currentGuide.label} phase complete!
+                        </p>
+                        <p className="text-xs text-muted-foreground mt-0.5">
+                          You've finished all steps. Ready to move to <span className="font-medium text-foreground">{PHASE_GUIDES[currentGuide.nextPhase]?.label}</span>?
+                        </p>
+                      </div>
+                      <button
+                        onClick={handleAdvancePhase}
+                        className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 transition-colors shrink-0"
+                      >
+                        Advance
+                        <ArrowRight className="h-3.5 w-3.5" />
+                      </button>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+
+              {/* Transition hint (before completion) */}
+              {!allComplete && currentGuide.nextPhase && progressPct >= 80 && (
                 <div className="px-6 py-3 bg-accent/30 border-t border-border flex items-center gap-2">
                   <Lightbulb className="h-4 w-4 text-primary shrink-0" />
                   <p className="text-xs text-muted-foreground">{currentGuide.transitionHint}</p>
