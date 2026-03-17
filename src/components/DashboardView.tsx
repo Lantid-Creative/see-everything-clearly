@@ -88,7 +88,7 @@ function timeAgo(dateStr: string): string {
   return date.toLocaleDateString();
 }
 
-export function DashboardView({ onNavigate, onNewChat }: DashboardViewProps) {
+export function DashboardView({ onNavigate, onNewChat, activeProductId }: DashboardViewProps) {
   const { user } = useAuth();
   const profile = useUserProfile();
   const [stats, setStats] = useState<DashboardStats>({
