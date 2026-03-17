@@ -329,6 +329,26 @@ export function ChatView({
     open_spreadsheet: { label: "Open spreadsheet", icon: Table, type: "spreadsheet" },
   };
 
+  const TOOL_ICONS: Record<string, { icon: any; type: ViewMode }> = {
+    slides: { icon: Presentation, type: "slides" },
+    workflow: { icon: GitBranch, type: "workflow" },
+    workspace: { icon: LayoutGrid, type: "workspace" },
+    spreadsheet: { icon: Table, type: "spreadsheet" },
+  };
+
+  const ACTION_LINK_REGEX = /\[\[action:(\w+)\|(.+?)\]\]/g;
+
+  function parseActionLinks(content: string): { cleanContent: string; actions: { tool: string; label: string }[] } {
+    const actions: { tool: string; label: string }[] = [];
+    const cleanContent = content.replace(ACTION_LINK_REGEX, (_, tool, label) => {
+      if (TOOL_ICONS[tool]) {
+        actions.push({ tool, label });
+      }
+      return "";
+    }).replace(/→\s*\n?/g, "").trimEnd();
+    return { cleanContent, actions };
+  }
+
   const getStarterSuggestions = () => {
     const allSuggestions = [
       { icon: Search, label: "Validate a product idea", prompt: "I have a product idea and I want to validate it. Can you help me structure a discovery process — who to talk to, what to ask, and how to evaluate if it's worth building?", goals: ["Discover what to build next"] },
