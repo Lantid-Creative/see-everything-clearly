@@ -78,7 +78,7 @@ const Index = () => {
     setViewMode("chat");
   }, [createConversation]);
 
-  const handlePhaseSwitch = useCallback((phase: string | null) => {
+  const handlePhaseSwitch = useCallback((phase: ProductPhase | null) => {
     setPhaseOverride(phase);
     const guide = phase ? PHASE_GUIDES[phase as keyof typeof PHASE_GUIDES] : null;
     if (guide) {
