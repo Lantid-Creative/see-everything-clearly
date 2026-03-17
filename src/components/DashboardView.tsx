@@ -55,6 +55,7 @@ interface RecentItem {
 interface DashboardViewProps {
   onNavigate: (view: ViewMode) => void;
   onNewChat: (prompt?: string) => void;
+  activeProductId?: string | null;
 }
 
 const PHASE_ICONS: Record<ProductPhase, typeof Compass> = {
