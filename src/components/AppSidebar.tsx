@@ -52,6 +52,7 @@ import {
 import type { ViewMode } from "@/pages/Index";
 import type { Conversation } from "@/hooks/useConversations";
 import type { ProductPhase } from "@/hooks/useProductPhase";
+import { PHASE_GUIDES } from "@/hooks/useProductPhase";
 import type { Product } from "@/hooks/useProducts";
 
 const PHASES: { id: ProductPhase; label: string; icon: typeof Compass }[] = [
