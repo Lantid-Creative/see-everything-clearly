@@ -300,32 +300,40 @@ export function DashboardView({ onNavigate, onNewChat, activeProductId }: Dashbo
                   Guided Steps
                 </p>
                 {checklist.map((item, idx) => (
-                  <button
+                  <div
                     key={item.id}
-                    onClick={() => handleChecklistAction(item)}
                     className={`w-full flex items-start gap-3 px-3 py-2.5 rounded-xl text-left transition-all group ${
                       item.isComplete
                         ? "opacity-60 hover:opacity-80"
                         : "hover:bg-accent/50"
                     }`}
                   >
-                    <div className={`mt-0.5 h-5 w-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-colors ${
-                      item.isComplete
-                        ? `${colors.bar} border-transparent`
-                        : `border-muted-foreground/30 group-hover:border-primary`
-                    }`}>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        toggleItem(item.id);
+                      }}
+                      className={`mt-0.5 h-5 w-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-colors ${
+                        item.isComplete
+                          ? `${colors.bar} border-transparent`
+                          : `border-muted-foreground/30 hover:border-primary`
+                      }`}
+                    >
                       {item.isComplete && <Check className="h-3 w-3 text-white" />}
-                    </div>
-                    <div className="flex-1 min-w-0">
+                    </button>
+                    <button
+                      onClick={() => handleChecklistAction(item)}
+                      className="flex-1 min-w-0 text-left"
+                    >
                       <p className={`text-sm font-medium ${item.isComplete ? "line-through text-muted-foreground" : "text-foreground"}`}>
                         {item.label}
                       </p>
                       <p className="text-[11px] text-muted-foreground mt-0.5">{item.description}</p>
-                    </div>
+                    </button>
                     {!item.isComplete && (
                       <ChevronRight className="h-4 w-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity mt-0.5 shrink-0" />
                     )}
-                  </button>
+                  </div>
                 ))}
               </div>
 
