@@ -124,6 +124,8 @@ const Index = () => {
     switch (viewMode) {
       case "dashboard":
         return <DashboardView onNavigate={setViewMode} onNewChat={handleNewChat} activeProductId={activeProductId} onSetPhase={handlePhaseSwitch} />;
+      case "command-center":
+        return <CommandCenterView activeProductId={activeProductId} activeProductName={activeProduct?.name} currentPhase={effectivePhase} onNavigate={setViewMode} />;
       case "workspace":
         return <WorkspaceView onBack={() => setViewMode("dashboard")} />;
       case "slides":
