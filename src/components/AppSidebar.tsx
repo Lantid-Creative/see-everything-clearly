@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import {
   Home,
+  Crosshair,
   Settings,
   Puzzle,
   Search,
