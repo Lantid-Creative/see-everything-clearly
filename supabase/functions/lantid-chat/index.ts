@@ -5,7 +5,8 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
-const KIMI_ENDPOINT = "https://smartedge.services.ai.azure.com/models/chat/completions?api-version=2024-05-01-preview";
+const AZURE_ENDPOINT = "https://lanti-mi50lwx0-eastus2.services.ai.azure.com/anthropic/v1/messages";
+const MODEL = "claude-opus-4-5";
 
 const SYSTEM_PROMPT = `You are Lantid, an AI-native Product Management assistant — think "Cursor for PMs." You help product managers make better decisions about what to build and why.
 
@@ -74,7 +75,6 @@ function buildContextPrompt(context: any): string {
   if (context.company) parts.push(`- **Company**: ${context.company}`);
   if (context.productGoals) parts.push(`- **Goals**: ${context.productGoals}`);
 
-  // Product lifecycle phase
   if (context.currentPhase) {
     const phaseGuides: Record<string, { focus: string; actions: string; transition: string }> = {
       discover: {
@@ -152,36 +152,36 @@ serve(async (req) => {
 
   try {
     const { messages, context, generateTitle } = await req.json();
-    const KIMI_API_KEY = Deno.env.get("KIMI_API_KEY");
-    if (!KIMI_API_KEY) throw new Error("KIMI_API_KEY is not configured");
+    const AZURE_API_KEY = Deno.env.get("AZURE_API_KEY");
+    if (!AZURE_API_KEY) throw new Error("AZURE_API_KEY is not configured");
 
     // Title generation mode (non-streaming)
     if (generateTitle) {
-      const titleResponse = await fetch(KIMI_ENDPOINT, {
+      const titleResponse = await fetch(AZURE_ENDPOINT, {
         method: "POST",
         headers: {
-          "Authorization": `Bearer ${KIMI_API_KEY}`,
+          "api-key": AZURE_API_KEY,
+          "anthropic-version": "2023-06-01",
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          model: "Kimi-K2.5",
-          messages: [
-            { role: "system", content: TITLE_SYSTEM_PROMPT },
-            ...messages,
-          ],
-          stream: false,
-          max_tokens: 20,
+          model: MODEL,
+          system: TITLE_SYSTEM_PROMPT,
+          messages: messages.map((m: any) => ({ role: m.role, content: m.content })),
+          max_tokens: 30,
         }),
       });
 
       if (!titleResponse.ok) {
+        const errText = await titleResponse.text();
+        console.error("Title generation error:", titleResponse.status, errText);
         return new Response(JSON.stringify({ title: messages[0]?.content?.slice(0, 40) || "Untitled" }), {
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
 
       const titleData = await titleResponse.json();
-      const title = titleData.choices?.[0]?.message?.content?.trim() || messages[0]?.content?.slice(0, 40) || "Untitled";
+      const title = titleData.content?.[0]?.text?.trim() || messages[0]?.content?.slice(0, 40) || "Untitled";
 
       return new Response(JSON.stringify({ title }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -192,18 +192,23 @@ serve(async (req) => {
     const contextPrompt = buildContextPrompt(context);
     const fullSystemPrompt = SYSTEM_PROMPT + contextPrompt;
 
-    const response = await fetch(KIMI_ENDPOINT, {
+    // Convert messages: filter out system messages (Anthropic uses separate system field)
+    const anthropicMessages = messages
+      .filter((m: any) => m.role !== "system")
+      .map((m: any) => ({ role: m.role === "assistant" ? "assistant" : "user", content: m.content }));
+
+    const response = await fetch(AZURE_ENDPOINT, {
       method: "POST",
       headers: {
-        "Authorization": `Bearer ${KIMI_API_KEY}`,
+        "api-key": AZURE_API_KEY,
+        "anthropic-version": "2023-06-01",
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "Kimi-K2.5",
-        messages: [
-          { role: "system", content: fullSystemPrompt },
-          ...messages,
-        ],
+        model: MODEL,
+        system: fullSystemPrompt,
+        messages: anthropicMessages,
+        max_tokens: 4096,
         stream: true,
       }),
     });
@@ -222,14 +227,59 @@ serve(async (req) => {
         });
       }
       const t = await response.text();
-      console.error("Kimi API error:", response.status, t);
+      console.error("Azure Anthropic API error:", response.status, t);
       return new Response(JSON.stringify({ error: `AI service error: ${response.status}` }), {
         status: 500,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
-    return new Response(response.body, {
+    // Transform Anthropic SSE stream to OpenAI-compatible format for the frontend
+    const transformStream = new TransformStream({
+      transform(chunk, controller) {
+        const text = new TextDecoder().decode(chunk);
+        const lines = text.split("\n");
+
+        for (const line of lines) {
+          if (!line.startsWith("data: ")) continue;
+          const jsonStr = line.slice(6).trim();
+          if (!jsonStr || jsonStr === "[DONE]") {
+            if (jsonStr === "[DONE]") {
+              controller.enqueue(new TextEncoder().encode("data: [DONE]\n\n"));
+            }
+            continue;
+          }
+
+          try {
+            const event = JSON.parse(jsonStr);
+
+            // Anthropic streaming events:
+            // - content_block_delta with delta.type === "text_delta"
+            if (event.type === "content_block_delta" && event.delta?.type === "text_delta") {
+              const openAIChunk = {
+                choices: [{
+                  delta: { content: event.delta.text },
+                  index: 0,
+                  finish_reason: null,
+                }],
+              };
+              controller.enqueue(new TextEncoder().encode(`data: ${JSON.stringify(openAIChunk)}\n\n`));
+            }
+
+            // message_stop → signal done
+            if (event.type === "message_stop") {
+              controller.enqueue(new TextEncoder().encode("data: [DONE]\n\n"));
+            }
+          } catch {
+            // ignore parse errors on partial chunks
+          }
+        }
+      },
+    });
+
+    const readable = response.body!.pipeThrough(transformStream);
+
+    return new Response(readable, {
       headers: { ...corsHeaders, "Content-Type": "text/event-stream" },
     });
   } catch (e) {
