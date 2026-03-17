@@ -257,6 +257,53 @@ export type Database = {
         }
         Relationships: []
       }
+      product_details: {
+        Row: {
+          context_notes: string | null
+          created_at: string
+          id: string
+          key_objectives: string | null
+          product_id: string
+          success_metrics: string | null
+          target_audience: string | null
+          updated_at: string
+          user_id: string
+          vision: string | null
+        }
+        Insert: {
+          context_notes?: string | null
+          created_at?: string
+          id?: string
+          key_objectives?: string | null
+          product_id: string
+          success_metrics?: string | null
+          target_audience?: string | null
+          updated_at?: string
+          user_id: string
+          vision?: string | null
+        }
+        Update: {
+          context_notes?: string | null
+          created_at?: string
+          id?: string
+          key_objectives?: string | null
+          product_id?: string
+          success_metrics?: string | null
+          target_audience?: string | null
+          updated_at?: string
+          user_id?: string
+          vision?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_details_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: true
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       products: {
         Row: {
           created_at: string
