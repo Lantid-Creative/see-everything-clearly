@@ -25,6 +25,8 @@ interface ChatViewProps {
   pendingTemplateId?: string | null;
   onTemplateSent?: () => void;
   currentPhase?: string | null;
+  pendingPrompt?: string | null;
+  onPromptConsumed?: () => void;
 }
 
 // Templates for quick-start conversations
