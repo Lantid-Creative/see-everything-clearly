@@ -183,6 +183,14 @@ export function ChatView({
     }
   }, [pendingTemplateId, conversation.id]);
 
+  // Handle prompt from guided flow
+  useEffect(() => {
+    if (pendingPrompt && conversation.messages.length === 0) {
+      setInput(pendingPrompt);
+      onPromptConsumed?.();
+    }
+  }, [pendingPrompt, conversation.id]);
+
   const detectWorkspaceType = (content: string): { action: string; type: ViewMode } | null => {
     const lower = content.toLowerCase();
     if (
