@@ -25,6 +25,13 @@ import {
   Check,
   Plug,
   LayoutDashboard,
+  Crosshair,
+  Presentation,
+  Table,
+  Compass,
+  Keyboard,
+  Download,
+  StickyNote,
 } from "lucide-react";
 
 const fadeUp = {
