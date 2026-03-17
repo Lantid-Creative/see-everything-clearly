@@ -179,6 +179,41 @@ export function DashboardView({ onNavigate, onNewChat, activeProductId, onSetPha
   const completedCount = checklist.filter((c) => c.isComplete).length;
   const progressPct = checklist.length > 0 ? Math.round((completedCount / checklist.length) * 100) : 0;
   const colors = currentPhase ? PHASE_COLORS[currentPhase.id as ProductPhase] : null;
+  const allComplete = checklist.length > 0 && completedCount === checklist.length;
+  const hasCelebrated = useRef<string | null>(null);
+
+  // Fire confetti when all items complete
+  useEffect(() => {
+    if (allComplete && currentPhase && hasCelebrated.current !== currentPhase.id) {
+      hasCelebrated.current = currentPhase.id;
+      const duration = 2000;
+      const end = Date.now() + duration;
+      const frame = () => {
+        confetti({
+          particleCount: 3,
+          angle: 60,
+          spread: 55,
+          origin: { x: 0, y: 0.7 },
+          colors: ["hsl(25, 95%, 53%)", "hsl(280, 68%, 51%)", "hsl(142, 71%, 45%)"],
+        });
+        confetti({
+          particleCount: 3,
+          angle: 120,
+          spread: 55,
+          origin: { x: 1, y: 0.7 },
+          colors: ["hsl(25, 95%, 53%)", "hsl(280, 68%, 51%)", "hsl(142, 71%, 45%)"],
+        });
+        if (Date.now() < end) requestAnimationFrame(frame);
+      };
+      frame();
+    }
+  }, [allComplete, currentPhase]);
+
+  const handleAdvancePhase = () => {
+    if (currentGuide?.nextPhase && onSetPhase) {
+      onSetPhase(currentGuide.nextPhase);
+    }
+  };
 
   const handleChecklistAction = (item: ChecklistItem) => {
     if (item.action.type === "chat") {
