@@ -161,6 +161,7 @@ serve(async (req) => {
         method: "POST",
         headers: {
           "api-key": AZURE_API_KEY,
+          "Authorization": `Bearer ${AZURE_API_KEY}`,
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
