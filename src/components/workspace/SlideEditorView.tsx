@@ -27,10 +27,63 @@ const defaultSlides: Slide[] = [
 
 interface SlideEditorViewProps {
   onBack: () => void;
+  initialContent?: string | null;
+  onContentConsumed?: () => void;
 }
 
-export function SlideEditorView({ onBack }: SlideEditorViewProps) {
-  const [slides, setSlides] = useState<Slide[]>(defaultSlides);
+function parseAIContentToSlides(content: string): Slide[] | null {
+  // Try to parse "**Slide N:** Title — bullets" or "Slide N: Title - bullets" patterns
+  const slideRegex = /\*?\*?Slide\s+(\d+)\*?\*?[:\s—–-]+\*?\*?(.+?)\*?\*?\s*(?:[-—–]\s*)?(.+?)(?=\*?\*?Slide\s+\d|$)/gis;
+  const matches = [...content.matchAll(slideRegex)];
+  
+  if (matches.length < 2) {
+    // Also try "**Slide N:** Title\n- bullet" pattern
+    const altRegex = /\*?\*?Slide\s+(\d+)[:\s]*\*?\*?\s*(.+?)(?:\n)((?:[-•*]\s*.+\n?)*)/gis;
+    const altMatches = [...content.matchAll(altRegex)];
+    if (altMatches.length >= 2) {
+      return altMatches.map((m, i) => {
+        const title = m[2].replace(/\*\*/g, '').replace(/[-—–]\s*$/, '').trim();
+        const bulletText = m[3] || '';
+        const bullets = bulletText.split('\n')
+          .map(b => b.replace(/^[-•*]\s*/, '').trim())
+          .filter(b => b.length > 0);
+        return {
+          id: Date.now().toString() + i,
+          title,
+          subtitle: i === 0 ? undefined : undefined,
+          bullets: bullets.length > 0 ? bullets : undefined,
+          layout: i === 0 ? "title" as const : "content" as const,
+          brandColor: "hsl(var(--primary))",
+        };
+      });
+    }
+    return null;
+  }
+
+  return matches.map((m, i) => {
+    const title = m[2].replace(/\*\*/g, '').replace(/[-—–]\s*$/, '').trim();
+    const bulletContent = m[3] || '';
+    const bullets = bulletContent.split(/[,\n]/)
+      .map(b => b.replace(/^[-•*]\s*/, '').replace(/\*\*/g, '').trim())
+      .filter(b => b.length > 0 && !b.match(/^\*?\*?Slide/i));
+    return {
+      id: Date.now().toString() + i,
+      title,
+      bullets: bullets.length > 0 ? bullets : undefined,
+      layout: i === 0 ? "title" as const : "content" as const,
+      brandColor: "hsl(var(--primary))",
+    };
+  });
+}
+
+export function SlideEditorView({ onBack, initialContent, onContentConsumed }: SlideEditorViewProps) {
+  const [slides, setSlides] = useState<Slide[]>(() => {
+    if (initialContent) {
+      const parsed = parseAIContentToSlides(initialContent);
+      if (parsed && parsed.length > 0) return parsed;
+    }
+    return defaultSlides;
+  });
   const [currentSlide, setCurrentSlide] = useState(0);
   const [editingField, setEditingField] = useState<string | null>(null);
   const [editValue, setEditValue] = useState("");
