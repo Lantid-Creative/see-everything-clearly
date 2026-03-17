@@ -574,9 +574,11 @@ export default function Landing() {
                 tokens: "5,000",
                 features: [
                   "5,000 tokens / month",
-                  "AI Discovery & synthesis",
+                  "AI Chat & Discovery",
+                  "Command Center",
                   "PRD generation",
                   "3 active workflows",
+                  "Slide editor",
                   "Email support",
                 ],
                 cta: "Get started",
