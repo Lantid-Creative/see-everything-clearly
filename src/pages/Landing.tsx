@@ -119,28 +119,58 @@ const TABS = [
 const FEATURES = [
   {
     icon: MessageSquare,
-    title: "Natural Language Discovery",
-    desc: "Ask questions about your customers, market, and product — get answers backed by real data.",
+    title: "AI Chat with Context",
+    desc: "Phase-aware AI assistant that knows your product vision, goals, and data — every conversation is grounded in real context.",
+  },
+  {
+    icon: Crosshair,
+    title: "Command Center",
+    desc: "A living project brief with vision, goals, metrics, and notes. Your single source of truth — exportable as reports.",
+  },
+  {
+    icon: Compass,
+    title: "Phase-Guided Lifecycle",
+    desc: "Six PM phases (Discover → Measure) with guided checklists, confetti celebrations, and automatic phase progression.",
   },
   {
     icon: Target,
     title: "Opportunity Scoring",
-    desc: "AI ranks features by impact, effort, and strategic fit. No more gut-feeling prioritization.",
+    desc: "AI ranks features by impact, effort, and strategic fit using RICE scoring. No more gut-feeling prioritization.",
   },
   {
     icon: FileText,
     title: "Auto-Generated Specs",
-    desc: "PRDs, user stories, and acceptance criteria — structured for AI coding agents.",
+    desc: "PRDs, user stories, and acceptance criteria — structured for AI coding agents like Cursor and Claude Code.",
+  },
+  {
+    icon: Presentation,
+    title: "Slide Editor",
+    desc: "Build strategy decks and launch presentations with AI-assisted content, inline editing, and one-click export.",
+  },
+  {
+    icon: Table,
+    title: "Spreadsheet & Lead Management",
+    desc: "Inline-editable data grid with filtering, bulk actions, lead creation, and CSV export.",
   },
   {
     icon: Workflow,
     title: "Workflow Automation",
-    desc: "Connect discovery to execution with multi-step automated pipelines.",
+    desc: "Build and deploy multi-step AI-driven pipelines — from NPS alerts to feedback synthesis to outreach.",
   },
   {
     icon: Users,
     title: "Team Collaboration",
-    desc: "Real-time chat, activity feeds, and shared context across your product team.",
+    desc: "Role-based teams with real-time chat, activity feeds, notifications, and shared product context.",
+  },
+  {
+    icon: Download,
+    title: "Export & Reports",
+    desc: "Download project snapshots, chat transcripts, slides, and spreadsheets as CSV or Markdown files.",
+  },
+  {
+    icon: Keyboard,
+    title: "Keyboard Shortcuts",
+    desc: "Power-user shortcuts: ⌘K search, ⌘N new chat, ⌘1-7 view navigation. Built for speed.",
   },
   {
     icon: Bot,
@@ -150,10 +180,10 @@ const FEATURES = [
 ];
 
 const STEPS = [
-  { num: "01", title: "Ingest", desc: "Upload interviews, surveys, tickets, and analytics.", icon: Upload, color: "from-blue-500 to-cyan-500" },
-  { num: "02", title: "Synthesize", desc: "AI surfaces themes, scores opportunities, explains why.", icon: BrainCircuit, color: "from-violet-500 to-purple-500" },
-  { num: "03", title: "Define", desc: "Get specs, UI proposals, data models, and dev tasks.", icon: Layers, color: "from-primary to-orange-400" },
-  { num: "04", title: "Ship", desc: "Hand off to your coding agent. Measure. Repeat.", icon: Zap, color: "from-emerald-500 to-green-500" },
+  { num: "01", title: "Set Up", desc: "Create your product, define vision & goals in Command Center.", icon: Crosshair, color: "from-blue-500 to-cyan-500" },
+  { num: "02", title: "Discover", desc: "Upload interviews, chat with AI, surface opportunities.", icon: Search, color: "from-violet-500 to-purple-500" },
+  { num: "03", title: "Define", desc: "Generate PRDs, build decks, create roadmaps with RICE scoring.", icon: Layers, color: "from-primary to-orange-400" },
+  { num: "04", title: "Ship", desc: "Deploy workflows, hand off to coding agents. Measure & repeat.", icon: Zap, color: "from-emerald-500 to-green-500" },
 ];
 
 export default function Landing() {
