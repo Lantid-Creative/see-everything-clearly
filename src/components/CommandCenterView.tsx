@@ -191,13 +191,13 @@ export function CommandCenterView({
 
   return (
     <div className="flex flex-col h-screen">
-      <header className="h-12 flex items-center justify-between px-4 border-b shrink-0">
-        <div className="flex items-center gap-2">
-          <SidebarTrigger className="mr-1" />
-          <Crosshair className="h-4 w-4 text-primary" />
-          <span className="text-sm font-medium text-foreground">Command Center</span>
+      <header className="min-h-[48px] flex items-center justify-between px-4 border-b shrink-0 gap-2">
+        <div className="flex items-center gap-2 min-w-0">
+          <SidebarTrigger className="shrink-0" />
+          <Crosshair className="h-4 w-4 text-primary shrink-0 hidden sm:block" />
+          <span className="text-sm font-medium text-foreground truncate">Command Center</span>
           {activeProductName && (
-            <span className="text-xs text-muted-foreground ml-1">— {activeProductName}</span>
+            <span className="text-xs text-muted-foreground hidden sm:inline truncate">— {activeProductName}</span>
           )}
         </div>
         <div className="flex items-center gap-2">
