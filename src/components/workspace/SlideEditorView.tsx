@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ArrowLeft, ChevronLeft, ChevronRight, MessageSquare, Edit3, Plus, Loader2, Sparkles, Download, Trash2, Send } from "lucide-react";
 import { exportSlidesAsMarkdown } from "@/lib/exportUtils";
 import { SidebarTrigger } from "@/components/ui/sidebar";
@@ -27,10 +27,49 @@ const defaultSlides: Slide[] = [
 
 interface SlideEditorViewProps {
   onBack: () => void;
+  initialContent?: string | null;
+  onContentConsumed?: () => void;
 }
 
-export function SlideEditorView({ onBack }: SlideEditorViewProps) {
-  const [slides, setSlides] = useState<Slide[]>(defaultSlides);
+function parseAIContentToSlides(content: string): Slide[] | null {
+  // Split content by slide headers like "**Slide 1:**", "Slide 1:", etc.
+  const sections = content.split(/(?=\*{0,2}Slide\s+\d+\*{0,2}\s*[:\s—–-])/i);
+  const slides: Slide[] = [];
+
+  for (const section of sections) {
+    // Match the slide header
+    const headerMatch = section.match(/\*{0,2}Slide\s+(\d+)\*{0,2}\s*[:\s—–-]+\s*\*{0,2}(.+?)\*{0,2}\s*$/im);
+    if (!headerMatch) continue;
+
+    const title = headerMatch[2].replace(/\*\*/g, '').replace(/[-—–]\s*$/, '').trim();
+    
+    // Extract bullets from the rest of the section
+    const restOfSection = section.slice(headerMatch.index! + headerMatch[0].length);
+    const bullets = restOfSection
+      .split('\n')
+      .map(line => line.replace(/^[-•*]\s*/, '').replace(/\*\*/g, '').trim())
+      .filter(line => line.length > 0 && !line.match(/^\*?\*?Slide\s+\d/i) && !line.match(/^\[\[action:/));
+
+    slides.push({
+      id: Date.now().toString() + slides.length,
+      title,
+      bullets: bullets.length > 0 ? bullets : undefined,
+      layout: slides.length === 0 ? "title" as const : "content" as const,
+      brandColor: "hsl(var(--primary))",
+    });
+  }
+
+  return slides.length >= 2 ? slides : null;
+}
+
+export function SlideEditorView({ onBack, initialContent, onContentConsumed }: SlideEditorViewProps) {
+  const [slides, setSlides] = useState<Slide[]>(() => {
+    if (initialContent) {
+      const parsed = parseAIContentToSlides(initialContent);
+      if (parsed && parsed.length > 0) return parsed;
+    }
+    return defaultSlides;
+  });
   const [currentSlide, setCurrentSlide] = useState(0);
   const [editingField, setEditingField] = useState<string | null>(null);
   const [editValue, setEditValue] = useState("");
@@ -41,6 +80,19 @@ export function SlideEditorView({ onBack }: SlideEditorViewProps) {
   const [chatMessages, setChatMessages] = useState<{ role: "user" | "assistant"; content: string }[]>([]);
   const { toast } = useToast();
   const isMobile = useIsMobile();
+
+  // When new initialContent arrives, parse and apply it
+  useEffect(() => {
+    if (initialContent) {
+      const parsed = parseAIContentToSlides(initialContent);
+      if (parsed && parsed.length > 0) {
+        setSlides(parsed);
+        setCurrentSlide(0);
+        toast({ title: "Deck created", description: `${parsed.length} slides generated from AI` });
+      }
+      onContentConsumed?.();
+    }
+  }, [initialContent]);
 
   const slide = slides[currentSlide];
 

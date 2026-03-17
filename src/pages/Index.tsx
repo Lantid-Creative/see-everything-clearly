@@ -70,6 +70,7 @@ const Index = () => {
   const effectivePhase = activeProduct?.current_phase || phaseData?.currentPhase || null;
 
   const [pendingPrompt, setPendingPrompt] = useState<string | null>(null);
+  const [pendingSlideContent, setPendingSlideContent] = useState<string | null>(null);
 
   const { toast } = useToast();
 
@@ -129,7 +130,7 @@ const Index = () => {
       case "workspace":
         return <WorkspaceView onBack={() => setViewMode("dashboard")} />;
       case "slides":
-        return <SlideEditorView onBack={() => setViewMode("dashboard")} />;
+        return <SlideEditorView onBack={() => setViewMode("dashboard")} initialContent={pendingSlideContent} onContentConsumed={() => setPendingSlideContent(null)} />;
       case "workflow":
         return <WorkflowBuilderView onBack={() => setViewMode("dashboard")} />;
       case "spreadsheet":
@@ -143,7 +144,16 @@ const Index = () => {
       default:
         return (
           <ChatView
-            onOpenWorkspace={(type) => setViewMode(type || "workspace")}
+            onOpenWorkspace={(type) => {
+              if (type === "slides") {
+                // Grab the last assistant message content for slide generation
+                const lastAssistant = [...activeConversation.messages].reverse().find(m => m.role === "assistant");
+                if (lastAssistant?.content) {
+                  setPendingSlideContent(lastAssistant.content);
+                }
+              }
+              setViewMode(type || "workspace");
+            }}
             conversation={activeConversation}
             onAddMessage={(msg) => addMessage(activeConversationId, msg)}
             onUpdateLastAssistant={(content, isStreaming) =>
