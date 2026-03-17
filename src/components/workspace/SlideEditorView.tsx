@@ -190,7 +190,30 @@ export function SlideEditorView({ onBack, initialContent, onContentConsumed }: S
   };
 
   const applyAIChanges = (aiText: string) => {
-    // Try to parse AI response for slide modifications
+    // Try to find a JSON block with slide updates
+    const jsonMatch = aiText.match(/```json\s*([\s\S]*?)```/) || aiText.match(/\[[\s\S]*\]/);
+    if (jsonMatch) {
+      try {
+        const raw = jsonMatch[1] || jsonMatch[0];
+        const parsed = JSON.parse(raw);
+        if (Array.isArray(parsed) && parsed.length > 0 && parsed[0].title) {
+          const newSlides: Slide[] = parsed.map((s: any, i: number) => ({
+            id: Date.now().toString() + i,
+            title: s.title || "Untitled",
+            subtitle: s.subtitle || undefined,
+            bullets: Array.isArray(s.bullets) ? s.bullets : undefined,
+            layout: i === 0 && s.subtitle ? "title" as const : "content" as const,
+            brandColor: "hsl(var(--primary))",
+          }));
+          setSlides(newSlides);
+          setCurrentSlide(0);
+          toast({ title: "Deck updated", description: `${newSlides.length} slides applied` });
+          return true;
+        }
+      } catch { /* not valid JSON, fall through */ }
+    }
+
+    // Fallback: try single-slide update with Title: / bullets pattern
     const titleMatch = aiText.match(/(?:title|heading):\s*["']?(.+?)["']?\s*(?:\n|$)/i);
     const bulletMatches = [...aiText.matchAll(/[-•]\s*(.+)/g)];
 
@@ -206,9 +229,32 @@ export function SlideEditorView({ onBack, initialContent, onContentConsumed }: S
           return updated;
         })
       );
+      toast({ title: "Slide updated" });
       return true;
     }
     return false;
+  };
+
+  const buildSystemPrompt = () => {
+    const deckSummary = slides.map((s, i) => {
+      let desc = `Slide ${i + 1}: "${s.title}"`;
+      if (s.subtitle) desc += ` — ${s.subtitle}`;
+      if (s.bullets?.length) desc += `\n  Bullets: ${s.bullets.map((b, j) => `${j + 1}. ${b}`).join("; ")}`;
+      return desc;
+    }).join("\n");
+
+    return `You are Lantid, an expert presentation design AI. The user is editing a slide deck.
+
+CURRENT DECK (${slides.length} slides, viewing slide ${currentSlide + 1}):
+${deckSummary}
+
+INSTRUCTIONS:
+- When the user asks to improve, rewrite, restructure, or change the deck (or specific slides), output the FULL updated deck as a JSON array wrapped in \`\`\`json code fences.
+- Each object: { "title": "...", "subtitle": "..." (optional), "bullets": ["...", "..."] (optional) }
+- Always return ALL slides (even unchanged ones) so the deck stays complete.
+- If the user only asks a question (not requesting edits), answer naturally without JSON.
+- Be concise in conversational replies. For edits, just output the JSON with a brief note.
+- Make content punchy, professional, and persuasive. Avoid generic filler.`;
   };
 
   const handleChat = async () => {
@@ -225,20 +271,8 @@ export function SlideEditorView({ onBack, initialContent, onContentConsumed }: S
     try {
       await streamChat({
         messages: [
-          {
-            role: "system",
-            content: `You are Lantid, a slide editor AI. The user is editing slide ${currentSlide + 1}/${slides.length}.
-Current slide title: "${slide.title}"
-Current bullets: ${slide.bullets?.map((b, i) => `${i + 1}. ${b}`).join(", ") || "none"}
-
-When the user asks to change content, respond with the updated content in this format:
-Title: <new title>
-- bullet 1
-- bullet 2
-- bullet 3
-
-If they ask a question without requesting changes, just answer naturally. Always be concise.`,
-          },
+          { role: "system", content: buildSystemPrompt() },
+          ...chatMessages.map((m) => ({ role: m.role, content: m.content })),
           { role: "user", content: currentInput },
         ],
         onDelta: (chunk) => {
@@ -250,14 +284,13 @@ If they ask a question without requesting changes, just answer naturally. Always
           });
         },
         onDone: () => {
-          // Try to apply changes from AI response
           applyAIChanges(fullContent);
         },
       });
     } catch {
       setChatMessages((prev) => {
         const msgs = [...prev];
-        msgs[msgs.length - 1] = { role: "assistant", content: "I'll address that feedback on the slide." };
+        msgs[msgs.length - 1] = { role: "assistant", content: "Something went wrong — please try again." };
         return msgs;
       });
     } finally {
