@@ -1,5 +1,14 @@
 type Msg = { role: "user" | "assistant" | "system"; content: string };
 
+export interface ProductDetails {
+  name?: string;
+  vision?: string | null;
+  key_objectives?: string | null;
+  target_audience?: string | null;
+  success_metrics?: string | null;
+  context_notes?: string | null;
+}
+
 export interface WorkspaceContext {
   totalLeads: number;
   totalConversations: number;
@@ -11,6 +20,8 @@ export interface WorkspaceContext {
   productGoals?: string | null;
   connectedIntegrations?: string[];
   currentPhase?: string | null;
+  productDetails?: ProductDetails | null;
+  topLeads?: { name: string; company: string; title: string }[];
 }
 
 const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/lantid-chat`;

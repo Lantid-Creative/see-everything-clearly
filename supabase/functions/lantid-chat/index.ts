@@ -49,10 +49,13 @@ const SYSTEM_PROMPT = `You are Lantid, an AI-native Product Management assistant
 - **Challenging**: Respectfully push back on weak assumptions
 - **Structured**: Use bullet points, tables, and frameworks
 
-## Slide Deck Generation
-When the user asks you to create, build, or draft a slide deck or presentation:
-- ALWAYS generate the actual slide content, not just advice about what to include
-- Use this exact format for each slide:
+## Slide Deck Generation — CRITICAL RULES
+
+When the user asks you to create, build, or draft a slide deck, presentation, or pitch deck:
+
+1. **USE THE PRODUCT CONTEXT**: If product details are provided below (vision, objectives, target audience, etc.), USE THEM to make the deck specific and compelling. Do NOT ask for information that's already in the context.
+2. **ALWAYS generate the actual slide content** — not just advice
+3. Use this EXACT format for each slide:
 
 **Slide 1:** Title Slide Name
 - Bullet point 1
@@ -63,9 +66,10 @@ When the user asks you to create, build, or draft a slide deck or presentation:
 - Bullet point 2
 - Bullet point 3
 
-- Generate 5-8 slides by default
-- Make bullet points concise and impactful
-- The first slide should be a title slide
+4. Generate 5-8 slides by default
+5. Make bullet points concise, specific, and impactful — use real data from context
+6. The first slide should be a title slide
+7. ALWAYS end with: [[action:slides|Open in Slide Editor]]
 
 ## Workspace Integration
 When your response involves deliverables or next steps that map to a tool, include an action link using this exact format on its own line:
@@ -78,12 +82,11 @@ When your response involves deliverables or next steps that map to a tool, inclu
 Rules for action links:
 - Place them at the END of your response, after your main content
 - Use only these tool keys: slides, workflow, workspace, spreadsheet
-- The label after | should be a short, specific call-to-action (e.g. "Build your GTM deck" not just "Open slides")
+- The label after | should be a short, specific call-to-action
 - Include 1-2 action links max per response — only when genuinely relevant
-- Do NOT include action links for simple Q&A or when no tool usage is implied
 - ALWAYS include [[action:slides|...]] when you generate slide content
 
-Always ask clarifying questions when the request is ambiguous.`;
+Always ask clarifying questions when the request is ambiguous — UNLESS you already have enough context from the product details to proceed.`;
 
 function buildContextPrompt(context: any): string {
   if (!context) return "";
@@ -94,37 +97,58 @@ function buildContextPrompt(context: any): string {
   if (context.company) parts.push(`- **Company**: ${context.company}`);
   if (context.productGoals) parts.push(`- **Goals**: ${context.productGoals}`);
 
+  // Product details from Command Center — the AI should use these heavily
+  if (context.productDetails) {
+    const pd = context.productDetails;
+    parts.push(`\n### 🎯 Product Details (from Command Center — use this data!)`);
+    if (pd.name) parts.push(`- **Product Name**: ${pd.name}`);
+    if (pd.vision) parts.push(`- **Vision**: ${pd.vision}`);
+    if (pd.key_objectives) parts.push(`- **Key Objectives**: ${pd.key_objectives}`);
+    if (pd.target_audience) parts.push(`- **Target Audience**: ${pd.target_audience}`);
+    if (pd.success_metrics) parts.push(`- **Success Metrics**: ${pd.success_metrics}`);
+    if (pd.context_notes) parts.push(`- **Competitive Context / Notes**: ${pd.context_notes}`);
+    parts.push(`\n⚡ When the user asks to create a deck or presentation, USE the above product details to generate specific, data-driven slides. Do not ask for info that is already here.`);
+  }
+
+  // Top leads for context
+  if (context.topLeads && context.topLeads.length > 0) {
+    parts.push(`\n### Recent Leads`);
+    context.topLeads.forEach((l: any) => {
+      parts.push(`- ${l.name} — ${l.title} at ${l.company}`);
+    });
+  }
+
   if (context.currentPhase) {
     const phaseGuides: Record<string, { focus: string; actions: string; transition: string }> = {
       discover: {
-        focus: "They are in the DISCOVER phase — empathize & explore. Help them identify problems worth solving through user interviews, persona building, and feedback synthesis.",
-        actions: "Suggest: running user interviews, building personas, writing problem statements, mapping competitors, synthesizing research themes.",
-        transition: "When they have 3-5 validated user insights, suggest moving to DEFINE to write specs.",
+        focus: "They are in the DISCOVER phase — empathize & explore.",
+        actions: "Suggest: user interviews, personas, problem statements, competitor mapping.",
+        transition: "When they have 3-5 validated insights, suggest moving to DEFINE.",
       },
       define: {
-        focus: "They are in the DEFINE phase — articulate & specify. Help them transform research into concrete product specs.",
-        actions: "Suggest: writing PRDs, generating user stories with acceptance criteria, defining success metrics, creating spec decks.",
-        transition: "When they have a PRD and user stories, suggest moving to PRIORITIZE to rank the backlog.",
+        focus: "They are in the DEFINE phase — articulate & specify.",
+        actions: "Suggest: PRDs, user stories, success metrics, spec decks.",
+        transition: "When they have a PRD and stories, suggest PRIORITIZE.",
       },
       prioritize: {
-        focus: "They are in the PRIORITIZE phase — score & sequence. Help them evaluate features objectively and build a roadmap.",
-        actions: "Suggest: applying RICE scoring, building Now/Next/Later roadmaps, running trade-off analyses, competitive gap analysis.",
-        transition: "When the roadmap is set and team is aligned, suggest moving to BUILD.",
+        focus: "They are in the PRIORITIZE phase — score & sequence.",
+        actions: "Suggest: RICE scoring, roadmaps, trade-off analyses.",
+        transition: "When the roadmap is set, suggest BUILD.",
       },
       build: {
-        focus: "They are in the BUILD phase — execute & automate. Help them turn plans into working processes and workflows.",
-        actions: "Suggest: planning sprints, creating automation workflows, writing QA checklists, technical handoff docs.",
-        transition: "When workflows are running and the team is executing, suggest preparing for LAUNCH.",
+        focus: "They are in the BUILD phase — execute & automate.",
+        actions: "Suggest: sprint planning, workflows, QA checklists.",
+        transition: "When executing, suggest preparing for LAUNCH.",
       },
       launch: {
-        focus: "They are in the LAUNCH phase — ship & announce. Help them get the product in front of users.",
-        actions: "Suggest: drafting GTM plans, writing launch emails, building launch decks, creating stakeholder updates.",
-        transition: "Once launched, suggest moving to MEASURE to track results.",
+        focus: "They are in the LAUNCH phase — ship & announce.",
+        actions: "Suggest: GTM plans, launch emails, launch decks, stakeholder updates.",
+        transition: "Once launched, suggest MEASURE.",
       },
       measure: {
-        focus: "They are in the MEASURE phase — learn & iterate. Help them track what matters and decide what's next.",
-        actions: "Suggest: defining KPIs, planning A/B tests, analyzing user feedback, running retrospectives.",
-        transition: "When insights are gathered, suggest starting a new DISCOVER cycle with their learnings.",
+        focus: "They are in the MEASURE phase — learn & iterate.",
+        actions: "Suggest: KPIs, A/B tests, feedback analysis, retrospectives.",
+        transition: "When insights gathered, suggest new DISCOVER cycle.",
       },
     };
     const guide = phaseGuides[context.currentPhase];
@@ -133,31 +157,22 @@ function buildContextPrompt(context: any): string {
       parts.push(guide.focus);
       parts.push(guide.actions);
       parts.push(guide.transition);
-      parts.push(`Always ground your responses in this phase context. End responses with a clear next step that advances them through this phase.`);
     }
   }
 
   parts.push(`\n### Workspace Stats`);
-  parts.push(`- ${context.totalLeads ?? 0} leads in their pipeline`);
+  parts.push(`- ${context.totalLeads ?? 0} leads in pipeline`);
   parts.push(`- ${context.totalConversations ?? 0} conversations`);
-  parts.push(`- ${context.totalWorkflows ?? 0} workflows created`);
+  parts.push(`- ${context.totalWorkflows ?? 0} workflows`);
   parts.push(`- ${context.emailsSent ?? 0} emails sent`);
   parts.push(`- ${context.teamMembers ?? 0} team members`);
 
-  if ((context.totalLeads ?? 0) === 0) parts.push(`- ⚠️ No leads yet — may need help with discovery`);
-  if ((context.totalWorkflows ?? 0) === 0) parts.push(`- ⚠️ No workflows yet — suggest automations`);
-  if ((context.teamMembers ?? 0) === 0) parts.push(`- ⚠️ Solo user — may benefit from team collaboration tips`);
-
   const integrations = context.connectedIntegrations || [];
   if (integrations.length > 0) {
-    parts.push(`\n### Connected Integrations`);
-    parts.push(`The user has connected: ${integrations.join(", ")}`);
-    parts.push(`You can reference these integrations in your responses and suggest using them in workflows.`);
-  } else {
-    parts.push(`\n- ⚠️ No integrations connected — suggest connecting tools like Slack, Notion, or Gmail in the Integrations page`);
+    parts.push(`\n### Connected Integrations: ${integrations.join(", ")}`);
   }
 
-  parts.push(`\nUse this context to personalize your responses. Reference their actual data when relevant. When finishing a task, suggest the next phase in the product lifecycle.`);
+  parts.push(`\nUse this context to personalize responses. Reference actual data when relevant.`);
 
   return parts.join("\n");
 }
@@ -250,7 +265,6 @@ serve(async (req) => {
       });
     }
 
-    // Lovable AI gateway returns OpenAI-compatible SSE — pass through directly
     return new Response(response.body, {
       headers: { ...corsHeaders, "Content-Type": "text/event-stream" },
     });
