@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ArrowLeft, ChevronLeft, ChevronRight, MessageSquare, Edit3, Plus, Loader2, Sparkles, Download, Trash2, Send } from "lucide-react";
 import { exportSlidesAsMarkdown } from "@/lib/exportUtils";
 import { SidebarTrigger } from "@/components/ui/sidebar";
