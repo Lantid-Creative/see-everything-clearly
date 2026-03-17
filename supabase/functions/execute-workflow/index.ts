@@ -7,9 +7,8 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
-const AZURE_ENDPOINT =
-  "https://lanti-mi50lwx0-eastus2.services.ai.azure.com/anthropic/v1/messages";
-const MODEL = "claude-opus-4-5";
+const AI_GATEWAY_URL = "https://ai.gateway.lovable.dev/v1/chat/completions";
+const MODEL = "google/gemini-3-flash-preview";
 
 interface WorkflowNode {
   id: string;
@@ -28,17 +27,16 @@ interface NodeResult {
 }
 
 async function callAI(prompt: string, apiKey: string): Promise<string> {
-  const response = await fetch(AZURE_ENDPOINT, {
+  const response = await fetch(AI_GATEWAY_URL, {
     method: "POST",
     headers: {
-      "api-key": apiKey,
-      "anthropic-version": "2023-06-01",
+      Authorization: `Bearer ${apiKey}`,
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
       model: MODEL,
-      system: "You are Lantid, executing a workflow step. Be concise and produce actionable output for the given task.",
       messages: [
+        { role: "system", content: "You are Lantid, executing a workflow step. Be concise and produce actionable output for the given task." },
         { role: "user", content: prompt },
       ],
       max_tokens: 1024,
@@ -51,7 +49,7 @@ async function callAI(prompt: string, apiKey: string): Promise<string> {
   }
 
   const data = await response.json();
-  return data.content?.[0]?.text || "Completed.";
+  return data.choices?.[0]?.message?.content || "Completed.";
 }
 
 async function executeNode(
@@ -143,8 +141,8 @@ serve(async (req) => {
   }
 
   try {
-    const AZURE_API_KEY = Deno.env.get("AZURE_API_KEY");
-    if (!AZURE_API_KEY) throw new Error("AZURE_API_KEY is not configured");
+    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
+    if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
 
     const SUPABASE_URL = Deno.env.get("SUPABASE_URL");
     const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
@@ -176,7 +174,7 @@ serve(async (req) => {
     const context: Record<string, string> = {};
 
     for (const node of nodes) {
-      const result = await executeNode(node, context, supabaseAdmin, user.id, AZURE_API_KEY);
+      const result = await executeNode(node, context, supabaseAdmin, user.id, LOVABLE_API_KEY);
       results.push(result);
       if (result.status === "error") break;
     }
