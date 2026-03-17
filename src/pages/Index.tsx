@@ -134,6 +134,8 @@ const Index = () => {
             pendingTemplateId={pendingTemplateId}
             onTemplateSent={() => setPendingTemplateId(null)}
             currentPhase={effectivePhase}
+            pendingPrompt={pendingPrompt}
+            onPromptConsumed={() => setPendingPrompt(null)}
           />
         );
     }
