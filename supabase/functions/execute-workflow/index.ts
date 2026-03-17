@@ -32,7 +32,7 @@ async function callAI(prompt: string, apiKey: string): Promise<string> {
     method: "POST",
     headers: {
       "api-key": apiKey,
-      "Authorization": `Bearer ${apiKey}`,
+      "anthropic-version": "2023-06-01",
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
