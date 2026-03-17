@@ -70,11 +70,31 @@ const Index = () => {
 
   const [pendingPrompt, setPendingPrompt] = useState<string | null>(null);
 
+  const { toast } = useToast();
+
   const handleNewChat = useCallback((prompt?: string) => {
     createConversation();
     if (prompt) setPendingPrompt(prompt);
     setViewMode("chat");
   }, [createConversation]);
+
+  const handlePhaseSwitch = useCallback((phase: string | null) => {
+    setPhaseOverride(phase);
+    const guide = phase ? PHASE_GUIDES[phase as keyof typeof PHASE_GUIDES] : null;
+    if (guide) {
+      toast({
+        title: `${guide.emoji} Switched to ${guide.label}`,
+        description: guide.tagline,
+      });
+      // Start a fresh conversation for the new phase
+      createConversation();
+    } else {
+      toast({
+        title: "🔄 Phase auto-detect enabled",
+        description: "Phase will be determined by your activity",
+      });
+    }
+  }, [setPhaseOverride, createConversation, toast]);
 
   const handleSelectTemplate = useCallback((templateId: string) => {
     setPendingTemplateId(templateId);
