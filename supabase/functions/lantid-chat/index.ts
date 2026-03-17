@@ -69,17 +69,46 @@ function buildContextPrompt(context: any): string {
 
   // Product lifecycle phase
   if (context.currentPhase) {
-    const phaseDescriptions: Record<string, string> = {
-      discover: "They are in the DISCOVER phase — identifying problems worth solving, running user interviews, building personas, and synthesizing feedback.",
-      define: "They are in the DEFINE phase — writing PRDs, generating user stories, and creating feature specs for engineering handoff.",
-      prioritize: "They are in the PRIORITIZE phase — scoring features with RICE, building roadmaps, and running competitive analysis.",
-      build: "They are in the BUILD phase — creating automation workflows, connecting integrations, and setting up processes.",
-      launch: "They are in the LAUNCH phase — drafting GTM plans, sending outreach emails, and building stakeholder presentations.",
-      measure: "They are in the MEASURE phase — defining success metrics, planning A/B tests, and running retrospectives.",
+    const phaseGuides: Record<string, { focus: string; actions: string; transition: string }> = {
+      discover: {
+        focus: "They are in the DISCOVER phase — empathize & explore. Help them identify problems worth solving through user interviews, persona building, and feedback synthesis.",
+        actions: "Suggest: running user interviews, building personas, writing problem statements, mapping competitors, synthesizing research themes.",
+        transition: "When they have 3-5 validated user insights, suggest moving to DEFINE to write specs.",
+      },
+      define: {
+        focus: "They are in the DEFINE phase — articulate & specify. Help them transform research into concrete product specs.",
+        actions: "Suggest: writing PRDs, generating user stories with acceptance criteria, defining success metrics, creating spec decks.",
+        transition: "When they have a PRD and user stories, suggest moving to PRIORITIZE to rank the backlog.",
+      },
+      prioritize: {
+        focus: "They are in the PRIORITIZE phase — score & sequence. Help them evaluate features objectively and build a roadmap.",
+        actions: "Suggest: applying RICE scoring, building Now/Next/Later roadmaps, running trade-off analyses, competitive gap analysis.",
+        transition: "When the roadmap is set and team is aligned, suggest moving to BUILD.",
+      },
+      build: {
+        focus: "They are in the BUILD phase — execute & automate. Help them turn plans into working processes and workflows.",
+        actions: "Suggest: planning sprints, creating automation workflows, writing QA checklists, technical handoff docs.",
+        transition: "When workflows are running and the team is executing, suggest preparing for LAUNCH.",
+      },
+      launch: {
+        focus: "They are in the LAUNCH phase — ship & announce. Help them get the product in front of users.",
+        actions: "Suggest: drafting GTM plans, writing launch emails, building launch decks, creating stakeholder updates.",
+        transition: "Once launched, suggest moving to MEASURE to track results.",
+      },
+      measure: {
+        focus: "They are in the MEASURE phase — learn & iterate. Help them track what matters and decide what's next.",
+        actions: "Suggest: defining KPIs, planning A/B tests, analyzing user feedback, running retrospectives.",
+        transition: "When insights are gathered, suggest starting a new DISCOVER cycle with their learnings.",
+      },
     };
-    parts.push(`\n### Product Lifecycle Phase`);
-    parts.push(phaseDescriptions[context.currentPhase] || `Current phase: ${context.currentPhase}`);
-    parts.push(`Tailor your responses to this phase. Proactively suggest the next logical step in their product lifecycle.`);
+    const guide = phaseGuides[context.currentPhase];
+    if (guide) {
+      parts.push(`\n### Product Lifecycle Phase`);
+      parts.push(guide.focus);
+      parts.push(guide.actions);
+      parts.push(guide.transition);
+      parts.push(`Always ground your responses in this phase context. End responses with a clear next step that advances them through this phase.`);
+    }
   }
 
   parts.push(`\n### Workspace Stats`);
