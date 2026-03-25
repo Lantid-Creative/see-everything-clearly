@@ -126,6 +126,8 @@ const Index = () => {
     switch (viewMode) {
       case "dashboard":
         return <DashboardView onNavigate={setViewMode} onNewChat={handleNewChat} activeProductId={activeProductId} onSetPhase={handlePhaseSwitch} />;
+      case "nerve-center":
+        return <NerveCenterView onNavigate={setViewMode} onNewChat={handleNewChat} />;
       case "command-center":
         return <CommandCenterView activeProductId={activeProductId} activeProductName={activeProduct?.name} currentPhase={effectivePhase} onNavigate={setViewMode} />;
       case "workspace":
