@@ -23,7 +23,7 @@ import { useProductPhase, PHASE_GUIDES, type ProductPhase } from "@/hooks/usePro
 import { useProducts } from "@/hooks/useProducts";
 import { useToast } from "@/hooks/use-toast";
 
-export type ViewMode = "dashboard" | "chat" | "workspace" | "slides" | "workflow" | "spreadsheet" | "team" | "settings" | "integrations" | "command-center";
+export type ViewMode = "dashboard" | "chat" | "workspace" | "slides" | "workflow" | "spreadsheet" | "team" | "settings" | "integrations" | "command-center" | "nerve-center";
 
 const Index = () => {
   const [viewMode, setViewMode] = useState<ViewMode>("dashboard");
