@@ -75,7 +75,7 @@ export function DashboardView({ onNavigate, onNewChat }: DashboardViewProps) {
   const { user } = useAuth();
   const profile = useUserProfile();
   const workspaceContext = useWorkspaceContext();
-  const { briefing, isGenerating, generate } = useNerveCenter();
+  const { briefing, loading: isGenerating, generateBriefing } = useNerveCenter();
 
   const [stats, setStats] = useState<DashboardStats>({ totalLeads: 0, emailsSent: 0, workflows: 0, conversations: 0 });
   const [recentItems, setRecentItems] = useState<RecentItem[]>([]);
