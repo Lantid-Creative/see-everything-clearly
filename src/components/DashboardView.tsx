@@ -108,12 +108,7 @@ export function DashboardView({ onNavigate, onNewChat }: DashboardViewProps) {
     load();
   }, [user]);
 
-  // Auto-generate briefing on mount if workspace context is ready
-  useEffect(() => {
-    if (workspaceContext && profile && !briefing && !isGenerating) {
-      generate(workspaceContext, profile);
-    }
-  }, [workspaceContext, profile, briefing, isGenerating]);
+  // Briefing auto-generates via the hook itself
 
   const greeting = () => {
     const hour = new Date().getHours();
