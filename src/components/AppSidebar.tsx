@@ -344,6 +344,16 @@ export function AppSidebar({
                       {!collapsed && <span>Command Center</span>}
                     </SidebarMenuButton>
                   </SidebarMenuItem>
+                  <SidebarMenuItem>
+                    <SidebarMenuButton
+                      onClick={() => onSwitchView("nerve-center")}
+                      isActive={currentView === "nerve-center"}
+                      className="text-sidebar-foreground hover:text-sidebar-primary hover:bg-sidebar-accent data-[active=true]:bg-sidebar-accent data-[active=true]:text-sidebar-primary"
+                    >
+                      <Brain className="h-4 w-4" />
+                      {!collapsed && <span>Nerve Center</span>}
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
                 </SidebarMenu>
               </SidebarGroupContent>
             </SidebarGroup>
