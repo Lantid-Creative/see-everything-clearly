@@ -14,6 +14,39 @@ export type Database = {
   }
   public: {
     Tables: {
+      agent_actions: {
+        Row: {
+          action_type: string
+          created_at: string
+          description: string
+          id: string
+          metadata: Json | null
+          status: string
+          title: string
+          user_id: string
+        }
+        Insert: {
+          action_type: string
+          created_at?: string
+          description?: string
+          id?: string
+          metadata?: Json | null
+          status?: string
+          title: string
+          user_id: string
+        }
+        Update: {
+          action_type?: string
+          created_at?: string
+          description?: string
+          id?: string
+          metadata?: Json | null
+          status?: string
+          title?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       checklist_progress: {
         Row: {
           completed_at: string
