@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import {
   Home,
   Crosshair,
+  Brain,
   Settings,
   Puzzle,
   Search,
