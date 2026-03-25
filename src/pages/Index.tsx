@@ -195,10 +195,7 @@ const Index = () => {
           }}
           onNewConversation={handleNewChat}
           onDeleteConversation={deleteConversation}
-          onSelectTemplate={handleSelectTemplate}
           searchFocusTrigger={searchFocusTrigger}
-          currentPhase={effectivePhase}
-          onSetPhase={handlePhaseSwitch}
           products={products}
           activeProduct={activeProduct}
           onSelectProduct={setActiveProductId}

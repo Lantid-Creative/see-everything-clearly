@@ -143,7 +143,7 @@ export function DashboardView({ onNavigate, onNewChat }: DashboardViewProps) {
         </div>
         <div className="flex items-center gap-2">
           <button
-            onClick={() => workspaceContext && profile && generate(workspaceContext, profile)}
+            onClick={() => generateBriefing()}
             disabled={isGenerating}
             className="h-7 px-2.5 rounded-md text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-accent transition-colors flex items-center gap-1.5 disabled:opacity-50"
           >
