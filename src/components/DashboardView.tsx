@@ -117,8 +117,9 @@ export function DashboardView({ onNavigate, onNewChat }: DashboardViewProps) {
     return "Good evening";
   };
 
-  const actions = briefing?.priorityActions || [];
+  const actions = briefing?.priority_actions || [];
   const anomalies = briefing?.anomalies || [];
+  const wins = briefing?.wins || [];
 
   const handleActionClick = (action: any) => {
     if (action.action === "chat") onNewChat(action.chatPrompt);
