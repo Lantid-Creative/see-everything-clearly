@@ -1,13 +1,12 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useUserProfile } from "@/hooks/useUserProfile";
-import { useChecklistProgress } from "@/hooks/useChecklistProgress";
+import { useNerveCenter } from "@/hooks/useNerveCenter";
+import { useWorkspaceContext } from "@/hooks/useWorkspaceContext";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { NotificationBell } from "@/components/NotificationBell";
-import { Progress } from "@/components/ui/progress";
-import { motion, AnimatePresence } from "framer-motion";
-import confetti from "canvas-confetti";
+import { motion } from "framer-motion";
 import {
   Users,
   Workflow,
@@ -16,38 +15,28 @@ import {
   ArrowRight,
   Sparkles,
   Clock,
-  Compass,
-  ClipboardList,
-  ListOrdered,
-  Hammer,
-  Rocket,
-  Activity,
-  Check,
-  Circle,
+  Zap,
+  AlertTriangle,
+  Info,
+  RefreshCw,
+  Loader2,
   ChevronRight,
-  BookOpen,
-  Lightbulb,
+  Brain,
+  Activity,
+  Target,
 } from "lucide-react";
 import type { ViewMode } from "@/pages/Index";
-import {
-  useProductPhase,
-  PHASE_GUIDES,
-  type ProductPhase,
-  type PhaseInfo,
-  type ChecklistItem,
-} from "@/hooks/useProductPhase";
 
 interface DashboardStats {
   totalLeads: number;
   emailsSent: number;
   workflows: number;
   conversations: number;
-  teamMembers: number;
 }
 
 interface RecentItem {
   id: string;
-  type: "conversation" | "lead" | "workflow" | "email";
+  type: "conversation" | "lead" | "workflow";
   title: string;
   subtitle: string;
   time: string;
@@ -58,101 +47,73 @@ interface DashboardViewProps {
   onNavigate: (view: ViewMode) => void;
   onNewChat: (prompt?: string) => void;
   activeProductId?: string | null;
-  onSetPhase?: (phase: ProductPhase | null) => void;
+  onSetPhase?: (phase: any) => void;
 }
 
-const PHASE_ICONS: Record<ProductPhase, typeof Compass> = {
-  discover: Compass,
-  define: ClipboardList,
-  prioritize: ListOrdered,
-  build: Hammer,
-  launch: Rocket,
-  measure: Activity,
-};
-
-const PHASE_COLORS: Record<ProductPhase, { bg: string; text: string; ring: string; bar: string }> = {
-  discover: { bg: "bg-blue-500/10", text: "text-blue-600 dark:text-blue-400", ring: "ring-blue-500/30", bar: "bg-blue-500" },
-  define: { bg: "bg-violet-500/10", text: "text-violet-600 dark:text-violet-400", ring: "ring-violet-500/30", bar: "bg-violet-500" },
-  prioritize: { bg: "bg-amber-500/10", text: "text-amber-600 dark:text-amber-400", ring: "ring-amber-500/30", bar: "bg-amber-500" },
-  build: { bg: "bg-emerald-500/10", text: "text-emerald-600 dark:text-emerald-400", ring: "ring-emerald-500/30", bar: "bg-emerald-500" },
-  launch: { bg: "bg-orange-500/10", text: "text-orange-600 dark:text-orange-400", ring: "ring-orange-500/30", bar: "bg-orange-500" },
-  measure: { bg: "bg-rose-500/10", text: "text-rose-600 dark:text-rose-400", ring: "ring-rose-500/30", bar: "bg-rose-500" },
-};
-
 function timeAgo(dateStr: string): string {
-  const now = new Date();
-  const date = new Date(dateStr);
-  const diff = Math.floor((now.getTime() - date.getTime()) / 1000);
+  const diff = Math.floor((Date.now() - new Date(dateStr).getTime()) / 1000);
   if (diff < 60) return "just now";
   if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
   if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
   if (diff < 604800) return `${Math.floor(diff / 86400)}d ago`;
-  return date.toLocaleDateString();
+  return new Date(dateStr).toLocaleDateString();
 }
 
-export function DashboardView({ onNavigate, onNewChat, activeProductId, onSetPhase }: DashboardViewProps) {
+const URGENCY_ICON = { critical: AlertTriangle, high: Zap, medium: Info };
+const URGENCY_COLOR = {
+  critical: "border-destructive/40 bg-destructive/5",
+  high: "border-amber-500/40 bg-amber-500/5",
+  medium: "border-blue-500/30 bg-blue-500/5",
+};
+const URGENCY_BADGE = {
+  critical: "bg-destructive text-destructive-foreground",
+  high: "bg-amber-500 text-white",
+  medium: "bg-blue-500 text-white",
+};
+
+export function DashboardView({ onNavigate, onNewChat }: DashboardViewProps) {
   const { user } = useAuth();
   const profile = useUserProfile();
-  const [stats, setStats] = useState<DashboardStats>({
-    totalLeads: 0,
-    emailsSent: 0,
-    workflows: 0,
-    conversations: 0,
-    teamMembers: 0,
-  });
+  const workspaceContext = useWorkspaceContext();
+  const { briefing, isGenerating, generate } = useNerveCenter();
+
+  const [stats, setStats] = useState<DashboardStats>({ totalLeads: 0, emailsSent: 0, workflows: 0, conversations: 0 });
   const [recentItems, setRecentItems] = useState<RecentItem[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const phaseData = useProductPhase(
-    profile
-      ? {
-          totalLeads: stats.totalLeads,
-          totalConversations: stats.conversations,
-          totalWorkflows: stats.workflows,
-          emailsSent: stats.emailsSent,
-          teamMembers: stats.teamMembers,
-          profile,
-        }
-      : null
-  );
-
   useEffect(() => {
     if (!user) return;
-
-    async function loadDashboard() {
-      const [leadsRes, emailsRes, workflowsRes, convsRes, teamRes, recentConvs, recentLeads] =
-        await Promise.all([
-          supabase.from("leads").select("*", { count: "exact", head: true }).eq("user_id", user!.id),
-          supabase.from("email_drafts").select("*", { count: "exact", head: true }).eq("user_id", user!.id).eq("sent", true),
-          supabase.from("workflows").select("*", { count: "exact", head: true }).eq("user_id", user!.id),
-          supabase.from("conversations").select("*", { count: "exact", head: true }).eq("user_id", user!.id),
-          supabase.from("team_members").select("*", { count: "exact", head: true }).eq("user_id", user!.id),
-          supabase.from("conversations").select("id, title, updated_at").eq("user_id", user!.id).order("updated_at", { ascending: false }).limit(5),
-          supabase.from("leads").select("id, name, company, updated_at").eq("user_id", user!.id).order("updated_at", { ascending: false }).limit(3),
-        ]);
-
+    async function load() {
+      const [leadsRes, emailsRes, workflowsRes, convsRes, recentConvs, recentLeads] = await Promise.all([
+        supabase.from("leads").select("*", { count: "exact", head: true }).eq("user_id", user!.id),
+        supabase.from("email_drafts").select("*", { count: "exact", head: true }).eq("user_id", user!.id).eq("sent", true),
+        supabase.from("workflows").select("*", { count: "exact", head: true }).eq("user_id", user!.id),
+        supabase.from("conversations").select("*", { count: "exact", head: true }).eq("user_id", user!.id),
+        supabase.from("conversations").select("id, title, updated_at").eq("user_id", user!.id).order("updated_at", { ascending: false }).limit(5),
+        supabase.from("leads").select("id, name, company, updated_at").eq("user_id", user!.id).order("updated_at", { ascending: false }).limit(3),
+      ]);
       setStats({
         totalLeads: leadsRes.count || 0,
         emailsSent: emailsRes.count || 0,
         workflows: workflowsRes.count || 0,
         conversations: convsRes.count || 0,
-        teamMembers: teamRes.count || 0,
       });
-
       const items: RecentItem[] = [];
-      (recentConvs.data || []).forEach((c: any) => {
-        items.push({ id: c.id, type: "conversation", title: c.title || "Untitled", subtitle: "Chat conversation", time: c.updated_at, icon: MessageSquare });
-      });
-      (recentLeads.data || []).forEach((l: any) => {
-        items.push({ id: l.id, type: "lead", title: l.name, subtitle: l.company, time: l.updated_at, icon: Users });
-      });
+      (recentConvs.data || []).forEach((c: any) => items.push({ id: c.id, type: "conversation", title: c.title || "Untitled", subtitle: "Chat", time: c.updated_at, icon: MessageSquare }));
+      (recentLeads.data || []).forEach((l: any) => items.push({ id: l.id, type: "lead", title: l.name, subtitle: l.company, time: l.updated_at, icon: Users }));
       items.sort((a, b) => new Date(b.time).getTime() - new Date(a.time).getTime());
-      setRecentItems(items.slice(0, 5));
+      setRecentItems(items.slice(0, 6));
       setLoading(false);
     }
-
-    loadDashboard();
+    load();
   }, [user]);
+
+  // Auto-generate briefing on mount if workspace context is ready
+  useEffect(() => {
+    if (workspaceContext && profile && !briefing && !isGenerating) {
+      generate(workspaceContext, profile);
+    }
+  }, [workspaceContext, profile, briefing, isGenerating]);
 
   const greeting = () => {
     const hour = new Date().getHours();
@@ -161,270 +122,130 @@ export function DashboardView({ onNavigate, onNewChat, activeProductId, onSetPha
     return "Good evening";
   };
 
-  const currentPhase = phaseData?.currentPhaseInfo;
-  const phases = phaseData?.phases || [];
-  const phaseInput = phaseData?.input;
+  const actions = briefing?.priorityActions || [];
+  const anomalies = briefing?.anomalies || [];
 
-  // Persistent checklist progress
-  const { isCompleted, toggleItem } = useChecklistProgress(activeProductId ?? null);
-
-  // Get the full guide for the current phase
-  const currentGuide = currentPhase ? PHASE_GUIDES[currentPhase.id as ProductPhase] : null;
-  const rawChecklist = currentPhase && phaseInput ? currentGuide?.checklist(phaseInput) || [] : [];
-  // Override isComplete with persistent DB state
-  const checklist = rawChecklist.map((item) => ({
-    ...item,
-    isComplete: item.isComplete || isCompleted(item.id),
-  }));
-  const completedCount = checklist.filter((c) => c.isComplete).length;
-  const progressPct = checklist.length > 0 ? Math.round((completedCount / checklist.length) * 100) : 0;
-  const colors = currentPhase ? PHASE_COLORS[currentPhase.id as ProductPhase] : null;
-  const allComplete = checklist.length > 0 && completedCount === checklist.length;
-  const hasCelebrated = useRef<string | null>(null);
-
-  // Fire confetti when all items complete
-  useEffect(() => {
-    if (allComplete && currentPhase && hasCelebrated.current !== currentPhase.id) {
-      hasCelebrated.current = currentPhase.id;
-      const duration = 2000;
-      const end = Date.now() + duration;
-      const frame = () => {
-        confetti({
-          particleCount: 3,
-          angle: 60,
-          spread: 55,
-          origin: { x: 0, y: 0.7 },
-          colors: ["hsl(25, 95%, 53%)", "hsl(280, 68%, 51%)", "hsl(142, 71%, 45%)"],
-        });
-        confetti({
-          particleCount: 3,
-          angle: 120,
-          spread: 55,
-          origin: { x: 1, y: 0.7 },
-          colors: ["hsl(25, 95%, 53%)", "hsl(280, 68%, 51%)", "hsl(142, 71%, 45%)"],
-        });
-        if (Date.now() < end) requestAnimationFrame(frame);
-      };
-      frame();
-    }
-  }, [allComplete, currentPhase]);
-
-  const handleAdvancePhase = () => {
-    if (currentGuide?.nextPhase && onSetPhase) {
-      onSetPhase(currentGuide.nextPhase);
-    }
+  const handleActionClick = (action: any) => {
+    if (action.action === "chat") onNewChat(action.chatPrompt);
+    else if (action.action === "navigate") onNavigate(action.target as ViewMode);
   };
 
-  const handleChecklistAction = (item: ChecklistItem) => {
-    if (item.action.type === "chat") {
-      onNewChat(item.action.prompt);
-    } else {
-      onNavigate(item.action.target as ViewMode);
-    }
-  };
-
-  const handleTemplateClick = (prompt: string) => {
-    onNewChat(prompt);
-  };
+  const METRICS = [
+    { label: "Conversations", value: stats.conversations, icon: MessageSquare, color: "text-blue-500", bg: "bg-blue-500/10", onClick: () => onNavigate("chat") },
+    { label: "Leads", value: stats.totalLeads, icon: Users, color: "text-primary", bg: "bg-primary/10", onClick: () => onNavigate("workspace") },
+    { label: "Workflows", value: stats.workflows, icon: Workflow, color: "text-emerald-500", bg: "bg-emerald-500/10", onClick: () => onNavigate("workflow") },
+    { label: "Emails Sent", value: stats.emailsSent, icon: Mail, color: "text-orange-500", bg: "bg-orange-500/10", onClick: () => onNavigate("workspace") },
+  ];
 
   return (
     <div className="flex flex-col h-screen">
       <header className="h-12 flex items-center justify-between px-4 border-b shrink-0">
-        <div className="flex items-center">
-          <SidebarTrigger className="mr-3" />
-          <span className="text-sm font-medium text-foreground">Home</span>
+        <div className="flex items-center gap-2">
+          <SidebarTrigger className="mr-1" />
+          <Zap className="h-4 w-4 text-primary" />
+          <span className="text-sm font-semibold text-foreground">Mission Control</span>
         </div>
-        <NotificationBell />
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => workspaceContext && profile && generate(workspaceContext, profile)}
+            disabled={isGenerating}
+            className="h-7 px-2.5 rounded-md text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-accent transition-colors flex items-center gap-1.5 disabled:opacity-50"
+          >
+            {isGenerating ? <Loader2 className="h-3 w-3 animate-spin" /> : <RefreshCw className="h-3 w-3" />}
+            Refresh
+          </button>
+          <NotificationBell />
+        </div>
       </header>
 
       <div className="flex-1 overflow-y-auto">
-        <div className="max-w-5xl mx-auto px-6 py-8 space-y-8">
-          {/* Greeting + Phase Context */}
-          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
+        <div className="max-w-4xl mx-auto px-6 py-8 space-y-8">
+
+          {/* Greeting + AI Briefing */}
+          <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
             <h1 className="text-2xl font-serif tracking-tight text-foreground">
               {greeting()}{profile?.displayName ? `, ${profile.displayName}` : ""}
             </h1>
-            {currentGuide && (
-              <p className="text-sm text-muted-foreground mt-1">
-                {currentGuide.emoji} <span className="font-medium">{currentGuide.tagline}</span> — {currentGuide.description}
+            {briefing ? (
+              <p className="text-sm text-muted-foreground mt-1.5 leading-relaxed max-w-2xl">
+                <Brain className="h-3.5 w-3.5 inline-block mr-1 -mt-0.5 text-primary" />
+                {briefing.summary}
+              </p>
+            ) : isGenerating ? (
+              <p className="text-sm text-muted-foreground mt-1.5 flex items-center gap-2">
+                <Loader2 className="h-3.5 w-3.5 animate-spin text-primary" />
+                Analyzing your workspace...
+              </p>
+            ) : (
+              <p className="text-sm text-muted-foreground mt-1.5">
+                Here's what needs your attention today.
               </p>
             )}
           </motion.div>
 
-          {/* Phase Timeline */}
-          {phases.length > 0 && (
+          {/* Live Metrics Strip */}
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, delay: 0.05 }}
+            className="grid grid-cols-2 sm:grid-cols-4 gap-3"
+          >
+            {METRICS.map((m) => (
+              <button
+                key={m.label}
+                onClick={m.onClick}
+                className="flex items-center gap-3 p-3 rounded-xl border border-border bg-card hover:bg-accent/50 transition-all text-left group"
+              >
+                <div className={`h-9 w-9 rounded-lg ${m.bg} flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform`}>
+                  <m.icon className={`h-4 w-4 ${m.color}`} />
+                </div>
+                <div>
+                  <p className="text-xl font-bold text-foreground leading-none">{loading ? "–" : m.value}</p>
+                  <p className="text-[10px] text-muted-foreground mt-0.5">{m.label}</p>
+                </div>
+              </button>
+            ))}
+          </motion.div>
+
+          {/* Priority Action Queue */}
+          {actions.length > 0 && (
             <motion.div
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.4, delay: 0.05 }}
-              className="flex items-center gap-1"
+              transition={{ duration: 0.4, delay: 0.1 }}
+              className="space-y-3"
             >
-              {phases.map((phase, idx) => {
-                const Icon = PHASE_ICONS[phase.id];
-                const pColors = PHASE_COLORS[phase.id];
-                const isCurrent = phase.isActive;
-                const currentIdx = phases.findIndex((p) => p.isActive);
-                const isPast = idx < currentIdx;
-                return (
-                  <div key={phase.id} className="flex items-center flex-1 min-w-0">
-                    <button
-                      onClick={() => onSetPhase?.(isCurrent ? null : phase.id)}
-                      title={isCurrent ? "Reset to auto-detect" : `Switch to ${phase.label}`}
-                      className={`flex items-center gap-1.5 px-2 py-1.5 rounded-lg text-[10px] font-medium transition-all whitespace-nowrap cursor-pointer hover:ring-1 hover:ring-primary/40 ${
-                        isCurrent
-                          ? `${pColors.bg} ${pColors.text} ring-1 ${pColors.ring}`
-                          : isPast
-                          ? "text-muted-foreground/70 line-through hover:text-muted-foreground"
-                          : "text-muted-foreground/50 hover:text-muted-foreground"
-                      }`}
-                    >
-                      {isPast ? (
-                        <Check className="h-3 w-3 shrink-0" />
-                      ) : (
-                        <Icon className="h-3 w-3 shrink-0" />
-                      )}
-                      <span className="hidden sm:inline">{phase.label}</span>
-                    </button>
-                    {idx < phases.length - 1 && (
-                      <div className={`h-px flex-1 mx-1 ${isPast ? "bg-primary/40" : "bg-border"}`} />
-                    )}
-                  </div>
-                );
-              })}
-            </motion.div>
-          )}
-
-          {/* Main Guided Flow Card */}
-          <AnimatePresence mode="wait">
-          {currentGuide && colors && (
-            <motion.div
-              key={currentPhase?.id ?? "none"}
-              initial={{ opacity: 0, x: 40 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -40 }}
-              transition={{ duration: 0.35, ease: "easeInOut" }}
-              className="border border-border rounded-2xl bg-card overflow-hidden"
-            >
-              {/* Phase header */}
-              <div className={`px-6 py-4 ${colors.bg} border-b border-border`}>
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className={`h-10 w-10 rounded-xl ${colors.bg} ring-1 ${colors.ring} flex items-center justify-center`}>
-                      {(() => { const Icon = PHASE_ICONS[currentPhase!.id as ProductPhase]; return <Icon className={`h-5 w-5 ${colors.text}`} />; })()}
-                    </div>
-                    <div>
-                      <h2 className={`text-sm font-semibold ${colors.text}`}>
-                        {currentGuide.label} Phase
-                      </h2>
-                      <p className="text-xs text-muted-foreground">
-                        🎯 {currentGuide.goal}
-                      </p>
-                    </div>
-                  </div>
-                  <div className="text-right">
-                    <p className={`text-lg font-bold ${colors.text}`}>{progressPct}%</p>
-                    <p className="text-[10px] text-muted-foreground">{completedCount}/{checklist.length} complete</p>
-                  </div>
-                </div>
-                <div className="mt-3 h-1.5 rounded-full bg-background/50 overflow-hidden">
-                  <motion.div
-                    className={`h-full rounded-full ${colors.bar}`}
-                    initial={{ width: 0 }}
-                    animate={{ width: `${progressPct}%` }}
-                    transition={{ duration: 0.8, ease: "easeOut" }}
-                  />
-                </div>
+              <div className="flex items-center gap-2">
+                <Target className="h-3.5 w-3.5 text-primary" />
+                <h2 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Priority Actions</h2>
               </div>
-
-              {/* Checklist */}
-              <div className="p-4 space-y-1">
-                <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider px-2 mb-2">
-                  Guided Steps
-                </p>
-                {checklist.map((item, idx) => (
-                  <div
-                    key={item.id}
-                    className={`w-full flex items-start gap-3 px-3 py-2.5 rounded-xl text-left transition-all group ${
-                      item.isComplete
-                        ? "opacity-60 hover:opacity-80"
-                        : "hover:bg-accent/50"
-                    }`}
-                  >
+              <div className="space-y-2">
+                {actions.map((action: any, idx: number) => {
+                  const urgency = action.urgency as keyof typeof URGENCY_ICON;
+                  const Icon = URGENCY_ICON[urgency] || Info;
+                  return (
                     <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        toggleItem(item.id);
-                      }}
-                      className={`mt-0.5 h-5 w-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-colors ${
-                        item.isComplete
-                          ? `${colors.bar} border-transparent`
-                          : `border-muted-foreground/30 hover:border-primary`
-                      }`}
+                      key={idx}
+                      onClick={() => handleActionClick(action)}
+                      className={`w-full flex items-center gap-3 p-3.5 rounded-xl border transition-all text-left group hover:shadow-sm ${URGENCY_COLOR[urgency] || "border-border bg-card"}`}
                     >
-                      {item.isComplete && <Check className="h-3 w-3 text-white" />}
-                    </button>
-                    <button
-                      onClick={() => handleChecklistAction(item)}
-                      className="flex-1 min-w-0 text-left"
-                    >
-                      <p className={`text-sm font-medium ${item.isComplete ? "line-through text-muted-foreground" : "text-foreground"}`}>
-                        {item.label}
-                      </p>
-                      <p className="text-[11px] text-muted-foreground mt-0.5">{item.description}</p>
-                    </button>
-                    {!item.isComplete && (
-                      <ChevronRight className="h-4 w-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity mt-0.5 shrink-0" />
-                    )}
-                  </div>
-                ))}
-              </div>
-
-              {/* Phase completion celebration */}
-              <AnimatePresence>
-                {allComplete && currentGuide.nextPhase && (
-                  <motion.div
-                    initial={{ opacity: 0, height: 0 }}
-                    animate={{ opacity: 1, height: "auto" }}
-                    exit={{ opacity: 0, height: 0 }}
-                    className="border-t border-border overflow-hidden"
-                  >
-                    <div className="px-6 py-5 bg-gradient-to-r from-primary/10 via-accent/20 to-primary/10 flex items-center gap-4">
-                      <div className="h-10 w-10 rounded-xl bg-primary/20 flex items-center justify-center shrink-0">
-                        <Sparkles className="h-5 w-5 text-primary" />
+                      <div className={`h-7 w-7 rounded-lg flex items-center justify-center shrink-0 ${URGENCY_BADGE[urgency] || "bg-muted text-muted-foreground"}`}>
+                        <Icon className="h-3.5 w-3.5" />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm font-semibold text-foreground">
-                          🎉 {currentGuide.label} phase complete!
-                        </p>
-                        <p className="text-xs text-muted-foreground mt-0.5">
-                          You've finished all steps. Ready to move to <span className="font-medium text-foreground">{PHASE_GUIDES[currentGuide.nextPhase]?.label}</span>?
-                        </p>
+                        <p className="text-sm font-medium text-foreground">{action.title}</p>
+                        <p className="text-xs text-muted-foreground mt-0.5 truncate">{action.reason}</p>
                       </div>
-                      <button
-                        onClick={handleAdvancePhase}
-                        className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 transition-colors shrink-0"
-                      >
-                        Advance
-                        <ArrowRight className="h-3.5 w-3.5" />
-                      </button>
-                    </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-
-              {/* Transition hint (before completion) */}
-              {!allComplete && currentGuide.nextPhase && progressPct >= 80 && (
-                <div className="px-6 py-3 bg-accent/30 border-t border-border flex items-center gap-2">
-                  <Lightbulb className="h-4 w-4 text-primary shrink-0" />
-                  <p className="text-xs text-muted-foreground">{currentGuide.transitionHint}</p>
-                </div>
-              )}
+                      <ChevronRight className="h-4 w-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity shrink-0" />
+                    </button>
+                  );
+                })}
+              </div>
             </motion.div>
           )}
-          </AnimatePresence>
 
-          {/* Templates for this phase */}
-          {currentGuide && (
+          {/* Anomalies & Wins */}
+          {anomalies.length > 0 && (
             <motion.div
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
@@ -432,119 +253,92 @@ export function DashboardView({ onNavigate, onNewChat, activeProductId, onSetPha
               className="space-y-3"
             >
               <div className="flex items-center gap-2">
-                <BookOpen className="h-3.5 w-3.5 text-muted-foreground" />
-                <h2 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                  {currentGuide.label} Templates
-                </h2>
+                <Activity className="h-3.5 w-3.5 text-muted-foreground" />
+                <h2 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Signals</h2>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                {currentGuide.templates.map((template, idx) => (
-                  <button
-                    key={idx}
-                    onClick={() => handleTemplateClick(template.prompt)}
-                    className="flex items-center gap-3 p-3 rounded-xl border border-border bg-card hover:bg-accent/50 hover:border-accent transition-all text-left group"
-                  >
-                    <div className={`h-8 w-8 rounded-lg ${colors!.bg} flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform`}>
-                      <Sparkles className={`h-3.5 w-3.5 ${colors!.text}`} />
+                {anomalies.map((a: any, idx: number) => (
+                  <div key={idx} className={`flex items-start gap-3 p-3 rounded-xl border border-border bg-card`}>
+                    <Sparkles className={`h-4 w-4 mt-0.5 shrink-0 ${a.type === "win" ? "text-emerald-500" : a.type === "risk" ? "text-destructive" : "text-amber-500"}`} />
+                    <div className="min-w-0">
+                      <p className="text-sm font-medium text-foreground">{a.title}</p>
+                      <p className="text-xs text-muted-foreground mt-0.5">{a.description}</p>
                     </div>
-                    <span className="text-sm font-medium text-foreground flex-1">{template.label}</span>
-                    <ArrowRight className="h-3.5 w-3.5 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
-                  </button>
+                  </div>
                 ))}
               </div>
             </motion.div>
           )}
 
-          {/* Bottom row: Stats + Activity */}
-          <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
-            {/* Stats */}
+          {/* Empty state for briefing */}
+          {!briefing && !isGenerating && (
             <motion.div
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.4, delay: 0.2 }}
-              className="lg:col-span-2 space-y-3"
+              transition={{ duration: 0.4, delay: 0.1 }}
+              className="border border-dashed border-border rounded-2xl p-8 text-center"
             >
-              <h2 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                Overview
-              </h2>
-              <div className="grid grid-cols-2 gap-2">
-                {[
-                  { label: "Conversations", value: stats.conversations, icon: MessageSquare, color: "text-blue-500", bg: "bg-blue-500/10", onClick: () => onNavigate("chat") },
-                  { label: "Leads", value: stats.totalLeads, icon: Users, color: "text-primary", bg: "bg-primary/10", onClick: () => onNavigate("workspace") },
-                  { label: "Workflows", value: stats.workflows, icon: Workflow, color: "text-emerald-500", bg: "bg-emerald-500/10", onClick: () => onNavigate("workflow") },
-                  { label: "Emails Sent", value: stats.emailsSent, icon: Mail, color: "text-orange-500", bg: "bg-orange-500/10", onClick: () => onNavigate("workspace") },
-                ].map((stat) => (
-                  <button
-                    key={stat.label}
-                    onClick={stat.onClick}
-                    className="flex items-center gap-3 p-3 rounded-xl border border-border bg-card hover:bg-accent/50 transition-all text-left"
-                  >
-                    <div className={`h-8 w-8 rounded-lg ${stat.bg} flex items-center justify-center`}>
-                      <stat.icon className={`h-4 w-4 ${stat.color}`} />
-                    </div>
-                    <div>
-                      <p className="text-lg font-semibold text-foreground leading-none">
-                        {loading ? "–" : stat.value}
-                      </p>
-                      <p className="text-[10px] text-muted-foreground mt-0.5">{stat.label}</p>
-                    </div>
-                  </button>
-                ))}
-              </div>
+              <Brain className="h-10 w-10 text-muted-foreground/30 mx-auto mb-3" />
+              <p className="text-sm font-medium text-foreground">AI briefing will appear here</p>
+              <p className="text-xs text-muted-foreground mt-1">Start adding leads, conversations, or workflows to get personalized insights.</p>
+              <button
+                onClick={() => onNewChat()}
+                className="mt-4 inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 transition-colors"
+              >
+                <MessageSquare className="h-3.5 w-3.5" />
+                Start a conversation
+              </button>
             </motion.div>
+          )}
 
-            {/* Recent Activity */}
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.4, delay: 0.3 }}
-              className="lg:col-span-3 space-y-3"
-            >
-              <h2 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                Recent Activity
-              </h2>
-              <div className="border border-border rounded-xl bg-card divide-y divide-border overflow-hidden">
-                {loading ? (
-                  <div className="p-8 text-center text-sm text-muted-foreground">Loading...</div>
-                ) : recentItems.length === 0 ? (
-                  <div className="p-8 text-center">
-                    <Sparkles className="h-8 w-8 text-muted-foreground/40 mx-auto mb-3" />
-                    <p className="text-sm text-muted-foreground">No activity yet. Start with discovery!</p>
-                    <button
-                      onClick={() => onNewChat()}
-                      className="mt-3 inline-flex items-center gap-1.5 text-xs font-medium text-primary hover:text-primary/80 transition-colors"
-                    >
-                      Start a conversation
-                      <ArrowRight className="h-3 w-3" />
-                    </button>
-                  </div>
-                ) : (
-                  recentItems.map((item) => (
-                    <button
-                      key={`${item.type}-${item.id}`}
-                      onClick={() => {
-                        if (item.type === "conversation") onNavigate("chat");
-                        else if (item.type === "lead") onNavigate("workspace");
-                      }}
-                      className="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-accent/30 transition-colors text-left"
-                    >
-                      <div className="h-7 w-7 rounded-lg bg-muted flex items-center justify-center shrink-0">
-                        <item.icon className="h-3.5 w-3.5 text-muted-foreground" />
-                      </div>
-                      <div className="min-w-0 flex-1">
-                        <p className="text-sm font-medium text-foreground truncate">{item.title}</p>
-                        <p className="text-[10px] text-muted-foreground truncate">{item.subtitle}</p>
-                      </div>
-                      <div className="flex items-center gap-1 text-[10px] text-muted-foreground shrink-0">
-                        <Clock className="h-3 w-3" />
-                        {timeAgo(item.time)}
-                      </div>
-                    </button>
-                  ))
-                )}
-              </div>
-            </motion.div>
-          </div>
+          {/* Activity Timeline */}
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, delay: 0.2 }}
+            className="space-y-3"
+          >
+            <div className="flex items-center gap-2">
+              <Clock className="h-3.5 w-3.5 text-muted-foreground" />
+              <h2 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Recent Activity</h2>
+            </div>
+            <div className="border border-border rounded-xl bg-card divide-y divide-border overflow-hidden">
+              {loading ? (
+                <div className="p-6 text-center text-sm text-muted-foreground">Loading...</div>
+              ) : recentItems.length === 0 ? (
+                <div className="p-6 text-center">
+                  <p className="text-sm text-muted-foreground">No activity yet</p>
+                  <button onClick={() => onNewChat()} className="mt-2 text-xs font-medium text-primary hover:text-primary/80 inline-flex items-center gap-1">
+                    Start a conversation <ArrowRight className="h-3 w-3" />
+                  </button>
+                </div>
+              ) : (
+                recentItems.map((item) => (
+                  <button
+                    key={`${item.type}-${item.id}`}
+                    onClick={() => {
+                      if (item.type === "conversation") onNavigate("chat");
+                      else onNavigate("workspace");
+                    }}
+                    className="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-accent/30 transition-colors text-left"
+                  >
+                    <div className="h-7 w-7 rounded-lg bg-muted flex items-center justify-center shrink-0">
+                      <item.icon className="h-3.5 w-3.5 text-muted-foreground" />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <p className="text-sm font-medium text-foreground truncate">{item.title}</p>
+                      <p className="text-[10px] text-muted-foreground truncate">{item.subtitle}</p>
+                    </div>
+                    <span className="text-[10px] text-muted-foreground shrink-0 flex items-center gap-1">
+                      <Clock className="h-3 w-3" />
+                      {timeAgo(item.time)}
+                    </span>
+                  </button>
+                ))
+              )}
+            </div>
+          </motion.div>
+
         </div>
       </div>
     </div>
