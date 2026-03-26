@@ -454,13 +454,22 @@ export function DashboardView({ onNavigate, onNewChat }: DashboardViewProps) {
               <Brain className="h-10 w-10 text-muted-foreground/30 mx-auto mb-3" />
               <p className="text-sm font-medium text-foreground">Your AI agent is ready</p>
               <p className="text-xs text-muted-foreground mt-1">Add leads, conversations, or workflows — the agent will proactively draft emails, update statuses, and surface insights.</p>
-              <button
-                onClick={() => onNewChat()}
-                className="mt-4 inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 transition-colors"
-              >
-                <MessageSquare className="h-3.5 w-3.5" />
-                Start a conversation
-              </button>
+              <div className="mt-4 flex items-center justify-center gap-3">
+                <button
+                  onClick={() => onNewChat()}
+                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 transition-colors"
+                >
+                  <MessageSquare className="h-3.5 w-3.5" />
+                  Start a conversation
+                </button>
+                <button
+                  onClick={() => onNavigate("gtm")}
+                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg border border-border text-sm font-medium text-foreground hover:bg-accent transition-colors"
+                >
+                  <Zap className="h-3.5 w-3.5 text-primary" />
+                  Launch GTM
+                </button>
+              </div>
             </motion.div>
           )}
 

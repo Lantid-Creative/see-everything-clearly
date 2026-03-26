@@ -19,6 +19,7 @@ import {
   GitBranch,
   Users,
   Trash2,
+  Rocket,
 } from "lucide-react";
 import { Logo } from "@/components/Logo";
 import { useAuth } from "@/hooks/useAuth";
@@ -246,7 +247,17 @@ export function AppSidebar({
                     </SidebarMenuButton>
                   </SidebarMenuItem>
 
-                  {/* Tools — Collapsible */}
+                  {/* GTM Generator */}
+                  <SidebarMenuItem>
+                    <SidebarMenuButton
+                      onClick={() => onSwitchView("gtm")}
+                      isActive={currentView === "gtm"}
+                      className="text-sidebar-foreground hover:text-sidebar-primary hover:bg-sidebar-accent data-[active=true]:bg-sidebar-accent data-[active=true]:text-sidebar-primary"
+                    >
+                      <Rocket className="h-4 w-4" />
+                      {!collapsed && <span>GTM Generator</span>}
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
                   <Collapsible open={toolsOpen || isToolView} onOpenChange={setToolsOpen}>
                     <SidebarMenuItem>
                       <CollapsibleTrigger asChild>

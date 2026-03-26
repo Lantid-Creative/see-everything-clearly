@@ -16,6 +16,7 @@ import { OnboardingChecklist } from "@/components/OnboardingChecklist";
 import { DashboardView } from "@/components/DashboardView";
 import { CommandCenterView } from "@/components/CommandCenterView";
 import { NerveCenterView } from "@/components/NerveCenterView";
+import { GTMGeneratorView } from "@/components/GTMGeneratorView";
 import { useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
 import { useWorkspaceContext } from "@/hooks/useWorkspaceContext";
 import { useUserProfile } from "@/hooks/useUserProfile";
@@ -23,7 +24,7 @@ import { useProductPhase, PHASE_GUIDES, type ProductPhase } from "@/hooks/usePro
 import { useProducts } from "@/hooks/useProducts";
 import { useToast } from "@/hooks/use-toast";
 
-export type ViewMode = "dashboard" | "chat" | "workspace" | "slides" | "workflow" | "spreadsheet" | "team" | "settings" | "integrations" | "command-center" | "nerve-center";
+export type ViewMode = "dashboard" | "chat" | "workspace" | "slides" | "workflow" | "spreadsheet" | "team" | "settings" | "integrations" | "command-center" | "nerve-center" | "gtm";
 
 const Index = () => {
   const [viewMode, setViewMode] = useState<ViewMode>("dashboard");
@@ -140,6 +141,8 @@ const Index = () => {
         return <SpreadsheetView onBack={() => setViewMode("dashboard")} />;
       case "team":
         return <TeamPanel onBack={() => setViewMode("dashboard")} />;
+      case "gtm":
+        return <GTMGeneratorView onNavigate={setViewMode} />;
       case "settings":
         return <SettingsView onBack={() => setViewMode("dashboard")} />;
       case "integrations":
