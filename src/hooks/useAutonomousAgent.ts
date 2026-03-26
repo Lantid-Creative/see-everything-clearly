@@ -88,7 +88,14 @@ export function useAutonomousAgent() {
       return result;
     } catch (e: any) {
       console.error("Agent run failed:", e);
-      toast.error(e.message || "Agent run failed");
+      // Don't show toast for auth errors - these are expected when session expires
+      if (!e.message?.includes("Unauthorized")) {
+        toast.error(e.message || "Agent run failed");
+      }
+      // Mark cooldown to prevent immediate retries
+      const now = new Date().toISOString();
+      setLastRun(now);
+      localStorage.setItem(`${AGENT_COOLDOWN_KEY}_${user.id}`, now);
     } finally {
       setRunning(false);
     }

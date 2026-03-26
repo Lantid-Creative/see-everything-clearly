@@ -128,10 +128,10 @@ export function DashboardView({ onNavigate, onNewChat }: DashboardViewProps) {
     if (!user) return;
     async function load() {
       const [leadsRes, emailsRes, workflowsRes, convsRes, recentConvs, recentLeads] = await Promise.all([
-        supabase.from("leads").select("*", { count: "exact", head: true }).eq("user_id", user!.id),
-        supabase.from("email_drafts").select("*", { count: "exact", head: true }).eq("user_id", user!.id).eq("sent", true),
-        supabase.from("workflows").select("*", { count: "exact", head: true }).eq("user_id", user!.id),
-        supabase.from("conversations").select("*", { count: "exact", head: true }).eq("user_id", user!.id),
+        supabase.from("leads").select("id", { count: "exact", head: true }).eq("user_id", user!.id),
+        supabase.from("email_drafts").select("id", { count: "exact", head: true }).eq("user_id", user!.id).eq("sent", true),
+        supabase.from("workflows").select("id", { count: "exact", head: true }).eq("user_id", user!.id),
+        supabase.from("conversations").select("id", { count: "exact", head: true }).eq("user_id", user!.id),
         supabase.from("conversations").select("id, title, updated_at").eq("user_id", user!.id).order("updated_at", { ascending: false }).limit(5),
         supabase.from("leads").select("id, name, company, updated_at").eq("user_id", user!.id).order("updated_at", { ascending: false }).limit(3),
       ]);
