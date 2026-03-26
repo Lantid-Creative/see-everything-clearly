@@ -108,7 +108,7 @@ const Index = () => {
   }, []);
 
   const handleToggleSearch = useCallback(() => {
-    setSearchFocusTrigger((prev) => prev + 1);
+    setCommandOpen((prev) => !prev);
   }, []);
 
   useKeyboardShortcuts({
