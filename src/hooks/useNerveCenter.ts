@@ -81,8 +81,8 @@ export function useNerveCenter() {
         supabase.from("leads").select("created_at").eq("user_id", user!.id).order("created_at", { ascending: false }).limit(1),
         supabase.from("email_drafts").select("created_at").eq("user_id", user!.id).eq("sent", true).order("created_at", { ascending: false }).limit(1),
         supabase.from("workflows").select("updated_at").eq("user_id", user!.id).order("updated_at", { ascending: false }).limit(1),
-        supabase.from("leads").select("*", { count: "exact", head: true }).eq("user_id", user!.id).lt("updated_at", new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString()),
-        supabase.from("workflows").select("*", { count: "exact", head: true }).eq("user_id", user!.id).eq("is_deployed", false),
+        supabase.from("leads").select("id", { count: "exact", head: true }).eq("user_id", user!.id).lt("updated_at", new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString()),
+        supabase.from("workflows").select("id", { count: "exact", head: true }).eq("user_id", user!.id).eq("is_deployed", false),
       ]);
 
       setRecentActivity({
