@@ -132,6 +132,7 @@ function PulseMetric({
 
 export function NerveCenterView({ onNavigate, onNewChat }: NerveCenterViewProps) {
   const { briefing, loading, generateBriefing } = useNerveCenter();
+  const { alerts, dismissAlert, dismissAll } = useNerveCenterAlerts();
   const workspace = useWorkspaceContext();
   const profile = useUserProfile();
 
