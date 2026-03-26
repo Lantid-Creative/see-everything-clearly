@@ -2,6 +2,7 @@ import { useState } from "react";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { NotificationBell } from "@/components/NotificationBell";
 import { useNerveCenter, type PriorityAction, type Anomaly } from "@/hooks/useNerveCenter";
+import { useNerveCenterAlerts, type NerveAlert } from "@/hooks/useNerveCenterAlerts";
 import { useWorkspaceContext } from "@/hooks/useWorkspaceContext";
 import { useUserProfile } from "@/hooks/useUserProfile";
 import { motion, AnimatePresence } from "framer-motion";
