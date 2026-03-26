@@ -118,6 +118,7 @@ export function DashboardView({ onNavigate, onNewChat }: DashboardViewProps) {
     runAgent,
     dismissAction,
   } = useAutonomousAgent();
+  const { intel: marketIntel, loading: intelLoading, generateIntel } = useMarketIntel();
 
   const [stats, setStats] = useState<DashboardStats>({ totalLeads: 0, emailsSent: 0, workflows: 0, conversations: 0 });
   const [recentItems, setRecentItems] = useState<RecentItem[]>([]);
