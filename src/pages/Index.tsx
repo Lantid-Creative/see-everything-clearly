@@ -17,6 +17,7 @@ import { DashboardView } from "@/components/DashboardView";
 import { CommandCenterView } from "@/components/CommandCenterView";
 import { NerveCenterView } from "@/components/NerveCenterView";
 import { GTMGeneratorView } from "@/components/GTMGeneratorView";
+import { CommandPalette } from "@/components/CommandPalette";
 import { useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
 import { useWorkspaceContext } from "@/hooks/useWorkspaceContext";
 import { useUserProfile } from "@/hooks/useUserProfile";
@@ -30,6 +31,7 @@ const Index = () => {
   const [viewMode, setViewMode] = useState<ViewMode>("dashboard");
   const [searchFocusTrigger, setSearchFocusTrigger] = useState(0);
   const [pendingTemplateId, setPendingTemplateId] = useState<string | null>(null);
+  const [commandOpen, setCommandOpen] = useState(false);
   const {
     conversations,
     activeConversation,
@@ -106,7 +108,7 @@ const Index = () => {
   }, []);
 
   const handleToggleSearch = useCallback(() => {
-    setSearchFocusTrigger((prev) => prev + 1);
+    setCommandOpen((prev) => !prev);
   }, []);
 
   useKeyboardShortcuts({
@@ -183,6 +185,7 @@ const Index = () => {
 
   return (
     <SidebarProvider>
+      <CommandPalette open={commandOpen} onOpenChange={setCommandOpen} onNavigate={setViewMode} onNewChat={handleNewChat} />
       <WelcomeModal />
       <GettingStartedTour onNavigate={setViewMode} />
       <OnboardingChecklist />
