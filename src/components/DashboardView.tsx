@@ -4,6 +4,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useUserProfile } from "@/hooks/useUserProfile";
 import { useNerveCenter } from "@/hooks/useNerveCenter";
 import { useAutonomousAgent } from "@/hooks/useAutonomousAgent";
+import { useMarketIntel } from "@/hooks/useMarketIntel";
 import { useWorkspaceContext } from "@/hooks/useWorkspaceContext";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { NotificationBell } from "@/components/NotificationBell";
