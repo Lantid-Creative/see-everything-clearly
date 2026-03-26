@@ -240,6 +240,71 @@ export function NerveCenterView({ onNavigate, onNewChat }: NerveCenterViewProps)
             </div>
           </motion.div>
 
+          {/* Live Alerts */}
+          <AnimatePresence>
+            {alerts.length > 0 && (
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                transition={{ delay: 0.08 }}
+                className="border border-border rounded-2xl bg-card overflow-hidden"
+              >
+                <div className="px-5 py-3.5 border-b border-border flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Bell className="h-4 w-4 text-primary" />
+                    <h2 className="text-sm font-semibold text-foreground">Live Alerts</h2>
+                    <span className="ml-1 px-1.5 py-0.5 text-[10px] font-bold rounded-full bg-primary text-primary-foreground">
+                      {alerts.length}
+                    </span>
+                  </div>
+                  <button
+                    onClick={dismissAll}
+                    className="text-[11px] text-muted-foreground hover:text-foreground transition-colors"
+                  >
+                    Dismiss all
+                  </button>
+                </div>
+                <div className="p-3 space-y-1.5 max-h-64 overflow-y-auto">
+                  {alerts.map((alert) => {
+                    const severityConfig = {
+                      critical: { bg: "bg-destructive/10", border: "border-destructive/30", icon: AlertTriangle, iconColor: "text-destructive" },
+                      warning: { bg: "bg-amber-500/10", border: "border-amber-500/30", icon: AlertTriangle, iconColor: "text-amber-500" },
+                      info: { bg: "bg-blue-500/10", border: "border-blue-500/30", icon: Info, iconColor: "text-blue-500" },
+                      success: { bg: "bg-emerald-500/10", border: "border-emerald-500/30", icon: CheckCircle2, iconColor: "text-emerald-500" },
+                    };
+                    const cfg = severityConfig[alert.severity];
+                    const AlertIcon = cfg.icon;
+                    return (
+                      <motion.div
+                        key={alert.id}
+                        initial={{ opacity: 0, x: -8 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        exit={{ opacity: 0, x: 8 }}
+                        className={`flex items-start gap-3 p-3 rounded-xl ${cfg.bg} border ${cfg.border} group`}
+                      >
+                        <AlertIcon className={`h-4 w-4 ${cfg.iconColor} shrink-0 mt-0.5`} />
+                        <div className="flex-1 min-w-0">
+                          <p className="text-xs font-medium text-foreground">{alert.title}</p>
+                          <p className="text-[11px] text-muted-foreground mt-0.5">{alert.message}</p>
+                          <p className="text-[9px] text-muted-foreground/60 mt-1">
+                            {new Date(alert.timestamp).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                          </p>
+                        </div>
+                        <button
+                          onClick={() => dismissAlert(alert.id)}
+                          className="opacity-0 group-hover:opacity-100 transition-opacity p-0.5 rounded hover:bg-accent"
+                        >
+                          <X className="h-3 w-3 text-muted-foreground" />
+                        </button>
+                      </motion.div>
+                    );
+                  })}
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
           {/* Priority Actions + Suggested Action */}
           <AnimatePresence>
             {briefing && (
