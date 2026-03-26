@@ -19,6 +19,7 @@ import {
   GitBranch,
   Users,
   Trash2,
+  Rocket,
 } from "lucide-react";
 import { Logo } from "@/components/Logo";
 import { useAuth } from "@/hooks/useAuth";
