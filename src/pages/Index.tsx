@@ -31,6 +31,7 @@ const Index = () => {
   const [viewMode, setViewMode] = useState<ViewMode>("dashboard");
   const [searchFocusTrigger, setSearchFocusTrigger] = useState(0);
   const [pendingTemplateId, setPendingTemplateId] = useState<string | null>(null);
+  const [commandOpen, setCommandOpen] = useState(false);
   const {
     conversations,
     activeConversation,
