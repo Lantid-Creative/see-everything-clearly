@@ -16,6 +16,7 @@ import { OnboardingChecklist } from "@/components/OnboardingChecklist";
 import { DashboardView } from "@/components/DashboardView";
 import { CommandCenterView } from "@/components/CommandCenterView";
 import { NerveCenterView } from "@/components/NerveCenterView";
+import { GTMGeneratorView } from "@/components/GTMGeneratorView";
 import { useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
 import { useWorkspaceContext } from "@/hooks/useWorkspaceContext";
 import { useUserProfile } from "@/hooks/useUserProfile";
