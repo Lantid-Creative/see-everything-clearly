@@ -185,6 +185,7 @@ const Index = () => {
 
   return (
     <SidebarProvider>
+      <CommandPalette open={commandOpen} onOpenChange={setCommandOpen} onNavigate={setViewMode} onNewChat={handleNewChat} />
       <WelcomeModal />
       <GettingStartedTour onNavigate={setViewMode} />
       <OnboardingChecklist />
