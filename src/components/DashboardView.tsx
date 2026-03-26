@@ -35,6 +35,13 @@ import {
   GitBranch,
   Bell,
   Search,
+  TrendingUp,
+  TrendingDown,
+  Shield,
+  Eye,
+  Globe,
+  Crosshair,
+  Lightbulb,
 } from "lucide-react";
 import type { ViewMode } from "@/pages/Index";
 
