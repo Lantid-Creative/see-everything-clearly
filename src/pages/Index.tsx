@@ -141,6 +141,8 @@ const Index = () => {
         return <SpreadsheetView onBack={() => setViewMode("dashboard")} />;
       case "team":
         return <TeamPanel onBack={() => setViewMode("dashboard")} />;
+      case "gtm":
+        return <GTMGeneratorView onNavigate={setViewMode} />;
       case "settings":
         return <SettingsView onBack={() => setViewMode("dashboard")} />;
       case "integrations":
