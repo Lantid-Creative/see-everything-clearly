@@ -14,3 +14,9 @@ verify_jwt = false
 
 [functions.nerve-center]
 verify_jwt = false
+
+[functions.autonomous-agent]
+verify_jwt = false
+
+[functions.gtm-generator]
+verify_jwt = false

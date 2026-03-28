@@ -61,6 +61,14 @@ export function useAutonomousAgent() {
 
   const runAgent = useCallback(async () => {
     if (!user || running) return;
+    
+    // Verify we have a valid session before calling
+    const { data: sessionData } = await supabase.auth.getSession();
+    if (!sessionData.session) {
+      console.warn("Agent skipped: no active session");
+      return;
+    }
+    
     setRunning(true);
     try {
       const { data, error } = await supabase.functions.invoke("autonomous-agent");
