@@ -350,8 +350,7 @@ INSTRUCTIONS:
     }
   };
 
-  return (
-    if (decksLoading) {
+  if (decksLoading) {
       return (
         <div className="flex flex-col h-screen">
           <header className="h-12 flex items-center px-4 border-b shrink-0">
