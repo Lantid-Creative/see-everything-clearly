@@ -124,6 +124,9 @@ export function SlideEditorView({ onBack, initialContent, onContentConsumed }: S
     if (activeDeck && activeDeck.slides.length > 0) {
       setSlides(activeDeck.slides);
       setCurrentSlide(0);
+    } else if (decks.length === 0) {
+      // No decks exist yet — create default deck
+      createDeck(defaultSlides, "Getting Started");
     }
     setInitialized(true);
   }, [decksLoading, activeDeck]);
