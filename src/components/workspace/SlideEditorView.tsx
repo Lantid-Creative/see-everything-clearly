@@ -1,10 +1,12 @@
 import { useState, useEffect, useRef } from "react";
-import { ArrowLeft, ChevronLeft, ChevronRight, MessageSquare, Edit3, Plus, Loader2, Sparkles, Download, Trash2, Send, FileText, FileSpreadsheet, ChevronDown } from "lucide-react";
+import { ArrowLeft, ChevronLeft, ChevronRight, MessageSquare, Edit3, Plus, Loader2, Sparkles, Download, Trash2, Send, FileText, FileSpreadsheet, ChevronDown, Save, FolderOpen } from "lucide-react";
 import { exportSlidesAsMarkdown, exportSlidesAsPPTX, exportSlidesAsPDF } from "@/lib/exportUtils";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { streamChat } from "@/lib/streamChat";
 import { useToast } from "@/hooks/use-toast";
+import { useSlideDecks } from "@/hooks/useSlideDecks";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface Slide {
   id: string;
@@ -83,13 +85,9 @@ function parseAIContentToSlides(content: string): Slide[] | null {
 }
 
 export function SlideEditorView({ onBack, initialContent, onContentConsumed }: SlideEditorViewProps) {
-  const [slides, setSlides] = useState<Slide[]>(() => {
-    if (initialContent) {
-      const parsed = parseAIContentToSlides(initialContent);
-      if (parsed && parsed.length > 0) return parsed;
-    }
-    return defaultSlides;
-  });
+  const { activeDeck, activeDeckId, decks, loading: decksLoading, saving, createDeck, debouncedSave, setActiveDeckId } = useSlideDecks();
+
+  const [slides, setSlides] = useState<Slide[]>(defaultSlides);
   const [currentSlide, setCurrentSlide] = useState(0);
   const [editingField, setEditingField] = useState<string | null>(null);
   const [editValue, setEditValue] = useState("");
@@ -99,9 +97,59 @@ export function SlideEditorView({ onBack, initialContent, onContentConsumed }: S
   const [isGenerating, setIsGenerating] = useState(false);
   const [chatMessages, setChatMessages] = useState<{ role: "user" | "assistant"; content: string }[]>([]);
   const [showExportMenu, setShowExportMenu] = useState(false);
+  const [initialized, setInitialized] = useState(false);
   const exportRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
   const isMobile = useIsMobile();
+
+  // Load slides from active deck once loaded
+  useEffect(() => {
+    if (initialized) return;
+    if (decksLoading) return;
+    if (initialContent) {
+      const parsed = parseAIContentToSlides(initialContent);
+      if (parsed && parsed.length > 0) {
+        setSlides(parsed);
+        setCurrentSlide(0);
+        // Auto-save new deck from AI content
+        createDeck(parsed, parsed[0]?.title || "AI Deck").then(() => {
+          toast({ title: "Deck created", description: `${parsed.length} slides generated and saved` });
+        });
+        onContentConsumed?.();
+        setInitialized(true);
+        return;
+      }
+      onContentConsumed?.();
+    }
+    if (activeDeck && activeDeck.slides.length > 0) {
+      setSlides(activeDeck.slides);
+      setCurrentSlide(0);
+    } else if (decks.length === 0) {
+      // No decks exist yet — create default deck
+      createDeck(defaultSlides, "Getting Started");
+    }
+    setInitialized(true);
+  }, [decksLoading, activeDeck]);
+
+  // When new initialContent arrives after init, parse and create new deck
+  useEffect(() => {
+    if (!initialized || !initialContent) return;
+    const parsed = parseAIContentToSlides(initialContent);
+    if (parsed && parsed.length > 0) {
+      setSlides(parsed);
+      setCurrentSlide(0);
+      createDeck(parsed, parsed[0]?.title || "AI Deck").then(() => {
+        toast({ title: "Deck created", description: `${parsed.length} slides generated and saved` });
+      });
+    }
+    onContentConsumed?.();
+  }, [initialContent]);
+
+  // Auto-save on slide changes (after init)
+  useEffect(() => {
+    if (!initialized || !activeDeckId) return;
+    debouncedSave(activeDeckId, slides);
+  }, [slides, activeDeckId, initialized]);
 
   // Close export menu on outside click
   useEffect(() => {
@@ -111,19 +159,6 @@ export function SlideEditorView({ onBack, initialContent, onContentConsumed }: S
     document.addEventListener("mousedown", handler);
     return () => document.removeEventListener("mousedown", handler);
   }, []);
-
-  // When new initialContent arrives, parse and apply it
-  useEffect(() => {
-    if (initialContent) {
-      const parsed = parseAIContentToSlides(initialContent);
-      if (parsed && parsed.length > 0) {
-        setSlides(parsed);
-        setCurrentSlide(0);
-        toast({ title: "Deck created", description: `${parsed.length} slides generated from AI` });
-      }
-      onContentConsumed?.();
-    }
-  }, [initialContent]);
 
   const slide = slides[currentSlide];
 
@@ -318,7 +353,24 @@ INSTRUCTIONS:
     }
   };
 
-  return (
+  if (decksLoading) {
+      return (
+        <div className="flex flex-col h-screen">
+          <header className="h-12 flex items-center px-4 border-b shrink-0">
+            <SidebarTrigger />
+            <Skeleton className="h-5 w-24 ml-3" />
+          </header>
+          <div className="flex-1 flex items-center justify-center">
+            <div className="text-center space-y-3">
+              <Loader2 className="h-6 w-6 animate-spin text-primary mx-auto" />
+              <p className="text-sm text-muted-foreground">Loading decks…</p>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    return (
     <div className="flex flex-col h-screen">
       <header className="h-12 flex items-center px-4 border-b shrink-0 justify-between">
         <div className="flex items-center gap-3">
@@ -326,10 +378,20 @@ INSTRUCTIONS:
           <button onClick={onBack} className="h-7 w-7 rounded-md hover:bg-secondary flex items-center justify-center transition-colors">
             <ArrowLeft className="h-4 w-4 text-muted-foreground" />
           </button>
-          <h1 className="text-sm font-semibold text-foreground">Slide Editor</h1>
+          <h1 className="text-sm font-semibold text-foreground">{activeDeck?.name || "Slide Editor"}</h1>
           <span className="text-xs text-muted-foreground bg-secondary px-2 py-0.5 rounded-full">
             {currentSlide + 1}/{slides.length} slides
           </span>
+          {saving && (
+            <span className="text-[10px] text-muted-foreground flex items-center gap-1">
+              <Loader2 className="h-3 w-3 animate-spin" /> Saving…
+            </span>
+          )}
+          {!saving && activeDeckId && (
+            <span className="text-[10px] text-emerald-500 flex items-center gap-1">
+              <Save className="h-3 w-3" /> Saved
+            </span>
+          )}
         </div>
         <div className="flex items-center gap-2">
           <div className="relative" ref={exportRef}>
