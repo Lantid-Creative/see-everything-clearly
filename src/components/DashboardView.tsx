@@ -267,7 +267,7 @@ export function DashboardView({ onNavigate, onNewChat }: DashboardViewProps) {
                   <m.icon className={`h-4 w-4 ${m.color}`} />
                 </div>
                 <div>
-                  <p className="text-xl font-bold text-foreground leading-none">{loading ? "–" : m.value}</p>
+                  {loading ? <Skeleton className="h-6 w-8" /> : <p className="text-xl font-bold text-foreground leading-none">{m.value}</p>}
                   <p className="text-[10px] text-muted-foreground mt-0.5">{m.label}</p>
                 </div>
               </button>
