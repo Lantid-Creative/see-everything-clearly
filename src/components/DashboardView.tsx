@@ -235,10 +235,14 @@ export function DashboardView({ onNavigate, onNewChat }: DashboardViewProps) {
                 {briefing.summary}
               </p>
             ) : isGenerating ? (
-              <p className="text-sm text-muted-foreground mt-1.5 flex items-center gap-2">
-                <Loader2 className="h-3.5 w-3.5 animate-spin text-primary" />
-                Analyzing your workspace...
-              </p>
+              <div className="mt-2 space-y-2 max-w-2xl">
+                <div className="flex items-center gap-2">
+                  <Loader2 className="h-3.5 w-3.5 animate-spin text-primary shrink-0" />
+                  <Skeleton className="h-4 w-full" />
+                </div>
+                <Skeleton className="h-4 w-3/4" />
+                <Skeleton className="h-4 w-1/2" />
+              </div>
             ) : (
               <p className="text-sm text-muted-foreground mt-1.5">
                 Here's what needs your attention today.
