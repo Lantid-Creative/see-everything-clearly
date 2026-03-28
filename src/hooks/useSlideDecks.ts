@@ -83,7 +83,7 @@ export function useSlideDecks() {
         .select("id, name, slides, updated_at")
         .single();
       if (error || !data) return null;
-      const newDeck: SlideDeck = { ...data, slides: data.slides as Slide[] };
+      const newDeck: SlideDeck = { ...data, slides: data.slides as unknown as Slide[] };
       setDecks((prev) => [newDeck, ...prev]);
       setActiveDeckId(newDeck.id);
       return newDeck.id;
