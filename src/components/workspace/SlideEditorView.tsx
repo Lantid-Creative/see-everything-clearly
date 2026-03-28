@@ -85,13 +85,9 @@ function parseAIContentToSlides(content: string): Slide[] | null {
 }
 
 export function SlideEditorView({ onBack, initialContent, onContentConsumed }: SlideEditorViewProps) {
-  const [slides, setSlides] = useState<Slide[]>(() => {
-    if (initialContent) {
-      const parsed = parseAIContentToSlides(initialContent);
-      if (parsed && parsed.length > 0) return parsed;
-    }
-    return defaultSlides;
-  });
+  const { activeDeck, activeDeckId, decks, loading: decksLoading, saving, createDeck, debouncedSave, setActiveDeckId } = useSlideDecks();
+
+  const [slides, setSlides] = useState<Slide[]>(defaultSlides);
   const [currentSlide, setCurrentSlide] = useState(0);
   const [editingField, setEditingField] = useState<string | null>(null);
   const [editValue, setEditValue] = useState("");
@@ -101,9 +97,56 @@ export function SlideEditorView({ onBack, initialContent, onContentConsumed }: S
   const [isGenerating, setIsGenerating] = useState(false);
   const [chatMessages, setChatMessages] = useState<{ role: "user" | "assistant"; content: string }[]>([]);
   const [showExportMenu, setShowExportMenu] = useState(false);
+  const [initialized, setInitialized] = useState(false);
   const exportRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
   const isMobile = useIsMobile();
+
+  // Load slides from active deck once loaded
+  useEffect(() => {
+    if (initialized) return;
+    if (decksLoading) return;
+    if (initialContent) {
+      const parsed = parseAIContentToSlides(initialContent);
+      if (parsed && parsed.length > 0) {
+        setSlides(parsed);
+        setCurrentSlide(0);
+        // Auto-save new deck from AI content
+        createDeck(parsed, parsed[0]?.title || "AI Deck").then(() => {
+          toast({ title: "Deck created", description: `${parsed.length} slides generated and saved` });
+        });
+        onContentConsumed?.();
+        setInitialized(true);
+        return;
+      }
+      onContentConsumed?.();
+    }
+    if (activeDeck && activeDeck.slides.length > 0) {
+      setSlides(activeDeck.slides);
+      setCurrentSlide(0);
+    }
+    setInitialized(true);
+  }, [decksLoading, activeDeck]);
+
+  // When new initialContent arrives after init, parse and create new deck
+  useEffect(() => {
+    if (!initialized || !initialContent) return;
+    const parsed = parseAIContentToSlides(initialContent);
+    if (parsed && parsed.length > 0) {
+      setSlides(parsed);
+      setCurrentSlide(0);
+      createDeck(parsed, parsed[0]?.title || "AI Deck").then(() => {
+        toast({ title: "Deck created", description: `${parsed.length} slides generated and saved` });
+      });
+    }
+    onContentConsumed?.();
+  }, [initialContent]);
+
+  // Auto-save on slide changes (after init)
+  useEffect(() => {
+    if (!initialized || !activeDeckId) return;
+    debouncedSave(activeDeckId, slides);
+  }, [slides, activeDeckId, initialized]);
 
   // Close export menu on outside click
   useEffect(() => {
@@ -113,19 +156,6 @@ export function SlideEditorView({ onBack, initialContent, onContentConsumed }: S
     document.addEventListener("mousedown", handler);
     return () => document.removeEventListener("mousedown", handler);
   }, []);
-
-  // When new initialContent arrives, parse and apply it
-  useEffect(() => {
-    if (initialContent) {
-      const parsed = parseAIContentToSlides(initialContent);
-      if (parsed && parsed.length > 0) {
-        setSlides(parsed);
-        setCurrentSlide(0);
-        toast({ title: "Deck created", description: `${parsed.length} slides generated from AI` });
-      }
-      onContentConsumed?.();
-    }
-  }, [initialContent]);
 
   const slide = slides[currentSlide];
 
