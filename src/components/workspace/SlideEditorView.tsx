@@ -32,13 +32,33 @@ interface SlideEditorViewProps {
 }
 
 function parseAIContentToSlides(content: string): Slide[] | null {
-  // Split content by slide headers like "**Slide 1:**", "Slide 1:", etc.
-  const sections = content.split(/(?=\*{0,2}Slide\s+\d+\*{0,2}\s*[:\s—–-])/i);
+  // Try JSON first
+  const jsonMatch = content.match(/```json\s*([\s\S]*?)```/) || content.match(/(\[[\s\S]*\])/);
+  if (jsonMatch) {
+    try {
+      const raw = jsonMatch[1] || jsonMatch[0];
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed) && parsed.length >= 2 && parsed[0].title) {
+        return parsed.map((s: any, i: number) => ({
+          id: Date.now().toString() + i,
+          title: s.title || "Untitled",
+          subtitle: s.subtitle || undefined,
+          bullets: Array.isArray(s.bullets) ? s.bullets : undefined,
+          layout: i === 0 && s.subtitle ? "title" as const : "content" as const,
+          brandColor: "hsl(var(--primary))",
+        }));
+      }
+    } catch { /* not valid JSON, fall through */ }
+  }
+
+  // Split content by slide headers like "**Slide 1:**", "**Slide 1:** Title", "Slide 1:", "## Slide 1:" etc.
+  const sections = content.split(/(?=(?:\#{1,3}\s*)?(?:\*{0,2})Slide\s+\d+(?:\*{0,2})\s*[:\s—–-])/i);
   const slides: Slide[] = [];
 
   for (const section of sections) {
-    // Match the slide header
-    const headerMatch = section.match(/\*{0,2}Slide\s+(\d+)\*{0,2}\s*[:\s—–-]+\s*\*{0,2}(.+?)\*{0,2}\s*$/im);
+    // Match various header formats:
+    // "**Slide 1:** Title" / "**Slide 1: Title**" / "Slide 1: Title" / "## Slide 1: Title"
+    const headerMatch = section.match(/(?:\#{1,3}\s*)?\*{0,2}Slide\s+(\d+)\*{0,2}\s*[:\s—–-]+\s*\*{0,2}(.+?)\*{0,2}\s*$/im);
     if (!headerMatch) continue;
 
     const title = headerMatch[2].replace(/\*\*/g, '').replace(/[-—–]\s*$/, '').trim();
@@ -47,8 +67,8 @@ function parseAIContentToSlides(content: string): Slide[] | null {
     const restOfSection = section.slice(headerMatch.index! + headerMatch[0].length);
     const bullets = restOfSection
       .split('\n')
-      .map(line => line.replace(/^[-•*]\s*/, '').replace(/\*\*/g, '').trim())
-      .filter(line => line.length > 0 && !line.match(/^\*?\*?Slide\s+\d/i) && !line.match(/^\[\[action:/));
+      .map(line => line.replace(/^[\s]*[-•*]\s*/, '').replace(/\*\*/g, '').trim())
+      .filter(line => line.length > 0 && !line.match(/^\*?\*?Slide\s+\d/i) && !line.match(/^\[\[action:/) && !line.match(/^→/));
 
     slides.push({
       id: Date.now().toString() + slides.length,
