@@ -8,6 +8,7 @@ import { useMarketIntel } from "@/hooks/useMarketIntel";
 import { useWorkspaceContext } from "@/hooks/useWorkspaceContext";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { NotificationBell } from "@/components/NotificationBell";
+import { Skeleton } from "@/components/ui/skeleton";
 import { motion } from "framer-motion";
 import {
   Users,
@@ -234,10 +235,14 @@ export function DashboardView({ onNavigate, onNewChat }: DashboardViewProps) {
                 {briefing.summary}
               </p>
             ) : isGenerating ? (
-              <p className="text-sm text-muted-foreground mt-1.5 flex items-center gap-2">
-                <Loader2 className="h-3.5 w-3.5 animate-spin text-primary" />
-                Analyzing your workspace...
-              </p>
+              <div className="mt-2 space-y-2 max-w-2xl">
+                <div className="flex items-center gap-2">
+                  <Loader2 className="h-3.5 w-3.5 animate-spin text-primary shrink-0" />
+                  <Skeleton className="h-4 w-full" />
+                </div>
+                <Skeleton className="h-4 w-3/4" />
+                <Skeleton className="h-4 w-1/2" />
+              </div>
             ) : (
               <p className="text-sm text-muted-foreground mt-1.5">
                 Here's what needs your attention today.
@@ -262,7 +267,7 @@ export function DashboardView({ onNavigate, onNewChat }: DashboardViewProps) {
                   <m.icon className={`h-4 w-4 ${m.color}`} />
                 </div>
                 <div>
-                  <p className="text-xl font-bold text-foreground leading-none">{loading ? "–" : m.value}</p>
+                  {loading ? <Skeleton className="h-6 w-8" /> : <p className="text-xl font-bold text-foreground leading-none">{m.value}</p>}
                   <p className="text-[10px] text-muted-foreground mt-0.5">{m.label}</p>
                 </div>
               </button>
@@ -348,6 +353,25 @@ export function DashboardView({ onNavigate, onNewChat }: DashboardViewProps) {
           )}
 
           {/* Priority Action Queue */}
+          {isGenerating && actions.length === 0 && (
+            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.1 }} className="space-y-3">
+              <div className="flex items-center gap-2">
+                <Target className="h-3.5 w-3.5 text-primary" />
+                <h2 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Priority Actions</h2>
+              </div>
+              <div className="space-y-2">
+                {[1, 2, 3].map((i) => (
+                  <div key={i} className="flex items-center gap-3 p-3.5 rounded-xl border border-border bg-card">
+                    <Skeleton className="h-7 w-7 rounded-lg shrink-0" />
+                    <div className="flex-1 space-y-1.5">
+                      <Skeleton className="h-4 w-2/3" />
+                      <Skeleton className="h-3 w-1/2" />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </motion.div>
+          )}
           {actions.length > 0 && (
             <motion.div
               initial={{ opacity: 0, y: 10 }}
