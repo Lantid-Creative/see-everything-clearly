@@ -400,6 +400,33 @@ export type Database = {
         }
         Relationships: []
       }
+      slide_decks: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          slides: Json
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name?: string
+          slides?: Json
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          slides?: Json
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       team_activity: {
         Row: {
           action: string
