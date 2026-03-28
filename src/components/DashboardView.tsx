@@ -8,6 +8,7 @@ import { useMarketIntel } from "@/hooks/useMarketIntel";
 import { useWorkspaceContext } from "@/hooks/useWorkspaceContext";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { NotificationBell } from "@/components/NotificationBell";
+import { Skeleton } from "@/components/ui/skeleton";
 import { motion } from "framer-motion";
 import {
   Users,
