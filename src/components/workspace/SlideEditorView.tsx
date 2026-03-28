@@ -1,10 +1,12 @@
 import { useState, useEffect, useRef } from "react";
-import { ArrowLeft, ChevronLeft, ChevronRight, MessageSquare, Edit3, Plus, Loader2, Sparkles, Download, Trash2, Send, FileText, FileSpreadsheet, ChevronDown } from "lucide-react";
+import { ArrowLeft, ChevronLeft, ChevronRight, MessageSquare, Edit3, Plus, Loader2, Sparkles, Download, Trash2, Send, FileText, FileSpreadsheet, ChevronDown, Save, FolderOpen } from "lucide-react";
 import { exportSlidesAsMarkdown, exportSlidesAsPPTX, exportSlidesAsPDF } from "@/lib/exportUtils";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { streamChat } from "@/lib/streamChat";
 import { useToast } from "@/hooks/use-toast";
+import { useSlideDecks } from "@/hooks/useSlideDecks";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface Slide {
   id: string;
