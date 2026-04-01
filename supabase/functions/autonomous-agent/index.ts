@@ -51,25 +51,35 @@ serve(async (req) => {
     if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) throw new Error("Supabase configuration missing");
 
     const authHeader = req.headers.get("authorization");
-    if (!authHeader) throw new Error("No authorization header");
+    if (!authHeader?.startsWith("Bearer ")) {
+      return new Response(JSON.stringify({ error: "Missing or invalid Authorization header" }), {
+        status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
 
     const supabaseAdmin = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
     const supabaseClient = createClient(SUPABASE_URL, Deno.env.get("SUPABASE_ANON_KEY")!, {
       global: { headers: { authorization: authHeader } },
     });
 
-    const { data: { user }, error: authError } = await supabaseClient.auth.getUser();
-    if (authError || !user) throw new Error("Unauthorized");
+    const token = authHeader.replace("Bearer ", "");
+    const { data: claimsData, error: claimsError } = await supabaseClient.auth.getClaims(token);
+    if (claimsError || !claimsData?.claims?.sub) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+    const userId = claimsData.claims.sub as string;
 
     // Gather workspace snapshot
     const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
 
     const [leadsRes, staleLeadsRes, workflowsRes, emailDraftsRes, profileRes] = await Promise.all([
-      supabaseAdmin.from("leads").select("id, name, company, title, email, status, updated_at, about").eq("user_id", user.id).order("updated_at", { ascending: false }).limit(20),
-      supabaseAdmin.from("leads").select("id, name, company, title, email, status, updated_at, about").eq("user_id", user.id).lt("updated_at", sevenDaysAgo).limit(10),
-      supabaseAdmin.from("workflows").select("id, name, is_deployed, nodes, updated_at").eq("user_id", user.id).limit(10),
-      supabaseAdmin.from("email_drafts").select("id, subject, lead_id, sent, created_at").eq("user_id", user.id).order("created_at", { ascending: false }).limit(10),
-      supabaseAdmin.from("profiles").select("display_name, company, role, product_goals").eq("id", user.id).single(),
+      supabaseAdmin.from("leads").select("id, name, company, title, email, status, updated_at, about").eq("user_id", userId).order("updated_at", { ascending: false }).limit(20),
+      supabaseAdmin.from("leads").select("id, name, company, title, email, status, updated_at, about").eq("user_id", userId).lt("updated_at", sevenDaysAgo).limit(10),
+      supabaseAdmin.from("workflows").select("id, name, is_deployed, nodes, updated_at").eq("user_id", userId).limit(10),
+      supabaseAdmin.from("email_drafts").select("id, subject, lead_id, sent, created_at").eq("user_id", userId).order("created_at", { ascending: false }).limit(10),
+      supabaseAdmin.from("profiles").select("display_name, company, role, product_goals").eq("id", userId).single(),
     ]);
 
     const leads = leadsRes.data || [];
@@ -196,7 +206,7 @@ serve(async (req) => {
         if (action.action_type === "draft_email" && action.email_subject && action.email_body) {
           // Create email draft in database
           const { data: draft } = await supabaseAdmin.from("email_drafts").insert({
-            user_id: user.id,
+            user_id: userId,
             subject: action.email_subject,
             body: action.email_body,
             lead_id: action.lead_id || null,
@@ -212,7 +222,7 @@ serve(async (req) => {
           await supabaseAdmin.from("leads")
             .update({ status: action.new_status, updated_at: new Date().toISOString() })
             .eq("id", action.lead_id)
-            .eq("user_id", user.id);
+            .eq("user_id", userId);
           metadata.lead_id = action.lead_id;
           metadata.new_status = action.new_status;
           metadata.lead_name = action.lead_name;
@@ -224,7 +234,7 @@ serve(async (req) => {
 
         // Log the action
         await supabaseAdmin.from("agent_actions").insert({
-          user_id: user.id,
+          user_id: userId,
           action_type: action.action_type,
           title: action.title,
           description: action.description,
@@ -245,7 +255,7 @@ serve(async (req) => {
 
     // Create a notification for the user
     await supabaseAdmin.from("notifications").insert({
-      user_id: user.id,
+      user_id: userId,
       type: "agent",
       title: "Agent completed a run",
       message: summary,

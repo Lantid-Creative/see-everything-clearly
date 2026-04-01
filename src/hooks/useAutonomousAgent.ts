@@ -109,18 +109,20 @@ export function useAutonomousAgent() {
     }
   }, [user, running]);
 
-  // Auto-run on mount if enabled and cooldown passed
+  // Auto-run ONCE on mount if enabled and cooldown passed
+  const autoRanRef = useState(false);
   useEffect(() => {
-    if (!user || !enabled || running || actions.length > 0) return;
+    if (!user || !enabled || running || autoRanRef[0]) return;
     const last = localStorage.getItem(`${AGENT_COOLDOWN_KEY}_${user.id}`);
     if (last) {
       const elapsed = Date.now() - new Date(last).getTime();
       if (elapsed < COOLDOWN_MS) return;
     }
-    // Small delay to not block initial render
-    const timer = setTimeout(() => runAgent(), 3000);
+    autoRanRef[1](true);
+    const timer = setTimeout(() => runAgent(), 5000);
     return () => clearTimeout(timer);
-  }, [user, enabled, running, actions.length, runAgent]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user, enabled]);
 
   const dismissAction = useCallback(async (actionId: string) => {
     await supabase
