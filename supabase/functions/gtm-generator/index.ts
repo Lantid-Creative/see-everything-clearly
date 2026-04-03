@@ -38,16 +38,34 @@ serve(async (req) => {
     const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
     if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) throw new Error("Supabase configuration missing");
 
-    const authHeader = req.headers.get("authorization");
-    if (!authHeader) throw new Error("No authorization header");
+    const authHeader = req.headers.get("Authorization") || req.headers.get("authorization");
+    if (!authHeader) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
 
     const supabaseAdmin = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
-    const supabaseClient = createClient(SUPABASE_URL, Deno.env.get("SUPABASE_ANON_KEY")!, {
-      global: { headers: { authorization: authHeader } },
+    const token = authHeader.replace(/^Bearer\s+/i, "");
+
+    // Resilient auth: try getClaims first, fall back to getUser
+    const supabaseAuth = createClient(SUPABASE_URL, Deno.env.get("SUPABASE_ANON_KEY")!, {
+      global: { headers: { Authorization: `Bearer ${token}` } },
     });
 
-    const { data: { user }, error: authError } = await supabaseClient.auth.getUser();
-    if (authError || !user) throw new Error("Unauthorized");
+    let userId: string;
+    const { data: claimsData } = await supabaseAuth.auth.getClaims(token);
+    if (claimsData?.claims?.sub) {
+      userId = claimsData.claims.sub as string;
+    } else {
+      const { data: userData, error: userError } = await supabaseAdmin.auth.getUser(token);
+      if (userError || !userData?.user) {
+        return new Response(JSON.stringify({ error: "Unauthorized" }), {
+          status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      userId = userData.user.id;
+    }
 
     const { prompt } = await req.json();
     if (!prompt || typeof prompt !== "string") throw new Error("Missing prompt");
