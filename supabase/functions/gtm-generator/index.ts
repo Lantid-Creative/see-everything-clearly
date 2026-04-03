@@ -74,7 +74,7 @@ serve(async (req) => {
     const { data: profile } = await supabaseAdmin
       .from("profiles")
       .select("display_name, company, role, product_goals")
-      .eq("id", user.id)
+      .eq("id", userId)
       .single();
 
     let userContext = `Product/Feature Description: ${prompt}`;
@@ -233,7 +233,7 @@ serve(async (req) => {
 
     // 1. Create leads
     const leadInserts = plan.leads.map((l: any) => ({
-      user_id: user.id,
+      user_id: userId,
       name: l.name,
       title: l.title,
       company: l.company,
@@ -252,7 +252,7 @@ serve(async (req) => {
     // 2. Create email drafts linked to leads
     const leadMap = new Map((createdLeads || []).map((l: any) => [l.name, l.id]));
     const emailInserts = plan.emails.map((e: any) => ({
-      user_id: user.id,
+      user_id: userId,
       subject: e.subject,
       body: e.body,
       lead_id: leadMap.get(e.lead_name) || null,
@@ -277,7 +277,7 @@ serve(async (req) => {
     const { data: createdWorkflow } = await supabaseAdmin
       .from("workflows")
       .insert({
-        user_id: user.id,
+        user_id: userId,
         name: plan.workflow.name,
         nodes: workflowNodes,
         is_deployed: false,
@@ -288,7 +288,7 @@ serve(async (req) => {
 
     // 4. Log agent action
     await supabaseAdmin.from("agent_actions").insert({
-      user_id: user.id,
+      user_id: userId,
       action_type: "gtm_generation",
       title: `GTM Plan: ${plan.prd.title}`,
       description: `Generated PRD, ${results.leadsCreated} leads, ${results.emailsCreated} emails, 5 slides, and 1 workflow`,
@@ -298,7 +298,7 @@ serve(async (req) => {
 
     // 5. Notification
     await supabaseAdmin.from("notifications").insert({
-      user_id: user.id,
+      user_id: userId,
       type: "gtm",
       title: "GTM Plan generated",
       message: `"${plan.prd.title}" — ${results.leadsCreated} leads, ${results.emailsCreated} emails, workflow ready`,

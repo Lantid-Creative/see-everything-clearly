@@ -192,7 +192,7 @@ serve(async (req) => {
     const context: Record<string, string> = {};
 
     for (const node of nodes) {
-      const result = await executeNode(node, context, supabaseAdmin, user.id, LOVABLE_API_KEY);
+      const result = await executeNode(node, context, supabaseAdmin, userId, LOVABLE_API_KEY);
       results.push(result);
       if (result.status === "error") break;
     }
