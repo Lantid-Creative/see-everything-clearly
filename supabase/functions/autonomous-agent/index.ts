@@ -8,6 +8,7 @@ const corsHeaders = {
 
 const AI_GATEWAY_URL = "https://ai.gateway.lovable.dev/v1/chat/completions";
 const MODEL = "google/gemini-3-flash-preview";
+const JSON_HEADERS = { ...corsHeaders, "Content-Type": "application/json" };
 
 const SYSTEM_PROMPT = `You are the Autonomous Agent for Lantid, a Product Management platform. You analyze workspace data and TAKE PROACTIVE ACTIONS to help the user without being asked.
 
@@ -48,28 +49,46 @@ serve(async (req) => {
 
     const SUPABASE_URL = Deno.env.get("SUPABASE_URL");
     const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
-    if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) throw new Error("Supabase configuration missing");
+    const SUPABASE_PUBLISHABLE_KEY = Deno.env.get("SUPABASE_PUBLISHABLE_KEY") ?? Deno.env.get("SUPABASE_ANON_KEY");
+    if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY || !SUPABASE_PUBLISHABLE_KEY) throw new Error("Supabase configuration missing");
 
-    const authHeader = req.headers.get("authorization");
+    const authHeader = req.headers.get("Authorization") ?? req.headers.get("authorization");
     if (!authHeader?.startsWith("Bearer ")) {
       return new Response(JSON.stringify({ error: "Missing or invalid Authorization header" }), {
-        status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 401, headers: JSON_HEADERS,
       });
     }
 
     const supabaseAdmin = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
-    const supabaseClient = createClient(SUPABASE_URL, Deno.env.get("SUPABASE_ANON_KEY")!, {
-      global: { headers: { authorization: authHeader } },
+    const supabaseAuth = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
+      global: { headers: { Authorization: authHeader } },
     });
 
-    const token = authHeader.replace("Bearer ", "");
-    const { data: claimsData, error: claimsError } = await supabaseClient.auth.getClaims(token);
-    if (claimsError || !claimsData?.claims?.sub) {
-      return new Response(JSON.stringify({ error: "Unauthorized" }), {
-        status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
+    const token = authHeader.replace(/^Bearer\s+/i, "").trim();
+    let userId: string | null = null;
+
+    const { data: claimsData, error: claimsError } = await supabaseAuth.auth.getClaims(token);
+    if (claimsData?.claims?.sub) {
+      userId = claimsData.claims.sub as string;
+    } else {
+      if (claimsError) {
+        console.warn("autonomous-agent getClaims failed, falling back to getUser:", claimsError.message);
+      }
+
+      const { data: userData, error: userError } = await supabaseAdmin.auth.getUser(token);
+      if (userError || !userData.user?.id) {
+        console.error("autonomous-agent auth failed", {
+          claimsError: claimsError?.message ?? null,
+          userError: userError?.message ?? null,
+        });
+
+        return new Response(JSON.stringify({ error: "Unauthorized" }), {
+          status: 401, headers: JSON_HEADERS,
+        });
+      }
+
+      userId = userData.user.id;
     }
-    const userId = claimsData.claims.sub as string;
 
     // Gather workspace snapshot
     const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
@@ -182,7 +201,7 @@ serve(async (req) => {
     if (!aiResponse.ok) {
       if (aiResponse.status === 429) {
         return new Response(JSON.stringify({ error: "Rate limit exceeded. Try again shortly." }), {
-          status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" },
+          status: 429, headers: JSON_HEADERS,
         });
       }
       const errText = await aiResponse.text();
@@ -267,12 +286,12 @@ serve(async (req) => {
       actions: executedActions,
       actionsCount: executedActions.filter(a => a.executed).length,
     }), {
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
+      headers: JSON_HEADERS,
     });
   } catch (e) {
     console.error("autonomous-agent error:", e);
     return new Response(JSON.stringify({ error: e instanceof Error ? e.message : "Unknown error" }), {
-      status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      status: 500, headers: JSON_HEADERS,
     });
   }
 });
