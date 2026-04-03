@@ -38,16 +38,34 @@ serve(async (req) => {
     const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
     if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) throw new Error("Supabase configuration missing");
 
-    const authHeader = req.headers.get("authorization");
-    if (!authHeader) throw new Error("No authorization header");
+    const authHeader = req.headers.get("Authorization") || req.headers.get("authorization");
+    if (!authHeader) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
 
     const supabaseAdmin = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
-    const supabaseClient = createClient(SUPABASE_URL, Deno.env.get("SUPABASE_ANON_KEY")!, {
-      global: { headers: { authorization: authHeader } },
+    const token = authHeader.replace(/^Bearer\s+/i, "");
+
+    // Resilient auth: try getClaims first, fall back to getUser
+    const supabaseAuth = createClient(SUPABASE_URL, Deno.env.get("SUPABASE_ANON_KEY")!, {
+      global: { headers: { Authorization: `Bearer ${token}` } },
     });
 
-    const { data: { user }, error: authError } = await supabaseClient.auth.getUser();
-    if (authError || !user) throw new Error("Unauthorized");
+    let userId: string;
+    const { data: claimsData } = await supabaseAuth.auth.getClaims(token);
+    if (claimsData?.claims?.sub) {
+      userId = claimsData.claims.sub as string;
+    } else {
+      const { data: userData, error: userError } = await supabaseAdmin.auth.getUser(token);
+      if (userError || !userData?.user) {
+        return new Response(JSON.stringify({ error: "Unauthorized" }), {
+          status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      userId = userData.user.id;
+    }
 
     const { prompt } = await req.json();
     if (!prompt || typeof prompt !== "string") throw new Error("Missing prompt");
@@ -56,7 +74,7 @@ serve(async (req) => {
     const { data: profile } = await supabaseAdmin
       .from("profiles")
       .select("display_name, company, role, product_goals")
-      .eq("id", user.id)
+      .eq("id", userId)
       .single();
 
     let userContext = `Product/Feature Description: ${prompt}`;
@@ -215,7 +233,7 @@ serve(async (req) => {
 
     // 1. Create leads
     const leadInserts = plan.leads.map((l: any) => ({
-      user_id: user.id,
+      user_id: userId,
       name: l.name,
       title: l.title,
       company: l.company,
@@ -234,7 +252,7 @@ serve(async (req) => {
     // 2. Create email drafts linked to leads
     const leadMap = new Map((createdLeads || []).map((l: any) => [l.name, l.id]));
     const emailInserts = plan.emails.map((e: any) => ({
-      user_id: user.id,
+      user_id: userId,
       subject: e.subject,
       body: e.body,
       lead_id: leadMap.get(e.lead_name) || null,
@@ -259,7 +277,7 @@ serve(async (req) => {
     const { data: createdWorkflow } = await supabaseAdmin
       .from("workflows")
       .insert({
-        user_id: user.id,
+        user_id: userId,
         name: plan.workflow.name,
         nodes: workflowNodes,
         is_deployed: false,
@@ -270,7 +288,7 @@ serve(async (req) => {
 
     // 4. Log agent action
     await supabaseAdmin.from("agent_actions").insert({
-      user_id: user.id,
+      user_id: userId,
       action_type: "gtm_generation",
       title: `GTM Plan: ${plan.prd.title}`,
       description: `Generated PRD, ${results.leadsCreated} leads, ${results.emailsCreated} emails, 5 slides, and 1 workflow`,
@@ -280,7 +298,7 @@ serve(async (req) => {
 
     // 5. Notification
     await supabaseAdmin.from("notifications").insert({
-      user_id: user.id,
+      user_id: userId,
       type: "gtm",
       title: "GTM Plan generated",
       message: `"${plan.prd.title}" — ${results.leadsCreated} leads, ${results.emailsCreated} emails, workflow ready`,
