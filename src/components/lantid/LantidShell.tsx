@@ -15,6 +15,10 @@ import type { ViewMode } from "@/pages/Index";
 import { useUserProfile } from "@/hooks/useUserProfile";
 import { useWorkspaceContext } from "@/hooks/useWorkspaceContext";
 import { useProductPhase, type ProductPhase } from "@/hooks/useProductPhase";
+import { useProducts, type Product } from "@/hooks/useProducts";
+import { useNotifications } from "@/hooks/useNotifications";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { formatDistanceToNow } from "date-fns";
 
 // ============ DESIGN TOKENS ============
 const C = {
