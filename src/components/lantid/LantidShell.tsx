@@ -88,14 +88,19 @@ const PHASES: { key: ProductPhase; label: string; num: string }[] = [
 
 // ============ SIDEBAR ============
 function Sidebar({
-  view, setView, productName, userName, userRole,
+  view, setView, products, activeProduct, onSelectProduct, onCreateProduct,
+  userName, userRole,
 }: {
   view: NavKey;
   setView: (v: NavKey) => void;
-  productName: string;
+  products: Product[];
+  activeProduct: Product | null;
+  onSelectProduct: (id: string) => void;
+  onCreateProduct: (name: string) => Promise<void> | void;
   userName: string;
   userRole: string;
 }) {
+  const productName = activeProduct?.name || "Workspace";
   return (
     <aside
       className="fixed left-0 top-0 bottom-0 w-[248px] border-r flex flex-col z-20"
@@ -122,26 +127,72 @@ function Sidebar({
 
       {/* Workspace switcher */}
       <div className="px-3 mb-4">
-        <button
-          className="w-full flex items-center justify-between px-3 py-2 rounded-md border hover-lift"
-          style={{ borderColor: C.border, background: C.surface }}
-        >
-          <div className="flex items-center gap-2.5 min-w-0">
-            <div
-              className="w-5 h-5 rounded flex items-center justify-center shrink-0"
-              style={{ background: "#1F2A14", color: C.signal }}
+        <Popover>
+          <PopoverTrigger asChild>
+            <button
+              className="w-full flex items-center justify-between px-3 py-2 rounded-md border hover-lift"
+              style={{ borderColor: C.border, background: C.surface }}
             >
-              <span className="font-mono text-[10px] font-semibold">
-                {productName.slice(0, 2).toUpperCase()}
-              </span>
+              <div className="flex items-center gap-2.5 min-w-0">
+                <div
+                  className="w-5 h-5 rounded flex items-center justify-center shrink-0"
+                  style={{ background: "#1F2A14", color: C.signal }}
+                >
+                  <span className="font-mono text-[10px] font-semibold">
+                    {productName.slice(0, 2).toUpperCase()}
+                  </span>
+                </div>
+                <div className="min-w-0 text-left">
+                  <div className="text-xs font-medium truncate" style={{ color: C.text }}>{productName}</div>
+                  <div className="font-mono text-[9px] truncate" style={{ color: C.textMute }}>
+                    {products.length} {products.length === 1 ? "product" : "products"}
+                  </div>
+                </div>
+              </div>
+              <ChevronDown size={13} style={{ color: C.textMute }} />
+            </button>
+          </PopoverTrigger>
+          <PopoverContent
+            align="start"
+            sideOffset={6}
+            className="w-[248px] p-1 border"
+            style={{ background: C.bgElev, borderColor: C.border }}
+          >
+            <div className="font-mono text-[10px] uppercase tracking-widest px-2 py-1.5" style={{ color: C.textMute }}>
+              Switch product
             </div>
-            <div className="min-w-0 text-left">
-              <div className="text-xs font-medium truncate" style={{ color: C.text }}>{productName}</div>
-              <div className="font-mono text-[9px] truncate" style={{ color: C.textMute }}>Pro · workspace</div>
+            <div className="max-h-64 overflow-y-auto">
+              {products.map(p => (
+                <button
+                  key={p.id}
+                  onClick={() => onSelectProduct(p.id)}
+                  className="w-full flex items-center gap-2 px-2 py-1.5 rounded hover-lift text-left"
+                  style={{ color: p.id === activeProduct?.id ? C.signal : C.text }}
+                >
+                  <div
+                    className="w-5 h-5 rounded flex items-center justify-center shrink-0"
+                    style={{ background: "#1F2A14", color: C.signal }}
+                  >
+                    <span className="font-mono text-[9px] font-semibold">{p.name.slice(0, 2).toUpperCase()}</span>
+                  </div>
+                  <span className="text-[12px] truncate">{p.name}</span>
+                </button>
+              ))}
             </div>
-          </div>
-          <ChevronDown size={13} style={{ color: C.textMute }} />
-        </button>
+            <div className="border-t mt-1 pt-1" style={{ borderColor: C.border }}>
+              <button
+                onClick={async () => {
+                  const name = window.prompt("New product name");
+                  if (name?.trim()) await onCreateProduct(name.trim());
+                }}
+                className="w-full flex items-center gap-2 px-2 py-1.5 rounded hover-lift text-[12px]"
+                style={{ color: C.textDim }}
+              >
+                <Plus size={12} /> New product
+              </button>
+            </div>
+          </PopoverContent>
+        </Popover>
       </div>
 
       {/* Nav */}
