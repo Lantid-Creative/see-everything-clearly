@@ -806,35 +806,50 @@ function HomeView({
             </button>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-            {workflowsList.map((w, i) => (
-              <div key={i} className="p-4 rounded-lg border hover-lift" style={{ borderColor: C.border, background: C.surface }}>
-                <div className="flex items-start justify-between mb-3">
-                  <div className="flex items-center gap-2">
-                    <StatusDot color={w.status === "running" ? C.signal : C.amber} />
-                    <span className="text-[13px] font-medium" style={{ color: C.text }}>{w.name}</span>
-                  </div>
-                  <button className="p-1 rounded hover-lift">
-                    {w.status === "running"
-                      ? <Pause size={11} style={{ color: C.textMute }} />
-                      : <Play size={11} style={{ color: C.textMute }} />}
-                  </button>
-                </div>
-                <div className="grid grid-cols-3 gap-2">
-                  <div>
-                    <div className="font-mono text-[9px] uppercase tracking-wider mb-0.5" style={{ color: C.textMute }}>Runs</div>
-                    <div className="font-mono text-[13px]" style={{ color: C.text }}>{w.runs}</div>
-                  </div>
-                  <div>
-                    <div className="font-mono text-[9px] uppercase tracking-wider mb-0.5" style={{ color: C.textMute }}>Success</div>
-                    <div className="font-mono text-[13px]" style={{ color: C.signal }}>{w.success}%</div>
-                  </div>
-                  <div>
-                    <div className="font-mono text-[9px] uppercase tracking-wider mb-0.5" style={{ color: C.textMute }}>Next</div>
-                    <div className="font-mono text-[13px]" style={{ color: C.text }}>{w.next}</div>
-                  </div>
-                </div>
+            {workflows.length === 0 && (
+              <div className="md:col-span-2 p-6 text-center rounded-lg border" style={{ borderColor: C.border, background: C.surface }}>
+                <div className="text-[13px] mb-2" style={{ color: C.textDim }}>No workflows yet.</div>
+                <button
+                  onClick={() => onNavigate("workflows")}
+                  className="text-[12px] px-3 py-1.5 rounded-md hover-lift inline-flex items-center gap-1.5"
+                  style={{ color: C.signal }}
+                >
+                  <Plus size={11} /> Build your first workflow
+                </button>
               </div>
-            ))}
+            )}
+            {workflows.slice(0, 4).map((w) => {
+              const updated = (() => {
+                try { return formatDistanceToNow(new Date(w.updated_at), { addSuffix: true }); }
+                catch { return ""; }
+              })();
+              return (
+                <div key={w.id} onClick={() => onNavigate("workflows")}
+                  className="p-4 rounded-lg border hover-lift cursor-pointer" style={{ borderColor: C.border, background: C.surface }}>
+                  <div className="flex items-start justify-between mb-3">
+                    <div className="flex items-center gap-2">
+                      <StatusDot color={w.is_deployed ? C.signal : C.amber} />
+                      <span className="text-[13px] font-medium" style={{ color: C.text }}>{w.name}</span>
+                    </div>
+                    {w.is_deployed
+                      ? <Play size={11} style={{ color: C.signal }} />
+                      : <Pause size={11} style={{ color: C.textMute }} />}
+                  </div>
+                  <div className="grid grid-cols-2 gap-2">
+                    <div>
+                      <div className="font-mono text-[9px] uppercase tracking-wider mb-0.5" style={{ color: C.textMute }}>Status</div>
+                      <div className="font-mono text-[13px]" style={{ color: w.is_deployed ? C.signal : C.amber }}>
+                        {w.is_deployed ? "Live" : "Draft"}
+                      </div>
+                    </div>
+                    <div>
+                      <div className="font-mono text-[9px] uppercase tracking-wider mb-0.5" style={{ color: C.textMute }}>Updated</div>
+                      <div className="font-mono text-[12px]" style={{ color: C.text }}>{updated}</div>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
           </div>
         </div>
 
