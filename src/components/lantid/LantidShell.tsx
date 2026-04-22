@@ -475,6 +475,132 @@ const signalSparkData = [
   { d: "F", v: 31 }, { d: "S", v: 27 }, { d: "S", v: 34 },
 ];
 
+// ============ DISCOVERY VIEW ============
+interface DiscoverySignal {
+  id: string;
+  kind: "lead" | "conversation";
+  title: string;
+  subtitle: string;
+  meta: string;
+  created_at: string;
+}
+
+function DiscoveryView({
+  conversations, activeConversationId, onSelectConversation, onNewChat, chatNode,
+}: {
+  conversations: { id: string; title: string; createdAt: Date; messages: { role: string }[] }[];
+  activeConversationId: string;
+  onSelectConversation: (id: string) => void;
+  onNewChat: () => void;
+  chatNode: ReactNode;
+}) {
+  const { user } = useAuth();
+  const [leads, setLeads] = useState<{ id: string; name: string; company: string; title: string; created_at: string }[]>([]);
+
+  useEffect(() => {
+    if (!user) return;
+    let cancelled = false;
+    (async () => {
+      const { data } = await supabase
+        .from("leads")
+        .select("id, name, company, title, created_at")
+        .eq("user_id", user.id)
+        .order("created_at", { ascending: false })
+        .limit(15);
+      if (!cancelled) setLeads(data ?? []);
+    })();
+    return () => { cancelled = true; };
+  }, [user]);
+
+  const signals: DiscoverySignal[] = [
+    ...leads.map((l) => ({
+      id: `lead-${l.id}`,
+      kind: "lead" as const,
+      title: l.name || "Unnamed lead",
+      subtitle: [l.title, l.company].filter(Boolean).join(" · ") || "—",
+      meta: (() => { try { return formatDistanceToNow(new Date(l.created_at), { addSuffix: true }); } catch { return ""; } })(),
+      created_at: l.created_at,
+    })),
+    ...conversations.slice(0, 10).map((c) => ({
+      id: `conv-${c.id}`,
+      kind: "conversation" as const,
+      title: c.title || "Untitled discovery",
+      subtitle: `${c.messages.length} messages`,
+      meta: (() => { try { return formatDistanceToNow(c.createdAt, { addSuffix: true }); } catch { return ""; } })(),
+      created_at: c.createdAt.toISOString(),
+    })),
+  ].sort((a, b) => b.created_at.localeCompare(a.created_at)).slice(0, 25);
+
+  return (
+    <div className="grid grid-cols-12 gap-0 h-[calc(100vh-56px-49px)]">
+      <aside className="col-span-12 md:col-span-4 lg:col-span-3 border-r overflow-y-auto" style={{ borderColor: C.border, background: C.bgElev }}>
+        <div className="px-4 py-3 border-b sticky top-0 z-10" style={{ borderColor: C.border, background: C.bgElev }}>
+          <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center gap-2">
+              <Inbox size={14} style={{ color: C.signal }} />
+              <h2 className="font-mono text-[11px] uppercase tracking-[0.16em]" style={{ color: C.text }}>Signal inbox</h2>
+            </div>
+            <button onClick={onNewChat} className="p-1 rounded hover-lift" title="New discovery chat">
+              <Plus size={14} style={{ color: C.textDim }} />
+            </button>
+          </div>
+          <div className="text-[11px]" style={{ color: C.textMute }}>
+            {signals.length} signals · leads + conversations
+          </div>
+        </div>
+
+        {signals.length === 0 && (
+          <div className="p-6 text-center">
+            <div className="text-[12px] mb-3" style={{ color: C.textDim }}>
+              No signals yet. Start a discovery chat or add leads.
+            </div>
+            <button onClick={onNewChat}
+              className="text-[12px] px-3 py-1.5 rounded-md border hover-lift inline-flex items-center gap-1.5"
+              style={{ borderColor: C.border, color: C.text }}>
+              <Sparkles size={11} /> Start discovery
+            </button>
+          </div>
+        )}
+
+        <div>
+          {signals.map((s) => {
+            const isActive = s.kind === "conversation" && s.id === `conv-${activeConversationId}`;
+            return (
+              <button
+                key={s.id}
+                onClick={() => {
+                  if (s.kind === "conversation") onSelectConversation(s.id.replace("conv-", ""));
+                }}
+                className="w-full text-left px-4 py-3 border-b hover:bg-white/[0.02] transition"
+                style={{ borderColor: C.border, background: isActive ? C.surface : "transparent" }}
+              >
+                <div className="flex items-center justify-between mb-1">
+                  <span
+                    className="font-mono text-[9px] uppercase tracking-wider px-1.5 py-0.5 rounded"
+                    style={{
+                      background: s.kind === "lead" ? "#1F2A14" : "#14242A",
+                      color: s.kind === "lead" ? C.signal : C.sky,
+                    }}
+                  >
+                    {s.kind}
+                  </span>
+                  <span className="font-mono text-[10px]" style={{ color: C.textMute }}>{s.meta}</span>
+                </div>
+                <div className="text-[13px] font-medium truncate" style={{ color: C.text }}>{s.title}</div>
+                <div className="text-[11px] truncate mt-0.5" style={{ color: C.textDim }}>{s.subtitle}</div>
+              </button>
+            );
+          })}
+        </div>
+      </aside>
+
+      <section className="col-span-12 md:col-span-8 lg:col-span-9 bg-background text-foreground overflow-hidden">
+        {chatNode}
+      </section>
+    </div>
+  );
+}
+
 // ============ HOME VIEW ============
 interface LiveWorkflow { id: string; name: string; is_deployed: boolean; updated_at: string }
 
@@ -1069,6 +1195,10 @@ export interface LantidShellProps {
   productName: string;
   currentPhase: ProductPhase | null;
   onSetPhase: (p: ProductPhase | null) => void;
+  // Discovery wiring
+  conversations: { id: string; title: string; createdAt: Date; messages: { role: string }[] }[];
+  activeConversationId: string;
+  onSelectConversation: (id: string) => void;
   // External-rendered views injected into the shell
   renderChat: () => ReactNode;
   renderWorkflow: () => ReactNode;
@@ -1146,12 +1276,8 @@ export function LantidShell(props: LantidShellProps) {
 
   const effectivePhase = props.currentPhase ?? phaseData?.currentPhase ?? "discover";
 
-  // Map nav clicks: most are internal; "discover" opens chat
+  // Map nav clicks: switch view; chat is created via the "New signal" button
   const handleNav = (k: NavKey) => {
-    if (k === "discover") {
-      props.onNewChat();
-      // chat will render inside shell via view state
-    }
     setView(k);
   };
 
@@ -1167,9 +1293,13 @@ export function LantidShell(props: LantidShellProps) {
         );
       case "discover":
         return (
-          <EmbedFrame title="Discovery · AI chat">
-            {props.renderChat()}
-          </EmbedFrame>
+          <DiscoveryView
+            conversations={props.conversations}
+            activeConversationId={props.activeConversationId}
+            onSelectConversation={props.onSelectConversation}
+            onNewChat={props.onNewChat}
+            chatNode={props.renderChat()}
+          />
         );
       case "workflows":
         return (
