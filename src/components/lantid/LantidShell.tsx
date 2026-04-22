@@ -93,14 +93,17 @@ function Sidebar({
 }: {
   view: NavKey;
   setView: (v: NavKey) => void;
-  products: Product[];
-  activeProduct: Product | null;
+  products?: Product[];
+  activeProduct?: Product | null;
   onSelectProduct: (id: string) => void;
   onCreateProduct: (name: string) => Promise<void> | void;
-  userName: string;
-  userRole: string;
+  userName?: string;
+  userRole?: string;
 }) {
+  const productList = products ?? [];
   const productName = activeProduct?.name || "Workspace";
+  const safeUserName = userName || "User";
+  const safeUserRole = userRole || "Member";
   return (
     <aside
       className="fixed left-0 top-0 bottom-0 w-[248px] border-r flex flex-col z-20"
@@ -145,7 +148,7 @@ function Sidebar({
                 <div className="min-w-0 text-left">
                   <div className="text-xs font-medium truncate" style={{ color: C.text }}>{productName}</div>
                   <div className="font-mono text-[9px] truncate" style={{ color: C.textMute }}>
-                    {products.length} {products.length === 1 ? "product" : "products"}
+                    {productList.length} {productList.length === 1 ? "product" : "products"}
                   </div>
                 </div>
               </div>
@@ -162,7 +165,7 @@ function Sidebar({
               Switch product
             </div>
             <div className="max-h-64 overflow-y-auto">
-              {products.map(p => (
+              {productList.map(p => (
                 <button
                   key={p.id}
                   onClick={() => onSelectProduct(p.id)}
@@ -289,11 +292,11 @@ function Sidebar({
             className="w-7 h-7 rounded-full flex items-center justify-center font-display text-sm"
             style={{ background: "linear-gradient(135deg, #D1FF3F, #8FB52E)", color: "#0A0A0B" }}
           >
-            {userName.charAt(0).toUpperCase()}
+            {safeUserName.charAt(0).toUpperCase()}
           </div>
           <div className="flex-1 min-w-0 text-left">
-            <div className="text-[13px] font-medium truncate" style={{ color: C.text }}>{userName}</div>
-            <div className="font-mono text-[10px] truncate" style={{ color: C.textMute }}>{userRole}</div>
+            <div className="text-[13px] font-medium truncate" style={{ color: C.text }}>{safeUserName}</div>
+            <div className="font-mono text-[10px] truncate" style={{ color: C.textMute }}>{safeUserRole}</div>
           </div>
           <Settings size={13} style={{ color: C.textMute }} />
         </button>
@@ -552,7 +555,7 @@ function HomeView({
             </span>
           </div>
           <h1 className="font-display text-5xl leading-[1.05]" style={{ color: C.text }}>
-            {greeting}, {userName.split(" ")[0]}.{" "}
+            {greeting}, {(userName || "there").split(" ")[0]}.{" "}
             <em className="italic" style={{ color: C.signal }}>
               {opportunities} new signals
             </em>{" "}
