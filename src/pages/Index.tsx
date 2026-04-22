@@ -8,6 +8,7 @@ import { SettingsView } from "@/components/SettingsView";
 import { WorkflowBuilderView } from "@/components/workspace/WorkflowBuilderView";
 import { SpreadsheetView } from "@/components/workspace/SpreadsheetView";
 import { TeamPanel } from "@/components/team/TeamPanel";
+import { SidebarProvider } from "@/components/ui/sidebar";
 import { useConversations } from "@/hooks/useConversations";
 import { GettingStartedTour } from "@/components/GettingStartedTour";
 import { OnboardingChecklist } from "@/components/OnboardingChecklist";
@@ -116,17 +117,34 @@ const Index = () => {
 
   // Standalone full-screen routes (escape the shell)
   if (viewMode === "workspace") {
-    return <WorkspaceView onBack={() => setViewMode("dashboard")} />;
+    return (
+      <SidebarProvider>
+        <WorkspaceView onBack={() => setViewMode("dashboard")} />
+      </SidebarProvider>
+    );
   }
   if (viewMode === "integrations") {
-    return <IntegrationsView onBack={() => setViewMode("dashboard")} />;
+    return (
+      <SidebarProvider>
+        <IntegrationsView onBack={() => setViewMode("dashboard")} />
+      </SidebarProvider>
+    );
   }
   if (viewMode === "gtm") {
-    return <GTMGeneratorView onNavigate={setViewMode} />;
+    return (
+      <SidebarProvider>
+        <GTMGeneratorView onNavigate={setViewMode} />
+      </SidebarProvider>
+    );
   }
 
   return (
-    <>
+    <SidebarProvider>
+      <></>
+      </SidebarProvider>
+  ) && (
+    <SidebarProvider><div style={{display:"contents"}}></div></SidebarProvider>
+  ) as never;
       <CommandPalette open={commandOpen} onOpenChange={setCommandOpen} onNavigate={setViewMode} onNewChat={handleNewChat} />
       <WelcomeModal />
       <GettingStartedTour onNavigate={setViewMode} />
