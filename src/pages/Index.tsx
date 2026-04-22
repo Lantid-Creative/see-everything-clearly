@@ -1,7 +1,6 @@
 import { useState, useCallback } from "react";
 import { IntegrationsView } from "@/components/IntegrationsView";
 import { WelcomeModal } from "@/components/WelcomeModal";
-import { AppSidebar } from "@/components/AppSidebar";
 import { ChatView } from "@/components/ChatView";
 import { WorkspaceView } from "@/components/WorkspaceView";
 import { SlideEditorView } from "@/components/workspace/SlideEditorView";
@@ -9,27 +8,27 @@ import { SettingsView } from "@/components/SettingsView";
 import { WorkflowBuilderView } from "@/components/workspace/WorkflowBuilderView";
 import { SpreadsheetView } from "@/components/workspace/SpreadsheetView";
 import { TeamPanel } from "@/components/team/TeamPanel";
-import { SidebarProvider } from "@/components/ui/sidebar";
 import { useConversations } from "@/hooks/useConversations";
 import { GettingStartedTour } from "@/components/GettingStartedTour";
 import { OnboardingChecklist } from "@/components/OnboardingChecklist";
-import { DashboardView } from "@/components/DashboardView";
 import { CommandCenterView } from "@/components/CommandCenterView";
-import { NerveCenterView } from "@/components/NerveCenterView";
 import { GTMGeneratorView } from "@/components/GTMGeneratorView";
 import { CommandPalette } from "@/components/CommandPalette";
 import { useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
-import { useWorkspaceContext } from "@/hooks/useWorkspaceContext";
 import { useUserProfile } from "@/hooks/useUserProfile";
 import { useProductPhase, PHASE_GUIDES, type ProductPhase } from "@/hooks/useProductPhase";
+import { useWorkspaceContext } from "@/hooks/useWorkspaceContext";
 import { useProducts } from "@/hooks/useProducts";
 import { useToast } from "@/hooks/use-toast";
+import { LantidShell } from "@/components/lantid/LantidShell";
 
-export type ViewMode = "dashboard" | "chat" | "workspace" | "slides" | "workflow" | "spreadsheet" | "team" | "settings" | "integrations" | "command-center" | "nerve-center" | "gtm";
+export type ViewMode =
+  | "dashboard" | "chat" | "workspace" | "slides" | "workflow"
+  | "spreadsheet" | "team" | "settings" | "integrations"
+  | "command-center" | "nerve-center" | "gtm";
 
 const Index = () => {
   const [viewMode, setViewMode] = useState<ViewMode>("dashboard");
-  const [searchFocusTrigger, setSearchFocusTrigger] = useState(0);
   const [pendingTemplateId, setPendingTemplateId] = useState<string | null>(null);
   const [commandOpen, setCommandOpen] = useState(false);
   const {
@@ -49,11 +48,8 @@ const Index = () => {
   const workspaceContext = useWorkspaceContext();
   const profile = useUserProfile();
   const {
-    products,
     activeProduct,
     activeProductId,
-    setActiveProductId,
-    createProduct,
     setPhaseOverride,
   } = useProducts();
 
@@ -67,11 +63,10 @@ const Index = () => {
           teamMembers: workspaceContext.teamMembers,
           profile,
         }
-      : null
+      : null,
   );
 
-  // If the active product has a manual phase override, use it; otherwise auto-detect
-  const effectivePhase = activeProduct?.current_phase || phaseData?.currentPhase || null;
+  const effectivePhase = (activeProduct?.current_phase as ProductPhase | undefined) || phaseData?.currentPhase || null;
 
   const [pendingPrompt, setPendingPrompt] = useState<string | null>(null);
   const [pendingSlideContent, setPendingSlideContent] = useState<string | null>(null);
@@ -92,7 +87,6 @@ const Index = () => {
         title: `${guide.emoji} Switched to ${guide.label}`,
         description: guide.tagline,
       });
-      // Start a fresh conversation for the new phase
       createConversation();
     } else {
       toast({
@@ -101,11 +95,6 @@ const Index = () => {
       });
     }
   }, [setPhaseOverride, createConversation, toast]);
-
-  const handleSelectTemplate = useCallback((templateId: string) => {
-    setPendingTemplateId(templateId);
-    setViewMode("chat");
-  }, []);
 
   const handleToggleSearch = useCallback(() => {
     setCommandOpen((prev) => !prev);
@@ -119,45 +108,43 @@ const Index = () => {
 
   if (!loaded) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <div className="text-muted-foreground text-sm">Loading conversations...</div>
+      <div className="min-h-screen flex items-center justify-center" style={{ background: "#0A0A0B", color: "#A8A8B0" }}>
+        <div className="text-sm">Loading workspace…</div>
       </div>
     );
   }
 
-  const renderView = () => {
-    switch (viewMode) {
-      case "dashboard":
-      case "nerve-center":
-        return <NerveCenterView onNavigate={setViewMode} onNewChat={handleNewChat} />;
-      case "command-center":
-        return <CommandCenterView activeProductId={activeProductId} activeProductName={activeProduct?.name} currentPhase={effectivePhase} onNavigate={setViewMode} />;
-      case "workspace":
-        return <WorkspaceView onBack={() => setViewMode("dashboard")} />;
-      case "slides":
-        return <SlideEditorView onBack={() => setViewMode("dashboard")} initialContent={pendingSlideContent} onContentConsumed={() => setPendingSlideContent(null)} />;
-      case "workflow":
-        return <WorkflowBuilderView onBack={() => setViewMode("dashboard")} />;
-      case "spreadsheet":
-        return <SpreadsheetView onBack={() => setViewMode("dashboard")} />;
-      case "team":
-        return <TeamPanel onBack={() => setViewMode("dashboard")} />;
-      case "gtm":
-        return <GTMGeneratorView onNavigate={setViewMode} />;
-      case "settings":
-        return <SettingsView onBack={() => setViewMode("dashboard")} />;
-      case "integrations":
-        return <IntegrationsView onBack={() => setViewMode("dashboard")} />;
-      default:
-        return (
+  // Standalone full-screen routes (escape the shell)
+  if (viewMode === "workspace") {
+    return <WorkspaceView onBack={() => setViewMode("dashboard")} />;
+  }
+  if (viewMode === "integrations") {
+    return <IntegrationsView onBack={() => setViewMode("dashboard")} />;
+  }
+  if (viewMode === "gtm") {
+    return <GTMGeneratorView onNavigate={setViewMode} />;
+  }
+
+  return (
+    <>
+      <CommandPalette open={commandOpen} onOpenChange={setCommandOpen} onNavigate={setViewMode} onNewChat={handleNewChat} />
+      <WelcomeModal />
+      <GettingStartedTour onNavigate={setViewMode} />
+      <OnboardingChecklist />
+      <LantidShell
+        initialView="home"
+        productName={activeProduct?.name || "Workspace"}
+        currentPhase={effectivePhase}
+        onSetPhase={handlePhaseSwitch}
+        onNavigateExternal={setViewMode}
+        onNewChat={handleNewChat}
+        onOpenSearch={handleToggleSearch}
+        renderChat={() => (
           <ChatView
             onOpenWorkspace={(type) => {
               if (type === "slides") {
-                // Grab the last assistant message content for slide generation
                 const lastAssistant = [...activeConversation.messages].reverse().find(m => m.role === "assistant");
-                if (lastAssistant?.content) {
-                  setPendingSlideContent(lastAssistant.content);
-                }
+                if (lastAssistant?.content) setPendingSlideContent(lastAssistant.content);
               }
               setViewMode(type || "workspace");
             }}
@@ -169,48 +156,35 @@ const Index = () => {
             onSetAction={(messageId, action) =>
               setMessageAction(activeConversationId, messageId, action)
             }
-            onUpdateTitle={(title) =>
-              updateConversationTitle(activeConversationId, title)
-            }
+            onUpdateTitle={(title) => updateConversationTitle(activeConversationId, title)}
             pendingTemplateId={pendingTemplateId}
             onTemplateSent={() => setPendingTemplateId(null)}
             currentPhase={effectivePhase}
             pendingPrompt={pendingPrompt}
             onPromptConsumed={() => setPendingPrompt(null)}
           />
-        );
-    }
-  };
-
-  return (
-    <SidebarProvider>
-      <CommandPalette open={commandOpen} onOpenChange={setCommandOpen} onNavigate={setViewMode} onNewChat={handleNewChat} />
-      <WelcomeModal />
-      <GettingStartedTour onNavigate={setViewMode} />
-      <OnboardingChecklist />
-      <div className="min-h-screen flex w-full">
-        <AppSidebar
-          onSwitchView={setViewMode}
-          currentView={viewMode}
-          conversations={conversations}
-          activeConversationId={activeConversationId}
-          onSelectConversation={(id) => {
-            setActiveConversationId(id);
-            setViewMode("chat");
-          }}
-          onNewConversation={handleNewChat}
-          onDeleteConversation={deleteConversation}
-          searchFocusTrigger={searchFocusTrigger}
-          products={products}
-          activeProduct={activeProduct}
-          onSelectProduct={setActiveProductId}
-          onCreateProduct={createProduct}
-        />
-        <main className="flex-1 flex flex-col min-w-0">
-          {renderView()}
-        </main>
-      </div>
-    </SidebarProvider>
+        )}
+        renderWorkflow={() => <WorkflowBuilderView onBack={() => setViewMode("dashboard")} />}
+        renderSlides={() => (
+          <SlideEditorView
+            onBack={() => setViewMode("dashboard")}
+            initialContent={pendingSlideContent}
+            onContentConsumed={() => setPendingSlideContent(null)}
+          />
+        )}
+        renderSpreadsheet={() => <SpreadsheetView onBack={() => setViewMode("dashboard")} />}
+        renderTeam={() => <TeamPanel onBack={() => setViewMode("dashboard")} />}
+        renderSettings={() => <SettingsView onBack={() => setViewMode("dashboard")} />}
+        renderCommandCenter={() => (
+          <CommandCenterView
+            activeProductId={activeProductId}
+            activeProductName={activeProduct?.name}
+            currentPhase={effectivePhase}
+            onNavigate={setViewMode}
+          />
+        )}
+      />
+    </>
   );
 };
 
