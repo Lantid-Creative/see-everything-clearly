@@ -476,12 +476,18 @@ const signalSparkData = [
 ];
 
 // ============ HOME VIEW ============
+interface LiveWorkflow { id: string; name: string; is_deployed: boolean; updated_at: string }
+
 function HomeView({
-  userName, totals, onNavigate,
+  userName, totals, onNavigate, briefing, briefingLoading, onRefreshBriefing, workflows,
 }: {
   userName: string;
   totals: { leads: number; conversations: number; workflows: number; emails: number };
   onNavigate: (v: NavKey) => void;
+  briefing: Briefing | null;
+  briefingLoading: boolean;
+  onRefreshBriefing: () => void;
+  workflows: LiveWorkflow[];
 }) {
   const greeting = (() => {
     const h = new Date().getHours();
@@ -491,56 +497,43 @@ function HomeView({
   })();
 
   const totalSignals = totals.leads + totals.conversations + totals.emails;
-  const opportunities = Math.max(1, Math.round(totals.leads * 0.3));
+  const priorityActions = briefing?.priority_actions ?? [];
+  const opportunities = priorityActions.length || Math.max(1, Math.round(totals.leads * 0.3));
+  const wins = briefing?.wins ?? [];
+  const anomalies = briefing?.anomalies ?? [];
 
   const synthesisFeed = [
-    {
-      t: "live",
-      title: `${totals.leads} leads in active workspace`,
-      body: "Ranked by RICE-style fit score. Open Discovery to dig in.",
+    ...anomalies.slice(0, 2).map((a) => ({
+      t: "live", title: a.signal, body: a.recommendation,
+      type: a.severity === "warning" ? ("metric" as const) : ("interview" as const),
+    })),
+    ...wins.slice(0, 2).map((w) => ({
+      t: "today", title: w, body: "Recent progress detected in your workspace.",
       type: "pattern" as const,
-    },
-    {
-      t: "today",
-      title: `${totals.conversations} discovery conversations synthesized`,
-      body: "Key patterns surfaced across your Discovery chats.",
-      type: "interview" as const,
-    },
-    {
-      t: "today",
-      title: `${totals.workflows} workflows configured`,
-      body: "Active automations running in the background.",
-      type: "system" as const,
-    },
-    {
-      t: "today",
-      title: `${totals.emails} outreach emails sent`,
-      body: "Open the Workspace to track replies and conversion.",
-      type: "metric" as const,
-    },
-  ];
+    })),
+    ...(briefing ? [] : [
+      { t: "today", title: `${totals.leads} leads in workspace`, body: "Open Discovery to dig in.", type: "pattern" as const },
+      { t: "today", title: `${totals.conversations} discovery conversations`, body: "Synthesized patterns ready to review.", type: "interview" as const },
+    ]),
+  ].slice(0, 5);
 
-  const topOpportunities = [
-    { id: "OPP-014", title: "Activate dormant leads in your CRM", reach: totals.leads * 100, impact: 3, confidence: 85, effort: 5, rice: 428, sources: totals.leads, cat: "Growth" },
-    { id: "OPP-012", title: "Automate top-of-funnel outreach", reach: 6200, impact: 3, confidence: 78, effort: 3, rice: 483, sources: 28, cat: "Workflow" },
-    { id: "OPP-009", title: "Surface insights from past chats", reach: totals.conversations * 80, impact: 2, confidence: 72, effort: 4, rice: 183, sources: totals.conversations, cat: "Insight" },
-    { id: "OPP-008", title: "Tighten phase-to-phase handoffs", reach: 4300, impact: 2, confidence: 65, effort: 6, rice: 93, sources: 19, cat: "Process" },
-    { id: "OPP-007", title: "Simplify product onboarding", reach: 3800, impact: 3, confidence: 88, effort: 2, rice: 501, sources: 15, cat: "Platform" },
-  ];
-
-  const workflowsList = [
-    { name: "NPS drop alert", status: "running", runs: 428, success: 99.2, next: "in 14m" },
-    { name: "Lead to opportunity", status: "running", runs: totals.leads, success: 97.4, next: "on upload" },
-    { name: "Weekly synthesis digest", status: "paused", runs: 12, success: 100, next: "Mon 9:00" },
-    { name: "Churn risk scanner", status: "running", runs: 61, success: 94.1, next: "in 2h" },
-  ];
+  const topOpportunities = priorityActions.length > 0
+    ? priorityActions.slice(0, 5).map((p, i) => ({
+        id: `OPP-${String(i + 1).padStart(3, "0")}`,
+        title: p.title,
+        description: p.description,
+        urgency: p.urgency,
+        action_type: p.action_type,
+        rice: p.urgency === "critical" ? 480 : p.urgency === "high" ? 320 : 180,
+        cat: p.action_type === "workflow" ? "Workflow" : p.action_type === "chat" ? "Insight" : "Growth",
+      }))
+    : [];
 
   const sources = [
-    { name: "Leads", count: totals.leads, pct: 35, c: C.signal },
-    { name: "Conversations", count: totals.conversations, pct: 28, c: C.amber },
-    { name: "Workflows", count: totals.workflows, pct: 18, c: C.sky },
-    { name: "Emails sent", count: totals.emails, pct: 12, c: C.mint },
-    { name: "App reviews", count: 0, pct: 7, c: C.coral },
+    { name: "Leads", count: totals.leads, pct: Math.min(100, totals.leads * 2), c: C.signal },
+    { name: "Conversations", count: totals.conversations, pct: Math.min(100, totals.conversations * 4), c: C.amber },
+    { name: "Workflows", count: totals.workflows, pct: Math.min(100, totals.workflows * 10), c: C.sky },
+    { name: "Emails sent", count: totals.emails, pct: Math.min(100, totals.emails * 3), c: C.mint },
   ];
 
   return (
