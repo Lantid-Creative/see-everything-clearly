@@ -1293,9 +1293,13 @@ export function LantidShell(props: LantidShellProps) {
         );
       case "discover":
         return (
-          <EmbedFrame title="Discovery · AI chat">
-            {props.renderChat()}
-          </EmbedFrame>
+          <DiscoveryView
+            conversations={props.conversations}
+            activeConversationId={props.activeConversationId}
+            onSelectConversation={props.onSelectConversation}
+            onNewChat={props.onNewChat}
+            chatNode={props.renderChat()}
+          />
         );
       case "workflows":
         return (
