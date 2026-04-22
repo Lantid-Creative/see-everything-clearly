@@ -1158,7 +1158,7 @@ export function LantidShell(props: LantidShellProps) {
   const renderBody = () => {
     switch (view) {
       case "home":
-        return <HomeView userName={userName} totals={totals} onNavigate={setView} />;
+        return <HomeView userName={userName} totals={totals} onNavigate={setView} briefing={briefing} briefingLoading={briefingLoading} onRefreshBriefing={generateBriefing} workflows={liveWorkflows} />;
       case "command":
         return (
           <EmbedFrame title="Command Center">
