@@ -165,7 +165,7 @@ function Sidebar({
               Switch product
             </div>
             <div className="max-h-64 overflow-y-auto">
-              {products.map(p => (
+              {productList.map(p => (
                 <button
                   key={p.id}
                   onClick={() => onSelectProduct(p.id)}
