@@ -1180,7 +1180,10 @@ export function LantidShell(props: LantidShellProps) {
       <Sidebar
         view={view}
         setView={handleNav}
-        productName={props.productName}
+        products={products}
+        activeProduct={activeProduct}
+        onSelectProduct={setActiveProductId}
+        onCreateProduct={async (name) => { await createProduct(name); }}
         userName={userName}
         userRole={userRole}
       />
@@ -1189,6 +1192,7 @@ export function LantidShell(props: LantidShellProps) {
           currentPhase={effectivePhase as ProductPhase}
           setCurrentPhase={(p) => props.onSetPhase(p)}
           onSearch={props.onOpenSearch}
+          onNewSignal={() => { props.onNewChat(); setView("discover"); }}
         />
         <main>{renderBody()}</main>
       </div>
