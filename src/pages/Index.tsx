@@ -128,7 +128,6 @@ const Index = () => {
   const renderView = () => {
     switch (viewMode) {
       case "dashboard":
-        return <DashboardView onNavigate={setViewMode} onNewChat={handleNewChat} activeProductId={activeProductId} onSetPhase={handlePhaseSwitch} />;
       case "nerve-center":
         return <NerveCenterView onNavigate={setViewMode} onNewChat={handleNewChat} />;
       case "command-center":
