@@ -148,7 +148,7 @@ function Sidebar({
                 <div className="min-w-0 text-left">
                   <div className="text-xs font-medium truncate" style={{ color: C.text }}>{productName}</div>
                   <div className="font-mono text-[9px] truncate" style={{ color: C.textMute }}>
-                    {products.length} {products.length === 1 ? "product" : "products"}
+                    {productList.length} {productList.length === 1 ? "product" : "products"}
                   </div>
                 </div>
               </div>
