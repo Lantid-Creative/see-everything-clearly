@@ -1062,6 +1062,8 @@ export function LantidShell(props: LantidShellProps) {
       : null,
   );
 
+  const { products, activeProduct, setActiveProductId, createProduct } = useProducts();
+
   const [view, setView] = useState<NavKey>(props.initialView ?? "home");
 
   // Keyboard shortcuts ⌘1..⌘7
