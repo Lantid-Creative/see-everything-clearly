@@ -1146,12 +1146,8 @@ export function LantidShell(props: LantidShellProps) {
 
   const effectivePhase = props.currentPhase ?? phaseData?.currentPhase ?? "discover";
 
-  // Map nav clicks: most are internal; "discover" opens chat
+  // Map nav clicks: switch view; chat is created via the "New signal" button
   const handleNav = (k: NavKey) => {
-    if (k === "discover") {
-      props.onNewChat();
-      // chat will render inside shell via view state
-    }
     setView(k);
   };
 
