@@ -17,6 +17,9 @@ import { useWorkspaceContext } from "@/hooks/useWorkspaceContext";
 import { useProductPhase, type ProductPhase } from "@/hooks/useProductPhase";
 import { useProducts, type Product } from "@/hooks/useProducts";
 import { useNotifications } from "@/hooks/useNotifications";
+import { useNerveCenter, type Briefing, type PriorityAction } from "@/hooks/useNerveCenter";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { formatDistanceToNow } from "date-fns";
 
@@ -473,12 +476,18 @@ const signalSparkData = [
 ];
 
 // ============ HOME VIEW ============
+interface LiveWorkflow { id: string; name: string; is_deployed: boolean; updated_at: string }
+
 function HomeView({
-  userName, totals, onNavigate,
+  userName, totals, onNavigate, briefing, briefingLoading, onRefreshBriefing, workflows,
 }: {
   userName: string;
   totals: { leads: number; conversations: number; workflows: number; emails: number };
   onNavigate: (v: NavKey) => void;
+  briefing: Briefing | null;
+  briefingLoading: boolean;
+  onRefreshBriefing: () => void;
+  workflows: LiveWorkflow[];
 }) {
   const greeting = (() => {
     const h = new Date().getHours();
@@ -488,56 +497,43 @@ function HomeView({
   })();
 
   const totalSignals = totals.leads + totals.conversations + totals.emails;
-  const opportunities = Math.max(1, Math.round(totals.leads * 0.3));
+  const priorityActions = briefing?.priority_actions ?? [];
+  const opportunities = priorityActions.length || Math.max(1, Math.round(totals.leads * 0.3));
+  const wins = briefing?.wins ?? [];
+  const anomalies = briefing?.anomalies ?? [];
 
   const synthesisFeed = [
-    {
-      t: "live",
-      title: `${totals.leads} leads in active workspace`,
-      body: "Ranked by RICE-style fit score. Open Discovery to dig in.",
+    ...anomalies.slice(0, 2).map((a) => ({
+      t: "live", title: a.signal, body: a.recommendation,
+      type: a.severity === "warning" ? ("metric" as const) : ("interview" as const),
+    })),
+    ...wins.slice(0, 2).map((w) => ({
+      t: "today", title: w, body: "Recent progress detected in your workspace.",
       type: "pattern" as const,
-    },
-    {
-      t: "today",
-      title: `${totals.conversations} discovery conversations synthesized`,
-      body: "Key patterns surfaced across your Discovery chats.",
-      type: "interview" as const,
-    },
-    {
-      t: "today",
-      title: `${totals.workflows} workflows configured`,
-      body: "Active automations running in the background.",
-      type: "system" as const,
-    },
-    {
-      t: "today",
-      title: `${totals.emails} outreach emails sent`,
-      body: "Open the Workspace to track replies and conversion.",
-      type: "metric" as const,
-    },
-  ];
+    })),
+    ...(briefing ? [] : [
+      { t: "today", title: `${totals.leads} leads in workspace`, body: "Open Discovery to dig in.", type: "pattern" as const },
+      { t: "today", title: `${totals.conversations} discovery conversations`, body: "Synthesized patterns ready to review.", type: "interview" as const },
+    ]),
+  ].slice(0, 5);
 
-  const topOpportunities = [
-    { id: "OPP-014", title: "Activate dormant leads in your CRM", reach: totals.leads * 100, impact: 3, confidence: 85, effort: 5, rice: 428, sources: totals.leads, cat: "Growth" },
-    { id: "OPP-012", title: "Automate top-of-funnel outreach", reach: 6200, impact: 3, confidence: 78, effort: 3, rice: 483, sources: 28, cat: "Workflow" },
-    { id: "OPP-009", title: "Surface insights from past chats", reach: totals.conversations * 80, impact: 2, confidence: 72, effort: 4, rice: 183, sources: totals.conversations, cat: "Insight" },
-    { id: "OPP-008", title: "Tighten phase-to-phase handoffs", reach: 4300, impact: 2, confidence: 65, effort: 6, rice: 93, sources: 19, cat: "Process" },
-    { id: "OPP-007", title: "Simplify product onboarding", reach: 3800, impact: 3, confidence: 88, effort: 2, rice: 501, sources: 15, cat: "Platform" },
-  ];
-
-  const workflowsList = [
-    { name: "NPS drop alert", status: "running", runs: 428, success: 99.2, next: "in 14m" },
-    { name: "Lead to opportunity", status: "running", runs: totals.leads, success: 97.4, next: "on upload" },
-    { name: "Weekly synthesis digest", status: "paused", runs: 12, success: 100, next: "Mon 9:00" },
-    { name: "Churn risk scanner", status: "running", runs: 61, success: 94.1, next: "in 2h" },
-  ];
+  const topOpportunities = priorityActions.length > 0
+    ? priorityActions.slice(0, 5).map((p, i) => ({
+        id: `OPP-${String(i + 1).padStart(3, "0")}`,
+        title: p.title,
+        description: p.description,
+        urgency: p.urgency,
+        action_type: p.action_type,
+        rice: p.urgency === "critical" ? 480 : p.urgency === "high" ? 320 : 180,
+        cat: p.action_type === "workflow" ? "Workflow" : p.action_type === "chat" ? "Insight" : "Growth",
+      }))
+    : [];
 
   const sources = [
-    { name: "Leads", count: totals.leads, pct: 35, c: C.signal },
-    { name: "Conversations", count: totals.conversations, pct: 28, c: C.amber },
-    { name: "Workflows", count: totals.workflows, pct: 18, c: C.sky },
-    { name: "Emails sent", count: totals.emails, pct: 12, c: C.mint },
-    { name: "App reviews", count: 0, pct: 7, c: C.coral },
+    { name: "Leads", count: totals.leads, pct: Math.min(100, totals.leads * 2), c: C.signal },
+    { name: "Conversations", count: totals.conversations, pct: Math.min(100, totals.conversations * 4), c: C.amber },
+    { name: "Workflows", count: totals.workflows, pct: Math.min(100, totals.workflows * 10), c: C.sky },
+    { name: "Emails sent", count: totals.emails, pct: Math.min(100, totals.emails * 3), c: C.mint },
   ];
 
   return (
@@ -666,57 +662,76 @@ function HomeView({
               style={{ color: C.textMute, borderColor: C.border }}
             >
               <div className="col-span-1">ID</div>
-              <div className="col-span-5">Opportunity</div>
-              <div className="col-span-1 text-right">Reach</div>
-              <div className="col-span-1 text-right">Impact</div>
-              <div className="col-span-1 text-right">Conf.</div>
-              <div className="col-span-1 text-right">Effort</div>
-              <div className="col-span-2 text-right">RICE score</div>
+              <div className="col-span-7">Opportunity</div>
+              <div className="col-span-2 text-right">Urgency</div>
+              <div className="col-span-2 text-right">Score</div>
             </div>
-            {topOpportunities.map(o => (
-              <div
-                key={o.id}
-                className="grid grid-cols-12 gap-3 px-5 py-3.5 items-center border-b hover:bg-white/[0.015] transition"
-                style={{ borderColor: C.border }}
-              >
-                <div className="col-span-1 font-mono text-[11px]" style={{ color: C.textMute }}>{o.id}</div>
-                <div className="col-span-5">
-                  <div className="text-[13px] font-medium" style={{ color: C.text }}>{o.title}</div>
-                  <div className="flex items-center gap-2 mt-1">
-                    <span
-                      className="font-mono text-[10px] px-1.5 py-0.5 rounded"
-                      style={{ background: C.surface, color: C.textDim }}
-                    >
-                      {o.cat}
-                    </span>
-                    <span className="font-mono text-[10px]" style={{ color: C.textMute }}>
-                      {o.sources} sources
-                    </span>
-                  </div>
+            {topOpportunities.length === 0 && (
+              <div className="px-5 py-10 text-center">
+                <div className="text-[13px] mb-3" style={{ color: C.textDim }}>
+                  {briefingLoading ? "Generating opportunities from your workspace…" : "No opportunities yet — add leads or start a discovery chat."}
                 </div>
-                <div className="col-span-1 text-right font-mono text-[12px]" style={{ color: C.text }}>{o.reach.toLocaleString()}</div>
-                <div className="col-span-1 text-right font-mono text-[12px]" style={{ color: C.text }}>{o.impact}x</div>
-                <div className="col-span-1 text-right font-mono text-[12px]" style={{ color: C.text }}>{o.confidence}%</div>
-                <div className="col-span-1 text-right font-mono text-[12px]" style={{ color: C.text }}>{o.effort}</div>
-                <div className="col-span-2 flex items-center justify-end gap-2">
-                  <div className="w-16 h-1.5 rounded-full overflow-hidden" style={{ background: C.border }}>
-                    <div
-                      className="h-full"
-                      style={{
-                        width: `${Math.min(100, o.rice / 5)}%`,
-                        background: o.rice > 400 ? C.signal : o.rice > 200 ? C.amber : C.textMute,
-                      }}
-                    />
-                  </div>
-                  <span
-                    className="font-mono text-[13px] font-semibold w-10 text-right"
-                    style={{ color: o.rice > 400 ? C.signal : C.text }}
+                {!briefingLoading && (
+                  <button
+                    onClick={onRefreshBriefing}
+                    className="text-[12px] px-3 py-1.5 rounded-md border hover-lift inline-flex items-center gap-1.5"
+                    style={{ borderColor: C.border, color: C.text }}
                   >
-                    {o.rice}
-                  </span>
-                </div>
+                    <Sparkles size={12} /> Generate briefing
+                  </button>
+                )}
               </div>
-            ))}
+            )}
+            {topOpportunities.map(o => {
+              const urgencyColor = o.urgency === "critical" ? C.coral : o.urgency === "high" ? C.amber : C.sky;
+              return (
+                <div
+                  key={o.id}
+                  onClick={() => onNavigate(o.action_type === "workflow" ? "workflows" : o.action_type === "slides" ? "slides" : o.action_type === "spreadsheet" ? "data" : o.action_type === "command-center" ? "command" : "discover")}
+                  className="grid grid-cols-12 gap-3 px-5 py-3.5 items-center border-b hover:bg-white/[0.015] transition cursor-pointer"
+                  style={{ borderColor: C.border }}
+                >
+                  <div className="col-span-1 font-mono text-[11px]" style={{ color: C.textMute }}>{o.id}</div>
+                  <div className="col-span-7">
+                    <div className="text-[13px] font-medium" style={{ color: C.text }}>{o.title}</div>
+                    <div className="flex items-center gap-2 mt-1">
+                      <span
+                        className="font-mono text-[10px] px-1.5 py-0.5 rounded"
+                        style={{ background: C.surface, color: C.textDim }}
+                      >
+                        {o.cat}
+                      </span>
+                      <span className="text-[11px]" style={{ color: C.textMute }}>{o.description}</span>
+                    </div>
+                  </div>
+                  <div className="col-span-2 text-right">
+                    <span
+                      className="font-mono text-[10px] uppercase tracking-wider px-1.5 py-0.5 rounded"
+                      style={{ background: C.surface, color: urgencyColor }}
+                    >
+                      {o.urgency}
+                    </span>
+                  </div>
+                  <div className="col-span-2 flex items-center justify-end gap-2">
+                    <div className="w-16 h-1.5 rounded-full overflow-hidden" style={{ background: C.border }}>
+                      <div
+                        className="h-full"
+                        style={{
+                          width: `${Math.min(100, o.rice / 5)}%`,
+                          background: o.rice > 400 ? C.signal : o.rice > 200 ? C.amber : C.textMute,
+                        }}
+                      />
+                    </div>
+                    <span
+                      className="font-mono text-[13px] font-semibold w-10 text-right"
+                      style={{ color: o.rice > 400 ? C.signal : C.text }}
+                    >
+                      {o.rice}
+                    </span>
+                  </div>
+                </div>
+              );
+            })}
           </div>
         </div>
 
@@ -791,35 +806,50 @@ function HomeView({
             </button>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-            {workflowsList.map((w, i) => (
-              <div key={i} className="p-4 rounded-lg border hover-lift" style={{ borderColor: C.border, background: C.surface }}>
-                <div className="flex items-start justify-between mb-3">
-                  <div className="flex items-center gap-2">
-                    <StatusDot color={w.status === "running" ? C.signal : C.amber} />
-                    <span className="text-[13px] font-medium" style={{ color: C.text }}>{w.name}</span>
-                  </div>
-                  <button className="p-1 rounded hover-lift">
-                    {w.status === "running"
-                      ? <Pause size={11} style={{ color: C.textMute }} />
-                      : <Play size={11} style={{ color: C.textMute }} />}
-                  </button>
-                </div>
-                <div className="grid grid-cols-3 gap-2">
-                  <div>
-                    <div className="font-mono text-[9px] uppercase tracking-wider mb-0.5" style={{ color: C.textMute }}>Runs</div>
-                    <div className="font-mono text-[13px]" style={{ color: C.text }}>{w.runs}</div>
-                  </div>
-                  <div>
-                    <div className="font-mono text-[9px] uppercase tracking-wider mb-0.5" style={{ color: C.textMute }}>Success</div>
-                    <div className="font-mono text-[13px]" style={{ color: C.signal }}>{w.success}%</div>
-                  </div>
-                  <div>
-                    <div className="font-mono text-[9px] uppercase tracking-wider mb-0.5" style={{ color: C.textMute }}>Next</div>
-                    <div className="font-mono text-[13px]" style={{ color: C.text }}>{w.next}</div>
-                  </div>
-                </div>
+            {workflows.length === 0 && (
+              <div className="md:col-span-2 p-6 text-center rounded-lg border" style={{ borderColor: C.border, background: C.surface }}>
+                <div className="text-[13px] mb-2" style={{ color: C.textDim }}>No workflows yet.</div>
+                <button
+                  onClick={() => onNavigate("workflows")}
+                  className="text-[12px] px-3 py-1.5 rounded-md hover-lift inline-flex items-center gap-1.5"
+                  style={{ color: C.signal }}
+                >
+                  <Plus size={11} /> Build your first workflow
+                </button>
               </div>
-            ))}
+            )}
+            {workflows.slice(0, 4).map((w) => {
+              const updated = (() => {
+                try { return formatDistanceToNow(new Date(w.updated_at), { addSuffix: true }); }
+                catch { return ""; }
+              })();
+              return (
+                <div key={w.id} onClick={() => onNavigate("workflows")}
+                  className="p-4 rounded-lg border hover-lift cursor-pointer" style={{ borderColor: C.border, background: C.surface }}>
+                  <div className="flex items-start justify-between mb-3">
+                    <div className="flex items-center gap-2">
+                      <StatusDot color={w.is_deployed ? C.signal : C.amber} />
+                      <span className="text-[13px] font-medium" style={{ color: C.text }}>{w.name}</span>
+                    </div>
+                    {w.is_deployed
+                      ? <Play size={11} style={{ color: C.signal }} />
+                      : <Pause size={11} style={{ color: C.textMute }} />}
+                  </div>
+                  <div className="grid grid-cols-2 gap-2">
+                    <div>
+                      <div className="font-mono text-[9px] uppercase tracking-wider mb-0.5" style={{ color: C.textMute }}>Status</div>
+                      <div className="font-mono text-[13px]" style={{ color: w.is_deployed ? C.signal : C.amber }}>
+                        {w.is_deployed ? "Live" : "Draft"}
+                      </div>
+                    </div>
+                    <div>
+                      <div className="font-mono text-[9px] uppercase tracking-wider mb-0.5" style={{ color: C.textMute }}>Updated</div>
+                      <div className="font-mono text-[12px]" style={{ color: C.text }}>{updated}</div>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
           </div>
         </div>
 
@@ -1066,6 +1096,24 @@ export function LantidShell(props: LantidShellProps) {
   );
 
   const { products, activeProduct, setActiveProductId, createProduct } = useProducts();
+  const { briefing, loading: briefingLoading, generateBriefing } = useNerveCenter();
+  const { user } = useAuth();
+  const [liveWorkflows, setLiveWorkflows] = useState<LiveWorkflow[]>([]);
+
+  useEffect(() => {
+    if (!user) return;
+    let cancelled = false;
+    (async () => {
+      const { data } = await supabase
+        .from("workflows")
+        .select("id, name, is_deployed, updated_at")
+        .eq("user_id", user.id)
+        .order("updated_at", { ascending: false })
+        .limit(8);
+      if (!cancelled) setLiveWorkflows((data ?? []) as LiveWorkflow[]);
+    })();
+    return () => { cancelled = true; };
+  }, [user, ws?.totalWorkflows]);
 
   const [view, setView] = useState<NavKey>(props.initialView ?? "home");
 
@@ -1110,7 +1158,7 @@ export function LantidShell(props: LantidShellProps) {
   const renderBody = () => {
     switch (view) {
       case "home":
-        return <HomeView userName={userName} totals={totals} onNavigate={setView} />;
+        return <HomeView userName={userName} totals={totals} onNavigate={setView} briefing={briefing} briefingLoading={briefingLoading} onRefreshBriefing={generateBriefing} workflows={liveWorkflows} />;
       case "command":
         return (
           <EmbedFrame title="Command Center">
