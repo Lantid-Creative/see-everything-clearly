@@ -304,12 +304,14 @@ function Sidebar({
 
 // ============ TOPBAR ============
 function Topbar({
-  currentPhase, setCurrentPhase, onSearch,
+  currentPhase, setCurrentPhase, onSearch, onNewSignal,
 }: {
   currentPhase: ProductPhase | null;
   setCurrentPhase: (p: ProductPhase) => void;
   onSearch: () => void;
+  onNewSignal: () => void;
 }) {
+  const { notifications, unreadCount, markAsRead, markAllAsRead } = useNotifications();
   return (
     <div
       className="sticky top-0 z-10 border-b backdrop-blur-xl"
@@ -368,15 +370,79 @@ function Topbar({
           })}
         </div>
 
-        <button
-          className="relative w-8 h-8 flex items-center justify-center rounded-md border hover-lift"
-          style={{ borderColor: C.border }}
-        >
-          <Bell size={14} style={{ color: C.textDim }} />
-          <div className="absolute top-1.5 right-1.5 w-1.5 h-1.5 rounded-full" style={{ background: C.signal }} />
-        </button>
+        {/* Notifications */}
+        <Popover>
+          <PopoverTrigger asChild>
+            <button
+              className="relative w-8 h-8 flex items-center justify-center rounded-md border hover-lift"
+              style={{ borderColor: C.border }}
+              aria-label={`Notifications${unreadCount ? `, ${unreadCount} unread` : ""}`}
+            >
+              <Bell size={14} style={{ color: C.textDim }} />
+              {unreadCount > 0 && (
+                <div
+                  className="absolute -top-1 -right-1 min-w-[16px] h-[16px] px-1 rounded-full flex items-center justify-center font-mono text-[9px] font-semibold"
+                  style={{ background: C.signal, color: "#0A0A0B" }}
+                >
+                  {unreadCount > 9 ? "9+" : unreadCount}
+                </div>
+              )}
+            </button>
+          </PopoverTrigger>
+          <PopoverContent
+            align="end"
+            sideOffset={6}
+            className="w-[340px] p-0 border"
+            style={{ background: C.bgElev, borderColor: C.border }}
+          >
+            <div className="flex items-center justify-between px-3 py-2 border-b" style={{ borderColor: C.border }}>
+              <span className="font-mono text-[10px] uppercase tracking-widest" style={{ color: C.textMute }}>
+                Notifications {unreadCount > 0 && `· ${unreadCount} new`}
+              </span>
+              {unreadCount > 0 && (
+                <button
+                  onClick={() => markAllAsRead()}
+                  className="text-[10px] font-medium"
+                  style={{ color: C.signal }}
+                >
+                  Mark all read
+                </button>
+              )}
+            </div>
+            <div className="max-h-[360px] overflow-y-auto">
+              {notifications.length === 0 ? (
+                <div className="px-4 py-8 text-center text-[12px]" style={{ color: C.textMute }}>
+                  Nothing new yet.
+                </div>
+              ) : (
+                notifications.slice(0, 20).map(n => (
+                  <button
+                    key={n.id}
+                    onClick={() => markAsRead(n.id)}
+                    className="w-full text-left px-3 py-2.5 border-b hover:bg-white/[0.015]"
+                    style={{ borderColor: C.border, opacity: n.read ? 0.6 : 1 }}
+                  >
+                    <div className="flex items-start gap-2">
+                      {!n.read && (
+                        <div className="mt-1.5 w-1.5 h-1.5 rounded-full shrink-0" style={{ background: C.signal }} />
+                      )}
+                      <div className="flex-1 min-w-0">
+                        <div className="text-[12px] font-medium" style={{ color: C.text }}>{n.title}</div>
+                        <div className="text-[11px] mt-0.5" style={{ color: C.textDim }}>{n.message}</div>
+                        <div className="font-mono text-[10px] mt-1" style={{ color: C.textMute }}>
+                          {formatDistanceToNow(new Date(n.created_at), { addSuffix: true })}
+                        </div>
+                      </div>
+                    </div>
+                  </button>
+                ))
+              )}
+            </div>
+          </PopoverContent>
+        </Popover>
 
         <button
+          onClick={onNewSignal}
           className="flex items-center gap-2 px-3 h-8 rounded-md font-medium text-[12px] transition"
           style={{ background: C.signal, color: "#0A0A0B" }}
         >
