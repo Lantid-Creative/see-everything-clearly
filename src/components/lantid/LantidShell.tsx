@@ -17,6 +17,9 @@ import { useWorkspaceContext } from "@/hooks/useWorkspaceContext";
 import { useProductPhase, type ProductPhase } from "@/hooks/useProductPhase";
 import { useProducts, type Product } from "@/hooks/useProducts";
 import { useNotifications } from "@/hooks/useNotifications";
+import { useNerveCenter, type Briefing, type PriorityAction } from "@/hooks/useNerveCenter";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { formatDistanceToNow } from "date-fns";
 
