@@ -292,11 +292,11 @@ function Sidebar({
             className="w-7 h-7 rounded-full flex items-center justify-center font-display text-sm"
             style={{ background: "linear-gradient(135deg, #D1FF3F, #8FB52E)", color: "#0A0A0B" }}
           >
-            {userName.charAt(0).toUpperCase()}
+            {safeUserName.charAt(0).toUpperCase()}
           </div>
           <div className="flex-1 min-w-0 text-left">
-            <div className="text-[13px] font-medium truncate" style={{ color: C.text }}>{userName}</div>
-            <div className="font-mono text-[10px] truncate" style={{ color: C.textMute }}>{userRole}</div>
+            <div className="text-[13px] font-medium truncate" style={{ color: C.text }}>{safeUserName}</div>
+            <div className="font-mono text-[10px] truncate" style={{ color: C.textMute }}>{safeUserRole}</div>
           </div>
           <Settings size={13} style={{ color: C.textMute }} />
         </button>
