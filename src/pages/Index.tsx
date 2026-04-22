@@ -152,6 +152,9 @@ const Index = () => {
         onNavigateExternal={setViewMode}
         onNewChat={handleNewChat}
         onOpenSearch={handleToggleSearch}
+        conversations={conversations}
+        activeConversationId={activeConversationId}
+        onSelectConversation={setActiveConversationId}
         renderChat={() => (
           <ChatView
             onOpenWorkspace={(type) => {
