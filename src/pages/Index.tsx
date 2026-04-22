@@ -140,11 +140,6 @@ const Index = () => {
 
   return (
     <SidebarProvider>
-      <></>
-      </SidebarProvider>
-  ) && (
-    <SidebarProvider><div style={{display:"contents"}}></div></SidebarProvider>
-  ) as never;
       <CommandPalette open={commandOpen} onOpenChange={setCommandOpen} onNavigate={setViewMode} onNewChat={handleNewChat} />
       <WelcomeModal />
       <GettingStartedTour onNavigate={setViewMode} />
@@ -202,7 +197,7 @@ const Index = () => {
           />
         )}
       />
-    </>
+    </SidebarProvider>
   );
 };
 
