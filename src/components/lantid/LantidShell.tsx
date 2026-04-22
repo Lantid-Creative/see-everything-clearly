@@ -93,14 +93,17 @@ function Sidebar({
 }: {
   view: NavKey;
   setView: (v: NavKey) => void;
-  products: Product[];
-  activeProduct: Product | null;
+  products?: Product[];
+  activeProduct?: Product | null;
   onSelectProduct: (id: string) => void;
   onCreateProduct: (name: string) => Promise<void> | void;
-  userName: string;
-  userRole: string;
+  userName?: string;
+  userRole?: string;
 }) {
+  const productList = products ?? [];
   const productName = activeProduct?.name || "Workspace";
+  const safeUserName = userName || "User";
+  const safeUserRole = userRole || "Member";
   return (
     <aside
       className="fixed left-0 top-0 bottom-0 w-[248px] border-r flex flex-col z-20"
