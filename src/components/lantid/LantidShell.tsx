@@ -662,57 +662,76 @@ function HomeView({
               style={{ color: C.textMute, borderColor: C.border }}
             >
               <div className="col-span-1">ID</div>
-              <div className="col-span-5">Opportunity</div>
-              <div className="col-span-1 text-right">Reach</div>
-              <div className="col-span-1 text-right">Impact</div>
-              <div className="col-span-1 text-right">Conf.</div>
-              <div className="col-span-1 text-right">Effort</div>
-              <div className="col-span-2 text-right">RICE score</div>
+              <div className="col-span-7">Opportunity</div>
+              <div className="col-span-2 text-right">Urgency</div>
+              <div className="col-span-2 text-right">Score</div>
             </div>
-            {topOpportunities.map(o => (
-              <div
-                key={o.id}
-                className="grid grid-cols-12 gap-3 px-5 py-3.5 items-center border-b hover:bg-white/[0.015] transition"
-                style={{ borderColor: C.border }}
-              >
-                <div className="col-span-1 font-mono text-[11px]" style={{ color: C.textMute }}>{o.id}</div>
-                <div className="col-span-5">
-                  <div className="text-[13px] font-medium" style={{ color: C.text }}>{o.title}</div>
-                  <div className="flex items-center gap-2 mt-1">
-                    <span
-                      className="font-mono text-[10px] px-1.5 py-0.5 rounded"
-                      style={{ background: C.surface, color: C.textDim }}
-                    >
-                      {o.cat}
-                    </span>
-                    <span className="font-mono text-[10px]" style={{ color: C.textMute }}>
-                      {o.sources} sources
-                    </span>
-                  </div>
+            {topOpportunities.length === 0 && (
+              <div className="px-5 py-10 text-center">
+                <div className="text-[13px] mb-3" style={{ color: C.textDim }}>
+                  {briefingLoading ? "Generating opportunities from your workspace…" : "No opportunities yet — add leads or start a discovery chat."}
                 </div>
-                <div className="col-span-1 text-right font-mono text-[12px]" style={{ color: C.text }}>{o.reach.toLocaleString()}</div>
-                <div className="col-span-1 text-right font-mono text-[12px]" style={{ color: C.text }}>{o.impact}x</div>
-                <div className="col-span-1 text-right font-mono text-[12px]" style={{ color: C.text }}>{o.confidence}%</div>
-                <div className="col-span-1 text-right font-mono text-[12px]" style={{ color: C.text }}>{o.effort}</div>
-                <div className="col-span-2 flex items-center justify-end gap-2">
-                  <div className="w-16 h-1.5 rounded-full overflow-hidden" style={{ background: C.border }}>
-                    <div
-                      className="h-full"
-                      style={{
-                        width: `${Math.min(100, o.rice / 5)}%`,
-                        background: o.rice > 400 ? C.signal : o.rice > 200 ? C.amber : C.textMute,
-                      }}
-                    />
-                  </div>
-                  <span
-                    className="font-mono text-[13px] font-semibold w-10 text-right"
-                    style={{ color: o.rice > 400 ? C.signal : C.text }}
+                {!briefingLoading && (
+                  <button
+                    onClick={onRefreshBriefing}
+                    className="text-[12px] px-3 py-1.5 rounded-md border hover-lift inline-flex items-center gap-1.5"
+                    style={{ borderColor: C.border, color: C.text }}
                   >
-                    {o.rice}
-                  </span>
-                </div>
+                    <Sparkles size={12} /> Generate briefing
+                  </button>
+                )}
               </div>
-            ))}
+            )}
+            {topOpportunities.map(o => {
+              const urgencyColor = o.urgency === "critical" ? C.coral : o.urgency === "high" ? C.amber : C.sky;
+              return (
+                <div
+                  key={o.id}
+                  onClick={() => onNavigate(o.action_type === "workflow" ? "workflows" : o.action_type === "slides" ? "slides" : o.action_type === "spreadsheet" ? "data" : o.action_type === "command-center" ? "command" : "discover")}
+                  className="grid grid-cols-12 gap-3 px-5 py-3.5 items-center border-b hover:bg-white/[0.015] transition cursor-pointer"
+                  style={{ borderColor: C.border }}
+                >
+                  <div className="col-span-1 font-mono text-[11px]" style={{ color: C.textMute }}>{o.id}</div>
+                  <div className="col-span-7">
+                    <div className="text-[13px] font-medium" style={{ color: C.text }}>{o.title}</div>
+                    <div className="flex items-center gap-2 mt-1">
+                      <span
+                        className="font-mono text-[10px] px-1.5 py-0.5 rounded"
+                        style={{ background: C.surface, color: C.textDim }}
+                      >
+                        {o.cat}
+                      </span>
+                      <span className="text-[11px]" style={{ color: C.textMute }}>{o.description}</span>
+                    </div>
+                  </div>
+                  <div className="col-span-2 text-right">
+                    <span
+                      className="font-mono text-[10px] uppercase tracking-wider px-1.5 py-0.5 rounded"
+                      style={{ background: C.surface, color: urgencyColor }}
+                    >
+                      {o.urgency}
+                    </span>
+                  </div>
+                  <div className="col-span-2 flex items-center justify-end gap-2">
+                    <div className="w-16 h-1.5 rounded-full overflow-hidden" style={{ background: C.border }}>
+                      <div
+                        className="h-full"
+                        style={{
+                          width: `${Math.min(100, o.rice / 5)}%`,
+                          background: o.rice > 400 ? C.signal : o.rice > 200 ? C.amber : C.textMute,
+                        }}
+                      />
+                    </div>
+                    <span
+                      className="font-mono text-[13px] font-semibold w-10 text-right"
+                      style={{ color: o.rice > 400 ? C.signal : C.text }}
+                    >
+                      {o.rice}
+                    </span>
+                  </div>
+                </div>
+              );
+            })}
           </div>
         </div>
 
