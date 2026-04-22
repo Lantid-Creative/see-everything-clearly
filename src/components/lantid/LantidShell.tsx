@@ -555,7 +555,7 @@ function HomeView({
             </span>
           </div>
           <h1 className="font-display text-5xl leading-[1.05]" style={{ color: C.text }}>
-            {greeting}, {userName.split(" ")[0]}.{" "}
+            {greeting}, {(userName || "there").split(" ")[0]}.{" "}
             <em className="italic" style={{ color: C.signal }}>
               {opportunities} new signals
             </em>{" "}
