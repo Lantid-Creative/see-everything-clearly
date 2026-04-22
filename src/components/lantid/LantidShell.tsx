@@ -74,12 +74,12 @@ const NAV: { key: NavKey; label: string; icon: typeof Home; shortcut?: string }[
 ];
 
 const PHASES: { key: ProductPhase; label: string; num: string }[] = [
-  { key: "discover", label: "Discover", num: "01" },
-  { key: "define",   label: "Define",   num: "02" },
-  { key: "design",   label: "Design",   num: "03" },
-  { key: "build",    label: "Build",    num: "04" },
-  { key: "launch",   label: "Launch",   num: "05" },
-  { key: "measure",  label: "Measure",  num: "06" },
+  { key: "discover",   label: "Discover",   num: "01" },
+  { key: "define",     label: "Define",     num: "02" },
+  { key: "prioritize", label: "Prioritize", num: "03" },
+  { key: "build",      label: "Build",      num: "04" },
+  { key: "launch",     label: "Launch",     num: "05" },
+  { key: "measure",    label: "Measure",    num: "06" },
 ];
 
 // ============ SIDEBAR ============
@@ -961,7 +961,7 @@ export function LantidShell(props: LantidShellProps) {
     return () => window.removeEventListener("keydown", handler);
   }, []);
 
-  const userName = profile?.display_name || profile?.email?.split("@")[0] || "Founder";
+  const userName = profile?.displayName || "Founder";
   const userRole = profile?.role || "Product";
   const totals = {
     leads: ws?.totalLeads ?? 0,
