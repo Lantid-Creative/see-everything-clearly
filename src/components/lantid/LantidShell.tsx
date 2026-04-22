@@ -1195,6 +1195,10 @@ export interface LantidShellProps {
   productName: string;
   currentPhase: ProductPhase | null;
   onSetPhase: (p: ProductPhase | null) => void;
+  // Discovery wiring
+  conversations: { id: string; title: string; createdAt: Date; messages: { role: string }[] }[];
+  activeConversationId: string;
+  onSelectConversation: (id: string) => void;
   // External-rendered views injected into the shell
   renderChat: () => ReactNode;
   renderWorkflow: () => ReactNode;
