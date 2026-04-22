@@ -15,6 +15,10 @@ import type { ViewMode } from "@/pages/Index";
 import { useUserProfile } from "@/hooks/useUserProfile";
 import { useWorkspaceContext } from "@/hooks/useWorkspaceContext";
 import { useProductPhase, type ProductPhase } from "@/hooks/useProductPhase";
+import { useProducts, type Product } from "@/hooks/useProducts";
+import { useNotifications } from "@/hooks/useNotifications";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { formatDistanceToNow } from "date-fns";
 
 // ============ DESIGN TOKENS ============
 const C = {
@@ -84,14 +88,19 @@ const PHASES: { key: ProductPhase; label: string; num: string }[] = [
 
 // ============ SIDEBAR ============
 function Sidebar({
-  view, setView, productName, userName, userRole,
+  view, setView, products, activeProduct, onSelectProduct, onCreateProduct,
+  userName, userRole,
 }: {
   view: NavKey;
   setView: (v: NavKey) => void;
-  productName: string;
+  products: Product[];
+  activeProduct: Product | null;
+  onSelectProduct: (id: string) => void;
+  onCreateProduct: (name: string) => Promise<void> | void;
   userName: string;
   userRole: string;
 }) {
+  const productName = activeProduct?.name || "Workspace";
   return (
     <aside
       className="fixed left-0 top-0 bottom-0 w-[248px] border-r flex flex-col z-20"
@@ -118,26 +127,72 @@ function Sidebar({
 
       {/* Workspace switcher */}
       <div className="px-3 mb-4">
-        <button
-          className="w-full flex items-center justify-between px-3 py-2 rounded-md border hover-lift"
-          style={{ borderColor: C.border, background: C.surface }}
-        >
-          <div className="flex items-center gap-2.5 min-w-0">
-            <div
-              className="w-5 h-5 rounded flex items-center justify-center shrink-0"
-              style={{ background: "#1F2A14", color: C.signal }}
+        <Popover>
+          <PopoverTrigger asChild>
+            <button
+              className="w-full flex items-center justify-between px-3 py-2 rounded-md border hover-lift"
+              style={{ borderColor: C.border, background: C.surface }}
             >
-              <span className="font-mono text-[10px] font-semibold">
-                {productName.slice(0, 2).toUpperCase()}
-              </span>
+              <div className="flex items-center gap-2.5 min-w-0">
+                <div
+                  className="w-5 h-5 rounded flex items-center justify-center shrink-0"
+                  style={{ background: "#1F2A14", color: C.signal }}
+                >
+                  <span className="font-mono text-[10px] font-semibold">
+                    {productName.slice(0, 2).toUpperCase()}
+                  </span>
+                </div>
+                <div className="min-w-0 text-left">
+                  <div className="text-xs font-medium truncate" style={{ color: C.text }}>{productName}</div>
+                  <div className="font-mono text-[9px] truncate" style={{ color: C.textMute }}>
+                    {products.length} {products.length === 1 ? "product" : "products"}
+                  </div>
+                </div>
+              </div>
+              <ChevronDown size={13} style={{ color: C.textMute }} />
+            </button>
+          </PopoverTrigger>
+          <PopoverContent
+            align="start"
+            sideOffset={6}
+            className="w-[248px] p-1 border"
+            style={{ background: C.bgElev, borderColor: C.border }}
+          >
+            <div className="font-mono text-[10px] uppercase tracking-widest px-2 py-1.5" style={{ color: C.textMute }}>
+              Switch product
             </div>
-            <div className="min-w-0 text-left">
-              <div className="text-xs font-medium truncate" style={{ color: C.text }}>{productName}</div>
-              <div className="font-mono text-[9px] truncate" style={{ color: C.textMute }}>Pro · workspace</div>
+            <div className="max-h-64 overflow-y-auto">
+              {products.map(p => (
+                <button
+                  key={p.id}
+                  onClick={() => onSelectProduct(p.id)}
+                  className="w-full flex items-center gap-2 px-2 py-1.5 rounded hover-lift text-left"
+                  style={{ color: p.id === activeProduct?.id ? C.signal : C.text }}
+                >
+                  <div
+                    className="w-5 h-5 rounded flex items-center justify-center shrink-0"
+                    style={{ background: "#1F2A14", color: C.signal }}
+                  >
+                    <span className="font-mono text-[9px] font-semibold">{p.name.slice(0, 2).toUpperCase()}</span>
+                  </div>
+                  <span className="text-[12px] truncate">{p.name}</span>
+                </button>
+              ))}
             </div>
-          </div>
-          <ChevronDown size={13} style={{ color: C.textMute }} />
-        </button>
+            <div className="border-t mt-1 pt-1" style={{ borderColor: C.border }}>
+              <button
+                onClick={async () => {
+                  const name = window.prompt("New product name");
+                  if (name?.trim()) await onCreateProduct(name.trim());
+                }}
+                className="w-full flex items-center gap-2 px-2 py-1.5 rounded hover-lift text-[12px]"
+                style={{ color: C.textDim }}
+              >
+                <Plus size={12} /> New product
+              </button>
+            </div>
+          </PopoverContent>
+        </Popover>
       </div>
 
       {/* Nav */}
@@ -249,12 +304,14 @@ function Sidebar({
 
 // ============ TOPBAR ============
 function Topbar({
-  currentPhase, setCurrentPhase, onSearch,
+  currentPhase, setCurrentPhase, onSearch, onNewSignal,
 }: {
   currentPhase: ProductPhase | null;
   setCurrentPhase: (p: ProductPhase) => void;
   onSearch: () => void;
+  onNewSignal: () => void;
 }) {
+  const { notifications, unreadCount, markAsRead, markAllAsRead } = useNotifications();
   return (
     <div
       className="sticky top-0 z-10 border-b backdrop-blur-xl"
@@ -313,15 +370,79 @@ function Topbar({
           })}
         </div>
 
-        <button
-          className="relative w-8 h-8 flex items-center justify-center rounded-md border hover-lift"
-          style={{ borderColor: C.border }}
-        >
-          <Bell size={14} style={{ color: C.textDim }} />
-          <div className="absolute top-1.5 right-1.5 w-1.5 h-1.5 rounded-full" style={{ background: C.signal }} />
-        </button>
+        {/* Notifications */}
+        <Popover>
+          <PopoverTrigger asChild>
+            <button
+              className="relative w-8 h-8 flex items-center justify-center rounded-md border hover-lift"
+              style={{ borderColor: C.border }}
+              aria-label={`Notifications${unreadCount ? `, ${unreadCount} unread` : ""}`}
+            >
+              <Bell size={14} style={{ color: C.textDim }} />
+              {unreadCount > 0 && (
+                <div
+                  className="absolute -top-1 -right-1 min-w-[16px] h-[16px] px-1 rounded-full flex items-center justify-center font-mono text-[9px] font-semibold"
+                  style={{ background: C.signal, color: "#0A0A0B" }}
+                >
+                  {unreadCount > 9 ? "9+" : unreadCount}
+                </div>
+              )}
+            </button>
+          </PopoverTrigger>
+          <PopoverContent
+            align="end"
+            sideOffset={6}
+            className="w-[340px] p-0 border"
+            style={{ background: C.bgElev, borderColor: C.border }}
+          >
+            <div className="flex items-center justify-between px-3 py-2 border-b" style={{ borderColor: C.border }}>
+              <span className="font-mono text-[10px] uppercase tracking-widest" style={{ color: C.textMute }}>
+                Notifications {unreadCount > 0 && `· ${unreadCount} new`}
+              </span>
+              {unreadCount > 0 && (
+                <button
+                  onClick={() => markAllAsRead()}
+                  className="text-[10px] font-medium"
+                  style={{ color: C.signal }}
+                >
+                  Mark all read
+                </button>
+              )}
+            </div>
+            <div className="max-h-[360px] overflow-y-auto">
+              {notifications.length === 0 ? (
+                <div className="px-4 py-8 text-center text-[12px]" style={{ color: C.textMute }}>
+                  Nothing new yet.
+                </div>
+              ) : (
+                notifications.slice(0, 20).map(n => (
+                  <button
+                    key={n.id}
+                    onClick={() => markAsRead(n.id)}
+                    className="w-full text-left px-3 py-2.5 border-b hover:bg-white/[0.015]"
+                    style={{ borderColor: C.border, opacity: n.read ? 0.6 : 1 }}
+                  >
+                    <div className="flex items-start gap-2">
+                      {!n.read && (
+                        <div className="mt-1.5 w-1.5 h-1.5 rounded-full shrink-0" style={{ background: C.signal }} />
+                      )}
+                      <div className="flex-1 min-w-0">
+                        <div className="text-[12px] font-medium" style={{ color: C.text }}>{n.title}</div>
+                        <div className="text-[11px] mt-0.5" style={{ color: C.textDim }}>{n.message}</div>
+                        <div className="font-mono text-[10px] mt-1" style={{ color: C.textMute }}>
+                          {formatDistanceToNow(new Date(n.created_at), { addSuffix: true })}
+                        </div>
+                      </div>
+                    </div>
+                  </button>
+                ))
+              )}
+            </div>
+          </PopoverContent>
+        </Popover>
 
         <button
+          onClick={onNewSignal}
           className="flex items-center gap-2 px-3 h-8 rounded-md font-medium text-[12px] transition"
           style={{ background: C.signal, color: "#0A0A0B" }}
         >
@@ -941,6 +1062,8 @@ export function LantidShell(props: LantidShellProps) {
       : null,
   );
 
+  const { products, activeProduct, setActiveProductId, createProduct } = useProducts();
+
   const [view, setView] = useState<NavKey>(props.initialView ?? "home");
 
   // Keyboard shortcuts ⌘1..⌘7
@@ -1059,7 +1182,10 @@ export function LantidShell(props: LantidShellProps) {
       <Sidebar
         view={view}
         setView={handleNav}
-        productName={props.productName}
+        products={products}
+        activeProduct={activeProduct}
+        onSelectProduct={setActiveProductId}
+        onCreateProduct={async (name) => { await createProduct(name); }}
         userName={userName}
         userRole={userRole}
       />
@@ -1068,6 +1194,7 @@ export function LantidShell(props: LantidShellProps) {
           currentPhase={effectivePhase as ProductPhase}
           setCurrentPhase={(p) => props.onSetPhase(p)}
           onSearch={props.onOpenSearch}
+          onNewSignal={() => { props.onNewChat(); setView("discover"); }}
         />
         <main>{renderBody()}</main>
       </div>
