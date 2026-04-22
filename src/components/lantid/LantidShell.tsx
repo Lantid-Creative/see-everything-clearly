@@ -1096,6 +1096,24 @@ export function LantidShell(props: LantidShellProps) {
   );
 
   const { products, activeProduct, setActiveProductId, createProduct } = useProducts();
+  const { briefing, loading: briefingLoading, generateBriefing } = useNerveCenter();
+  const { user } = useAuth();
+  const [liveWorkflows, setLiveWorkflows] = useState<LiveWorkflow[]>([]);
+
+  useEffect(() => {
+    if (!user) return;
+    let cancelled = false;
+    (async () => {
+      const { data } = await supabase
+        .from("workflows")
+        .select("id, name, is_deployed, updated_at")
+        .eq("user_id", user.id)
+        .order("updated_at", { ascending: false })
+        .limit(8);
+      if (!cancelled) setLiveWorkflows((data ?? []) as LiveWorkflow[]);
+    })();
+    return () => { cancelled = true; };
+  }, [user, ws?.totalWorkflows]);
 
   const [view, setView] = useState<NavKey>(props.initialView ?? "home");
 
