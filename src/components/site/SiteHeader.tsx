@@ -26,11 +26,11 @@ export function SiteHeader() {
 
   return (
     <>
-      {/* Top utility bar */}
-      <div className="hidden md:flex w-full justify-end items-center gap-2 px-6 py-2 text-xs bg-gradient-to-r from-primary/90 via-primary to-primary/80 text-primary-foreground">
+      {/* Top utility bar — MMC green gradient */}
+      <div className="hidden md:flex w-full justify-end items-center gap-2 px-6 py-2 text-xs brand-gradient text-white">
         <Phone className="h-3 w-3" />
         <span className="opacity-90">Call Us</span>
-        <a href="tel:+97144397212" className="font-medium hover:underline">
+        <a href="tel:+97144397212" className="font-semibold hover:underline">
           🇦🇪 +971 4 439 7212
         </a>
       </div>
@@ -38,13 +38,13 @@ export function SiteHeader() {
       <header
         className={`sticky top-0 z-40 w-full transition-all duration-300 ${
           scrolled
-            ? "bg-background/85 backdrop-blur-md border-b border-border shadow-sm"
-            : "bg-background/60 backdrop-blur"
+            ? "bg-background/85 backdrop-blur-xl border-b border-border"
+            : "bg-background/40 backdrop-blur-md"
         }`}
       >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-2">
-            <Logo size="sm" />
+            <Logo size="md" variant="light" />
           </Link>
 
           <nav className="hidden lg:flex items-center gap-1">
@@ -53,10 +53,10 @@ export function SiteHeader() {
                 key={n.to}
                 to={n.to}
                 className={({ isActive }) =>
-                  `px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
+                  `px-4 py-2 text-sm font-medium rounded-full transition-colors ${
                     isActive
-                      ? "text-primary bg-primary/10"
-                      : "text-foreground/70 hover:text-foreground hover:bg-accent"
+                      ? "text-white bg-white/10"
+                      : "text-foreground/70 hover:text-white hover:bg-white/5"
                   }`
                 }
               >
@@ -68,14 +68,14 @@ export function SiteHeader() {
           <div className="flex items-center gap-2">
             <Link
               to="/contact"
-              className="hidden sm:inline-flex items-center gap-2 rounded-full bg-foreground text-background px-5 py-2.5 text-sm font-medium hover:bg-foreground/90 transition-all hover:gap-3 group"
+              className="hidden sm:inline-flex items-center gap-2 rounded-full brand-gradient text-white px-6 py-2.5 text-sm font-semibold hover:brand-glow transition-all group"
             >
+              <Phone className="h-4 w-4" />
               Contact Us
-              <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
             </Link>
             <button
               onClick={() => setOpen((o) => !o)}
-              className="lg:hidden p-2 rounded-lg hover:bg-accent"
+              className="lg:hidden p-2 rounded-lg hover:bg-white/5"
               aria-label="Toggle menu"
             >
               {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
@@ -93,8 +93,8 @@ export function SiteHeader() {
                   className={({ isActive }) =>
                     `block px-3 py-2.5 rounded-lg text-sm font-medium ${
                       isActive
-                        ? "bg-primary/10 text-primary"
-                        : "text-foreground/70 hover:bg-accent"
+                        ? "bg-white/10 text-white"
+                        : "text-foreground/70 hover:bg-white/5"
                     }`
                   }
                 >
@@ -103,7 +103,7 @@ export function SiteHeader() {
               ))}
               <Link
                 to="/contact"
-                className="block px-3 py-2.5 rounded-lg text-sm font-medium bg-foreground text-background text-center"
+                className="block px-3 py-2.5 rounded-full text-sm font-semibold brand-gradient text-white text-center"
               >
                 Contact Us
               </Link>
