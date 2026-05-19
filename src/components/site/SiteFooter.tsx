@@ -112,13 +112,17 @@ export function SiteFooter() {
           </p>
           <div className="flex items-center gap-2">
             {[
-              { Icon: Linkedin, href: "#" },
-              { Icon: Twitter, href: "#" },
-              { Icon: Github, href: "#" },
-            ].map(({ Icon, href }, i) => (
+              { Icon: Linkedin, href: "https://www.linkedin.com/company/lantidcreative/", label: "LinkedIn" },
+              { Icon: Instagram, href: "https://www.instagram.com/lantidcreative/", label: "Instagram" },
+              { Icon: XIcon, href: "https://x.com/lantidcreative", label: "X" },
+              { Icon: Youtube, href: "https://www.youtube.com/@lantidcreative", label: "YouTube" },
+            ].map(({ Icon, href, label }) => (
               <a
-                key={i}
+                key={label}
                 href={href}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label={label}
                 className="h-9 w-9 rounded-full border border-sidebar-border flex items-center justify-center hover:bg-primary hover:border-primary hover:text-primary-foreground transition-all"
               >
                 <Icon className="h-4 w-4" />
