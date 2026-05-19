@@ -174,113 +174,47 @@ export default function Home() {
       />
 
       {/* ============ HERO ============ */}
-      <section className="relative overflow-hidden bg-background text-foreground">
-        <div className="absolute inset-0 pointer-events-none hero-radial" />
-        <div className="absolute inset-0 pointer-events-none grid-bg opacity-60" />
-
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-24 sm:pt-28 sm:pb-32">
+      <section className="relative bg-background border-b border-border">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-20 sm:pt-28 sm:pb-24">
           <motion.div
-            initial={{ opacity: 0, y: 24 }}
+            initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            className="text-center max-w-4xl mx-auto"
+            transition={{ duration: 0.4 }}
+            className="text-center max-w-3xl mx-auto"
           >
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/5 border border-white/10 text-xs font-medium text-foreground/80 mb-8 backdrop-blur">
-              <Sparkles className="h-3 w-3 text-primary" />
-              Founded 2023 · Abuja · Doncaster · Global delivery
+            <div className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.18em] text-primary mb-6">
+              <span className="h-1.5 w-1.5 rounded-full bg-primary" />
+              Founded 2023 · Abuja · Doncaster
             </div>
 
-            <h1 className="font-serif text-5xl sm:text-6xl lg:text-7xl tracking-tight leading-[1.05] text-foreground">
-              Strategic consulting,{" "}
-              <span className="italic brand-gradient-text">creative innovation</span>,
-              measurable impact.
+            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight leading-[1.05] text-foreground">
+              Strategy, research, brand and technology — under one roof.
             </h1>
 
-            <p className="mt-8 text-base sm:text-lg text-muted-foreground leading-relaxed max-w-3xl mx-auto">
-              Lantid Creative Limited is a premier consulting firm helping governments,
-              development organizations and ambitious enterprises move from strategy to
-              execution. We combine deep analytical rigor with creative brand development and
-              modern technology — so every engagement leaves behind a stronger institution.
+            <p className="mt-6 text-base sm:text-lg text-muted-foreground leading-relaxed max-w-2xl mx-auto">
+              Lantid Creative is a consulting firm helping governments, development organizations
+              and ambitious enterprises move from strategy to execution.
             </p>
 
-            <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-3">
+            <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3">
               <Link
                 to="/contact"
-                className="group inline-flex items-center gap-2 rounded-full bg-white text-background px-7 py-3.5 text-sm font-semibold hover:brand-glow transition-all hover:gap-3"
+                className="inline-flex items-center gap-2 rounded-md bg-primary text-primary-foreground px-5 py-2.5 text-sm font-semibold hover:bg-primary/90 transition-colors"
               >
                 Start a conversation
-                <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+                <ArrowRight className="h-4 w-4" />
               </Link>
               <Link
                 to="/services"
-                className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 backdrop-blur px-7 py-3.5 text-sm font-semibold text-foreground hover:bg-white/10 transition-all"
+                className="inline-flex items-center gap-2 rounded-md border border-border px-5 py-2.5 text-sm font-semibold text-foreground hover:bg-muted transition-colors"
               >
-                Explore our services
+                Explore services
               </Link>
-            </div>
-
-            <div className="mt-8 flex flex-wrap items-center justify-center gap-3 text-[11px]">
-              <span className="px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-muted-foreground">
-                Nigeria Reg. RC 7215558
-              </span>
-              <span className="px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-muted-foreground">
-                UK Reg. Co. 15609717
-              </span>
-              <span className="px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-muted-foreground">
-                Founded by Damilola Yinusa
-              </span>
-            </div>
-          </motion.div>
-
-          {/* Capability showcase */}
-          <motion.div
-            initial={{ opacity: 0, y: 40 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.2 }}
-            className="relative mt-20 mx-auto max-w-5xl"
-          >
-            <div className="absolute -inset-6 bg-gradient-to-r from-primary/30 via-primary/10 to-primary/30 blur-3xl rounded-3xl" />
-            <div className="relative rounded-2xl border border-sidebar-border bg-sidebar-accent/40 backdrop-blur p-2 shadow-2xl">
-              <div className="rounded-xl bg-sidebar overflow-hidden">
-                <div className="flex items-center gap-2 px-4 py-3 border-b border-sidebar-border">
-                  <span className="h-2.5 w-2.5 rounded-full bg-red-500/70" />
-                  <span className="h-2.5 w-2.5 rounded-full bg-yellow-500/70" />
-                  <span className="h-2.5 w-2.5 rounded-full bg-green-500/70" />
-                  <div className="ml-4 text-xs text-sidebar-muted">lantid.com/engagements</div>
-                </div>
-                <div className="p-6 sm:p-8">
-                  <div className="text-sm text-sidebar-foreground mb-1">
-                    Engagement health · Q2 outlook
-                  </div>
-                  <div className="text-xs text-sidebar-muted mb-6">
-                    Live snapshot across active strategy, research and brand workstreams.
-                  </div>
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                    {[
-                      { label: "On-time delivery", value: "98%", trend: "+3.2%", color: "text-green-400" },
-                      { label: "Client satisfaction", value: "4.9 / 5", trend: "+0.4", color: "text-primary" },
-                      { label: "Workstreams active", value: "24", trend: "+6", color: "text-blue-400" },
-                    ].map((c) => (
-                      <div
-                        key={c.label}
-                        className="rounded-xl bg-sidebar-accent/50 border border-sidebar-border p-4"
-                      >
-                        <div className="text-[11px] text-sidebar-muted uppercase tracking-wider">
-                          {c.label}
-                        </div>
-                        <div className="mt-2 text-2xl font-semibold text-sidebar-primary">
-                          {c.value}
-                        </div>
-                        <div className={`mt-1 text-xs ${c.color}`}>{c.trend} vs last quarter</div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
             </div>
           </motion.div>
         </div>
       </section>
+
 
       {/* ============ PARTNERS / TRUST ============ */}
       <section className="border-y border-border bg-card/40 py-12">
