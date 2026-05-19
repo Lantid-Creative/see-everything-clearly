@@ -104,18 +104,9 @@ export default function Home() {
   return (
     <>
       {/* ============ HERO ============ */}
-      <section className="relative overflow-hidden bg-sidebar text-sidebar-primary">
-        {/* Glow */}
-        <div className="absolute inset-0 pointer-events-none">
-          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[600px] bg-primary/20 rounded-full blur-[140px]" />
-          <div
-            className="absolute inset-0 opacity-[0.06]"
-            style={{
-              backgroundImage: `linear-gradient(hsl(var(--sidebar-foreground)) 1px, transparent 1px), linear-gradient(to right, hsl(var(--sidebar-foreground)) 1px, transparent 1px)`,
-              backgroundSize: "56px 56px",
-            }}
-          />
-        </div>
+      <section className="relative overflow-hidden bg-background text-foreground">
+        <div className="absolute inset-0 pointer-events-none hero-radial" />
+        <div className="absolute inset-0 pointer-events-none grid-bg opacity-60" />
 
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-24 sm:pt-28 sm:pb-32">
           <motion.div
@@ -124,20 +115,18 @@ export default function Home() {
             transition={{ duration: 0.6 }}
             className="text-center max-w-4xl mx-auto"
           >
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-sidebar-accent border border-sidebar-border text-xs font-medium text-sidebar-foreground mb-8">
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/5 border border-white/10 text-xs font-medium text-foreground/80 mb-8 backdrop-blur">
               <Sparkles className="h-3 w-3 text-primary" />
               Trusted by 350+ enterprises worldwide
             </div>
 
-            <h1 className="font-serif text-5xl sm:text-6xl lg:text-7xl tracking-tight leading-[1.05] text-sidebar-primary">
+            <h1 className="font-serif text-5xl sm:text-6xl lg:text-7xl tracking-tight leading-[1.05] text-foreground">
               Enterprise Digital{" "}
-              <span className="italic bg-gradient-to-r from-primary via-primary/90 to-primary/60 bg-clip-text text-transparent">
-                Solutions
-              </span>{" "}
+              <span className="italic brand-gradient-text">Solutions</span>{" "}
               That Drive Growth
             </h1>
 
-            <p className="mt-8 text-base sm:text-lg text-sidebar-foreground leading-relaxed max-w-2xl mx-auto">
+            <p className="mt-8 text-base sm:text-lg text-muted-foreground leading-relaxed max-w-2xl mx-auto">
               We build scalable, secure, high-performance digital solutions for enterprises.
               From software and app development to AI, cybersecurity, and blockchain — we help
               businesses innovate and scale with confidence.
@@ -146,14 +135,14 @@ export default function Home() {
             <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-3">
               <Link
                 to="/contact"
-                className="group inline-flex items-center gap-2 rounded-full bg-primary text-primary-foreground px-7 py-3.5 text-sm font-semibold hover:shadow-2xl hover:shadow-primary/30 transition-all hover:gap-3"
+                className="group inline-flex items-center gap-2 rounded-full bg-white text-background px-7 py-3.5 text-sm font-semibold hover:brand-glow transition-all hover:gap-3"
               >
                 Get Started
                 <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
               </Link>
               <Link
                 to="/case-study"
-                className="inline-flex items-center gap-2 rounded-full border border-sidebar-border bg-sidebar-accent/50 backdrop-blur px-7 py-3.5 text-sm font-semibold text-sidebar-primary hover:bg-sidebar-accent transition-all"
+                className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 backdrop-blur px-7 py-3.5 text-sm font-semibold text-foreground hover:bg-white/10 transition-all"
               >
                 View Case Studies
               </Link>

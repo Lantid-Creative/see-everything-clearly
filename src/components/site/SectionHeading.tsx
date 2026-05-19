@@ -21,10 +21,10 @@ export function SectionHeading({
     >
       {eyebrow && (
         <div
-          className={`inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-xs font-semibold uppercase tracking-wider mb-4`}
+          className={`inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-xs font-semibold uppercase tracking-[0.18em] mb-4`}
         >
-          <span className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse" />
-          {eyebrow}
+          <span className="h-1.5 w-1.5 rounded-full brand-gradient animate-pulse" />
+          <span className="brand-gradient-text">{eyebrow}</span>
         </div>
       )}
       <h2 className="font-serif text-3xl sm:text-4xl lg:text-5xl tracking-tight text-foreground leading-[1.1]">
