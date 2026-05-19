@@ -1,4 +1,4 @@
-import { Moon, Sun } from "lucide-react";
+import { Sun } from "lucide-react";
 import { useTheme } from "@/hooks/useTheme";
 import { motion } from "framer-motion";
 import { useLocation } from "react-router-dom";
@@ -18,7 +18,7 @@ export function ThemeToggle({ className = "" }: { className?: string }) {
         animate={{ rotate: 0, opacity: 1, scale: 1 }}
         transition={{ duration: 0.2 }}
       >
-        {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+        <Sun className="h-4 w-4" />
       </motion.div>
     </button>
   );
