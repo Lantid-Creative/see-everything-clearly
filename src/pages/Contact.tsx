@@ -1,6 +1,8 @@
 import { useState } from "react";
-import { Mail, Phone, MapPin, Send, Loader2, CheckCircle2 } from "lucide-react";
+import { Mail, Phone, MapPin, Send, Loader2, CheckCircle2, Clock, ShieldCheck, Sparkles } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { Seo } from "@/components/site/Seo";
+
 
 export default function Contact() {
   const [submitting, setSubmitting] = useState(false);
@@ -20,28 +22,55 @@ export default function Contact() {
     });
   };
 
+  const contactJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "ContactPage",
+    name: "Contact Lantid Creative",
+    url: "https://lantid.com/contact",
+  };
+
   return (
     <>
+      <Seo
+        title="Contact Lantid Creative — Abuja & Doncaster | Strategy, Brand & Tech"
+        description="Get in touch with Lantid Creative Limited. Offices in Abuja, Nigeria and Doncaster, UK. Email hi@lantid.com or call +234 707 443 0088. We respond within one business day."
+        path="/contact"
+        jsonLd={contactJsonLd}
+      />
+
       <section className="bg-sidebar text-sidebar-primary py-20 sm:py-24 relative overflow-hidden">
         <div className="absolute inset-0">
           <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[700px] h-[500px] bg-primary/15 rounded-full blur-[140px]" />
         </div>
         <div className="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-sidebar-accent border border-sidebar-border text-xs font-medium mb-6">
-            Contact
+            <Sparkles className="h-3 w-3 text-primary" /> Contact
           </div>
           <h1 className="font-serif text-5xl sm:text-6xl tracking-tight leading-[1.05]">
             Let's build something{" "}
             <span className="italic bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
-              remarkable
+              remarkable together
             </span>
           </h1>
-          <p className="mt-6 text-sidebar-foreground max-w-xl mx-auto leading-relaxed">
-            Tell us about your project. A principal engineer responds within one business day —
-            not a sales template.
+          <p className="mt-6 text-sidebar-foreground max-w-2xl mx-auto leading-relaxed">
+            Whether you're scoping a national strategy, designing an M&E framework, refreshing a
+            brand or digitising a service — a Lantid principal will respond within one business
+            day. Real reply, not a template.
           </p>
+          <div className="mt-8 flex flex-wrap items-center justify-center gap-3 text-xs">
+            <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-sidebar-accent border border-sidebar-border">
+              <Clock className="h-3 w-3 text-primary" /> 1 business day response
+            </span>
+            <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-sidebar-accent border border-sidebar-border">
+              <ShieldCheck className="h-3 w-3 text-primary" /> NDA on request
+            </span>
+            <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-sidebar-accent border border-sidebar-border">
+              Senior-led from day one
+            </span>
+          </div>
         </div>
       </section>
+
 
       <section className="py-20">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 grid lg:grid-cols-5 gap-10">
@@ -84,14 +113,17 @@ export default function Contact() {
                     name="service"
                     className="w-full rounded-xl border border-input bg-background px-3 py-2.5 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30"
                   >
-                    <option>Software Development</option>
-                    <option>Mobile App Development</option>
-                    <option>AI & Machine Learning</option>
-                    <option>Cybersecurity</option>
-                    <option>Blockchain Solutions</option>
-                    <option>Cloud & DevOps</option>
+                    <option>Management Consulting</option>
+                    <option>Business Consulting</option>
+                    <option>Strategic Planning</option>
+                    <option>Policy Research</option>
+                    <option>Industrial Policy Development</option>
+                    <option>Monitoring & Evaluation</option>
+                    <option>Branding & Brand Development</option>
+                    <option>IT & Technology Solutions</option>
                     <option>Not sure yet</option>
                   </select>
+
                 </div>
 
                 <div>

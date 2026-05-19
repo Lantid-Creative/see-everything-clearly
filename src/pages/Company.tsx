@@ -27,6 +27,8 @@ import {
   MapPin,
 } from "lucide-react";
 import { SectionHeading } from "@/components/site/SectionHeading";
+import { Seo } from "@/components/site/Seo";
+
 
 const services = [
   {
@@ -97,8 +99,28 @@ const milestones = [
 ];
 
 export default function Company() {
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "AboutPage",
+    name: "About Lantid Creative",
+    url: "https://lantid.com/company",
+    mainEntity: {
+      "@type": "Organization",
+      name: "Lantid Creative Limited",
+      foundingDate: "2023",
+      founder: { "@type": "Person", "name": "Damilola Yinusa" },
+    },
+  };
+
   return (
     <>
+      <Seo
+        title="About Lantid Creative — Founded 2023 by Damilola Yinusa | Abuja & UK"
+        description="Lantid Creative Limited was founded in 2023 by Damilola Yinusa. Registered in Nigeria (RC 7215558) and the UK (Co. No. 15609717), we operate a portfolio of businesses and partnerships across strategy, research, branding and technology."
+        path="/company"
+        jsonLd={jsonLd}
+      />
+
       {/* HERO */}
       <section className="bg-sidebar text-sidebar-primary py-20 sm:py-28 relative overflow-hidden">
         <div className="absolute inset-0 pointer-events-none">
