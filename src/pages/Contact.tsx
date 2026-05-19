@@ -113,14 +113,17 @@ export default function Contact() {
                     name="service"
                     className="w-full rounded-xl border border-input bg-background px-3 py-2.5 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30"
                   >
-                    <option>Software Development</option>
-                    <option>Mobile App Development</option>
-                    <option>AI & Machine Learning</option>
-                    <option>Cybersecurity</option>
-                    <option>Blockchain Solutions</option>
-                    <option>Cloud & DevOps</option>
+                    <option>Management Consulting</option>
+                    <option>Business Consulting</option>
+                    <option>Strategic Planning</option>
+                    <option>Policy Research</option>
+                    <option>Industrial Policy Development</option>
+                    <option>Monitoring & Evaluation</option>
+                    <option>Branding & Brand Development</option>
+                    <option>IT & Technology Solutions</option>
                     <option>Not sure yet</option>
                   </select>
+
                 </div>
 
                 <div>
