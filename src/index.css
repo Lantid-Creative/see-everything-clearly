@@ -42,15 +42,15 @@
 
     --radius: 0.375rem;
 
-    --sidebar-background: 0 0% 7%;
-    --sidebar-foreground: 0 0% 75%;
+    --sidebar-background: 0 0% 100%;
+    --sidebar-foreground: 0 0% 20%;
     --sidebar-primary: 13 95% 60%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 0 0% 12%;
-    --sidebar-accent-foreground: 0 0% 95%;
-    --sidebar-border: 0 0% 18%;
+    --sidebar-accent: 0 0% 96%;
+    --sidebar-accent-foreground: 0 0% 7%;
+    --sidebar-border: 0 0% 90%;
     --sidebar-ring: 13 95% 60%;
-    --sidebar-muted: 0 0% 55%;
+    --sidebar-muted: 0 0% 45%;
 
     --chat-bubble-user: 13 95% 60%;
     --chat-bubble-user-foreground: 0 0% 100%;
