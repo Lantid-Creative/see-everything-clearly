@@ -2,12 +2,14 @@ import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import {
   ArrowRight,
-  Code2,
-  Smartphone,
-  Brain,
-  Shield,
-  Database,
-  Cloud,
+  Briefcase,
+  TrendingUp,
+  Map,
+  Search,
+  Factory,
+  BarChart3,
+  Palette,
+  Cpu,
   Sparkles,
   CheckCircle2,
   Star,
@@ -15,94 +17,162 @@ import {
   Zap,
   Layers,
   Users,
-  TrendingUp,
+  ShieldCheck,
+  Globe2,
+  Building2,
+  HeartPulse,
+  Lightbulb,
+  Award,
+  Quote,
 } from "lucide-react";
 import { SectionHeading } from "@/components/site/SectionHeading";
+import { Seo } from "@/components/site/Seo";
 
 const partners = [
-  "Microsoft",
-  "Adobe",
-  "AWS",
-  "Azure",
-  "Google Cloud",
-  "Oracle",
-  "Salesforce",
-  "Stripe",
-  "Docker",
-  "HubSpot",
+  "Federal Ministries",
+  "State Governments",
+  "UNDP",
+  "USAID",
+  "World Bank",
+  "GIZ",
+  "DFID/FCDO",
+  "African Development Bank",
+  "Private Enterprises",
+  "Foundations",
 ];
 
 const services = [
   {
-    icon: Code2,
-    title: "Software Development",
-    desc: "Custom enterprise platforms architected for performance, security, and scale.",
+    icon: Briefcase,
+    title: "Management Consulting",
+    desc: "Organizational restructuring, change management, leadership development and performance improvement that move institutions from intent to execution.",
   },
   {
-    icon: Smartphone,
-    title: "Mobile App Development",
-    desc: "Native iOS, Android, and cross-platform apps with pixel-perfect experiences.",
+    icon: TrendingUp,
+    title: "Business Consulting",
+    desc: "Growth strategy, market entry, financial advisory, governance and feasibility studies — engineered for revenue, resilience and exit-readiness.",
   },
   {
-    icon: Brain,
-    title: "AI & Machine Learning",
-    desc: "Production-grade AI agents, LLM systems, and data pipelines that drive ROI.",
+    icon: Map,
+    title: "Strategic Planning",
+    desc: "Long-range plans, competitive positioning, scenario modelling and implementation roadmaps your leadership team can actually deliver against.",
   },
   {
-    icon: Shield,
-    title: "Cybersecurity",
-    desc: "Threat modeling, penetration testing, and zero-trust architecture audits.",
+    icon: Search,
+    title: "Policy Research",
+    desc: "Evidence-based policy analysis, stakeholder engagement, legislative review and comparative studies that shape better public outcomes.",
   },
   {
-    icon: Database,
-    title: "Blockchain Solutions",
-    desc: "Smart contracts, custodial wallets, and tokenization frameworks done right.",
+    icon: Factory,
+    title: "Industrial Policy Development",
+    desc: "Sector mapping, value chains, investment promotion, local content and manufacturing competitiveness frameworks that unlock growth.",
   },
   {
-    icon: Cloud,
-    title: "Cloud & DevOps",
-    desc: "Multi-cloud infra, CI/CD pipelines, and observability for global teams.",
+    icon: BarChart3,
+    title: "Monitoring & Evaluation",
+    desc: "Results-based M&E frameworks, theory of change, impact evaluation and donor-compliant reporting that prove — and improve — outcomes.",
+  },
+  {
+    icon: Palette,
+    title: "Branding & Brand Development",
+    desc: "Brand strategy, visual identity, corporate communications and digital presence for institutions that need to be seen, trusted and remembered.",
+  },
+  {
+    icon: Cpu,
+    title: "IT & Technology Solutions",
+    desc: "Custom software, mobile, web, cloud, cybersecurity and systems integration to digitise operations and accelerate transformation.",
   },
 ];
 
 const stats = [
-  { value: "12+", label: "Years of expertise" },
-  { value: "350+", label: "Enterprise clients" },
-  { value: "98%", label: "Client retention" },
-  { value: "40+", label: "Global markets" },
+  { value: "2023", label: "Year founded" },
+  { value: "2", label: "Countries (NG · UK)" },
+  { value: "8", label: "Integrated practices" },
+  { value: "100%", label: "Senior-led delivery" },
 ];
 
 const process = [
-  { step: "01", title: "Discover", desc: "Stakeholder workshops, technical audits, and KPI alignment." },
-  { step: "02", title: "Design", desc: "Architecture, UX flows, and rigorous prototyping with your team." },
-  { step: "03", title: "Build", desc: "Agile delivery with weekly demos and production-ready quality gates." },
-  { step: "04", title: "Scale", desc: "Observability, SRE coverage, and continuous optimization." },
+  { step: "01", title: "Discover", desc: "Stakeholder workshops, diagnostics and KPI alignment to anchor every engagement in measurable outcomes." },
+  { step: "02", title: "Design", desc: "Strategy, frameworks, creative direction and technical architecture — co-created with your team, not handed down." },
+  { step: "03", title: "Deliver", desc: "Agile execution with weekly check-ins, transparent reporting and production-grade quality at every milestone." },
+  { step: "04", title: "Sustain", desc: "Capacity building, knowledge transfer and continuous improvement so impact outlasts the engagement." },
 ];
 
 const testimonials = [
   {
     quote:
-      "Lantid rebuilt our trading platform end-to-end. Latency dropped by 60% and our enterprise NPS hit an all-time high.",
-    author: "Sarah Al-Mansouri",
-    role: "CTO, Mena Capital",
+      "Lantid helped us re-architect our institutional strategy and brought a level of analytical rigor we rarely see from local firms. They delivered on time, on brief, and on budget.",
+    author: "Programme Director",
+    role: "Federal Ministry · Abuja",
   },
   {
     quote:
-      "They felt like an extension of our team from week one. The AI workflows they shipped saved us 400 hours a month.",
-    author: "James Whitaker",
-    role: "VP Engineering, Logix Group",
+      "From policy analysis to stakeholder engagement and the final brand rollout, Lantid was the only partner we needed. The work has already shaped two national programmes.",
+    author: "Country Lead",
+    role: "International Development Organization",
   },
   {
     quote:
-      "Best technical partner we've worked with. Zero compromise on security and a relentless focus on outcomes.",
-    author: "Priya Raman",
-    role: "Head of Product, Helix Health",
+      "Their M&E framework gave our board the clarity we'd been missing for years. Funding conversations are now grounded in evidence, not anecdote.",
+    author: "Executive Director",
+    role: "Pan-African Foundation",
+  },
+];
+
+const homeJsonLd = [
+  {
+    "@context": "https://schema.org",
+    "@type": "ProfessionalService",
+    name: "Lantid Creative Limited",
+    url: "https://lantid.com",
+    description:
+      "Premier consulting firm delivering management consulting, strategy, policy research, M&E, branding and technology solutions.",
+    areaServed: ["Nigeria", "United Kingdom", "Africa", "Europe"],
+    founder: { "@type": "Person", "name": "Damilola Yinusa" },
+    foundingDate: "2023",
+  },
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: [
+      {
+        "@type": "Question",
+        name: "What does Lantid Creative do?",
+        acceptedAnswer: {
+          "@type": "Answer",
+          text: "Lantid Creative is a multidisciplinary consulting firm offering management & business consulting, strategic planning, policy research, industrial policy, monitoring & evaluation, branding and technology solutions to government, development and enterprise clients.",
+        },
+      },
+      {
+        "@type": "Question",
+        name: "Where is Lantid based?",
+        acceptedAnswer: {
+          "@type": "Answer",
+          text: "Lantid Creative Limited is registered in Nigeria (RC 7215558) with headquarters in Abuja, and operates a UK entity, Lantid Creative UK Ltd (Co. No. 15609717), in Doncaster, England.",
+        },
+      },
+      {
+        "@type": "Question",
+        name: "Who founded Lantid?",
+        acceptedAnswer: {
+          "@type": "Answer",
+          text: "Lantid was founded in 2023 by Damilola Yinusa and now operates a portfolio of businesses and partnerships across consulting, branding and technology.",
+        },
+      },
+    ],
   },
 ];
 
 export default function Home() {
   return (
     <>
+      <Seo
+        title="Lantid Creative — Strategy, Research, Branding & Technology Consulting"
+        description="Lantid Creative is a Nigeria & UK consulting firm bridging strategy, policy research, M&E, branding and technology — trusted by government, development and enterprise clients."
+        path="/"
+        jsonLd={homeJsonLd}
+      />
+
       {/* ============ HERO ============ */}
       <section className="relative overflow-hidden bg-background text-foreground">
         <div className="absolute inset-0 pointer-events-none hero-radial" />
@@ -117,19 +187,20 @@ export default function Home() {
           >
             <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/5 border border-white/10 text-xs font-medium text-foreground/80 mb-8 backdrop-blur">
               <Sparkles className="h-3 w-3 text-primary" />
-              Trusted by 350+ enterprises worldwide
+              Founded 2023 · Abuja · Doncaster · Global delivery
             </div>
 
             <h1 className="font-serif text-5xl sm:text-6xl lg:text-7xl tracking-tight leading-[1.05] text-foreground">
-              Enterprise Digital{" "}
-              <span className="italic brand-gradient-text">Solutions</span>{" "}
-              That Drive Growth
+              Strategic consulting,{" "}
+              <span className="italic brand-gradient-text">creative innovation</span>,
+              measurable impact.
             </h1>
 
-            <p className="mt-8 text-base sm:text-lg text-muted-foreground leading-relaxed max-w-2xl mx-auto">
-              We build scalable, secure, high-performance digital solutions for enterprises.
-              From software and app development to AI, cybersecurity, and blockchain — we help
-              businesses innovate and scale with confidence.
+            <p className="mt-8 text-base sm:text-lg text-muted-foreground leading-relaxed max-w-3xl mx-auto">
+              Lantid Creative Limited is a premier consulting firm helping governments,
+              development organizations and ambitious enterprises move from strategy to
+              execution. We combine deep analytical rigor with creative brand development and
+              modern technology — so every engagement leaves behind a stronger institution.
             </p>
 
             <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-3">
@@ -137,19 +208,31 @@ export default function Home() {
                 to="/contact"
                 className="group inline-flex items-center gap-2 rounded-full bg-white text-background px-7 py-3.5 text-sm font-semibold hover:brand-glow transition-all hover:gap-3"
               >
-                Get Started
+                Start a conversation
                 <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
               </Link>
               <Link
-                to="/case-study"
+                to="/services"
                 className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 backdrop-blur px-7 py-3.5 text-sm font-semibold text-foreground hover:bg-white/10 transition-all"
               >
-                View Case Studies
+                Explore our services
               </Link>
+            </div>
+
+            <div className="mt-8 flex flex-wrap items-center justify-center gap-3 text-[11px]">
+              <span className="px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-muted-foreground">
+                Nigeria Reg. RC 7215558
+              </span>
+              <span className="px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-muted-foreground">
+                UK Reg. Co. 15609717
+              </span>
+              <span className="px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-muted-foreground">
+                Founded by Damilola Yinusa
+              </span>
             </div>
           </motion.div>
 
-          {/* Dashboard preview */}
+          {/* Capability showcase */}
           <motion.div
             initial={{ opacity: 0, y: 40 }}
             animate={{ opacity: 1, y: 0 }}
@@ -163,20 +246,20 @@ export default function Home() {
                   <span className="h-2.5 w-2.5 rounded-full bg-red-500/70" />
                   <span className="h-2.5 w-2.5 rounded-full bg-yellow-500/70" />
                   <span className="h-2.5 w-2.5 rounded-full bg-green-500/70" />
-                  <div className="ml-4 text-xs text-sidebar-muted">lantid.app/dashboard</div>
+                  <div className="ml-4 text-xs text-sidebar-muted">lantid.com/engagements</div>
                 </div>
                 <div className="p-6 sm:p-8">
                   <div className="text-sm text-sidebar-foreground mb-1">
-                    Welcome back, Michael 👋
+                    Engagement health · Q2 outlook
                   </div>
                   <div className="text-xs text-sidebar-muted mb-6">
-                    Here's an overview of your projects today.
+                    Live snapshot across active strategy, research and brand workstreams.
                   </div>
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                     {[
-                      { label: "Overall Status", value: "Healthy", trend: "+9.97%", color: "text-green-400" },
-                      { label: "Uptime", value: "99.95%", trend: "+0.12%", color: "text-primary" },
-                      { label: "Active Builds", value: "25", trend: "+12%", color: "text-blue-400" },
+                      { label: "On-time delivery", value: "98%", trend: "+3.2%", color: "text-green-400" },
+                      { label: "Client satisfaction", value: "4.9 / 5", trend: "+0.4", color: "text-primary" },
+                      { label: "Workstreams active", value: "24", trend: "+6", color: "text-blue-400" },
                     ].map((c) => (
                       <div
                         key={c.label}
@@ -188,7 +271,7 @@ export default function Home() {
                         <div className="mt-2 text-2xl font-semibold text-sidebar-primary">
                           {c.value}
                         </div>
-                        <div className={`mt-1 text-xs ${c.color}`}>{c.trend} vs last month</div>
+                        <div className={`mt-1 text-xs ${c.color}`}>{c.trend} vs last quarter</div>
                       </div>
                     ))}
                   </div>
@@ -199,17 +282,17 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ============ PARTNERS ============ */}
+      {/* ============ PARTNERS / TRUST ============ */}
       <section className="border-y border-border bg-card/40 py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <p className="text-center text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground mb-8">
-            Our Technology Partners
+            Trusted by government, development and enterprise clients
           </p>
           <div className="flex flex-wrap items-center justify-center gap-x-10 gap-y-6">
             {partners.map((p) => (
               <span
                 key={p}
-                className="text-base sm:text-lg font-semibold text-muted-foreground/60 hover:text-foreground transition-colors"
+                className="text-sm sm:text-base font-semibold text-muted-foreground/70 hover:text-foreground transition-colors"
               >
                 {p}
               </span>
@@ -225,14 +308,14 @@ export default function Home() {
             eyebrow="What we do"
             title={
               <>
-                Engineered for{" "}
-                <span className="italic text-primary">enterprise outcomes</span>
+                Eight integrated practices that{" "}
+                <span className="italic text-primary">work as one</span>
               </>
             }
-            description="Six core practices, one delivery standard. Every engagement ships with security, observability, and scale built-in."
+            description="Most firms force you to stitch together a strategy house, a research outfit, a brand agency and a software shop. Lantid replaces all four — under one accountable team, with one delivery standard."
           />
 
-          <div className="mt-16 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="mt-16 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {services.map((s, i) => (
               <motion.div
                 key={s.title}
@@ -242,7 +325,7 @@ export default function Home() {
                 transition={{ duration: 0.4, delay: i * 0.05 }}
                 className="group relative rounded-2xl border border-border bg-card p-7 hover:border-primary/40 hover:shadow-xl hover:shadow-primary/5 transition-all duration-300"
               >
-                <div className="h-12 w-12 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center mb-5 group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
+                <div className="h-12 w-12 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center mb-5 group-hover:bg-primary transition-colors">
                   <s.icon className="h-5 w-5 text-primary group-hover:text-primary-foreground transition-colors" />
                 </div>
                 <h3 className="text-lg font-semibold text-foreground mb-2">{s.title}</h3>
@@ -278,7 +361,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ============ PROCESS ============ */}
+      {/* ============ APPROACH ============ */}
       <section className="py-24 sm:py-32">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <SectionHeading
@@ -286,10 +369,10 @@ export default function Home() {
             title={
               <>
                 A delivery process built for{" "}
-                <span className="italic text-primary">certainty</span>
+                <span className="italic text-primary">certainty and impact</span>
               </>
             }
-            description="Predictable timelines, transparent communication, and demos every week."
+            description="Predictable timelines, transparent communication, and weekly progress reviews — so you always know where the work stands and what comes next."
           />
 
           <div className="mt-16 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -320,19 +403,20 @@ export default function Home() {
               eyebrow="Why Lantid"
               title={
                 <>
-                  An engineering partner that treats your roadmap like{" "}
+                  A consulting partner that treats your mission like{" "}
                   <span className="italic text-primary">our own</span>
                 </>
               }
-              description="No offshore handoffs, no junior teams hidden behind senior pitches. You get principals end-to-end."
+              description="We work alongside ministers, country directors, founders and boards as embedded partners — not vendors. Every recommendation we make is one we'd be willing to implement ourselves."
             />
             <div className="mt-8 space-y-4">
               {[
-                "Senior-led pods with embedded designers",
-                "ISO 27001 & SOC 2 aligned operations",
-                "24/7 SRE coverage with 99.95% uptime SLA",
-                "Transparent weekly demos and burndown",
-                "IP & code ownership transferred to you",
+                "Senior-led teams with proven public and private sector experience",
+                "Evidence-based recommendations grounded in primary and secondary research",
+                "Integrated delivery across strategy, research, brand and technology",
+                "Rigorous quality assurance and international professional standards",
+                "Knowledge transfer and capacity building built into every engagement",
+                "Dual-entity delivery from Nigeria (RC 7215558) and the UK (Co. 15609717)",
               ].map((f) => (
                 <div key={f} className="flex items-start gap-3">
                   <CheckCircle2 className="h-5 w-5 text-primary shrink-0 mt-0.5" />
@@ -340,14 +424,22 @@ export default function Home() {
                 </div>
               ))}
             </div>
+            <Link
+              to="/company"
+              className="mt-8 inline-flex items-center gap-2 text-sm font-semibold text-primary hover:gap-3 transition-all"
+            >
+              More about our story <ArrowRight className="h-4 w-4" />
+            </Link>
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             {[
-              { Icon: Activity, title: "Real-time", desc: "Production telemetry on every build" },
-              { Icon: Zap, title: "10x faster", desc: "Time-to-market vs traditional shops" },
-              { Icon: Layers, title: "Full-stack", desc: "From silicon to UX, one team" },
-              { Icon: Users, title: "Embedded", desc: "Slack, Jira, standups — fully integrated" },
+              { Icon: Lightbulb, title: "Innovation-driven", desc: "Cutting-edge methods, digital tools, creative approaches" },
+              { Icon: ShieldCheck, title: "Quality assured", desc: "Rigorous QA aligned to international standards" },
+              { Icon: Layers, title: "Multidisciplinary", desc: "Strategy + research + brand + tech in one team" },
+              { Icon: Users, title: "Embedded", desc: "Working alongside your teams, not over them" },
+              { Icon: Globe2, title: "Local & global", desc: "Africa context, international best practice" },
+              { Icon: Activity, title: "Outcome-led", desc: "Measured in impact, not deliverables alone" },
             ].map((c) => (
               <div
                 key={c.title}
@@ -362,14 +454,44 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ============ TESTIMONIALS ============ */}
+      {/* ============ SECTORS WE SERVE ============ */}
       <section className="py-24 sm:py-32">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <SectionHeading
-            eyebrow="Loved by leaders"
+            eyebrow="Sectors we serve"
+            title={<>From ministries to multinationals</>}
+            description="We work across the institutions that shape economies and the enterprises that grow within them."
+          />
+          <div className="mt-14 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+            {[
+              { Icon: Building2, label: "Government" },
+              { Icon: Globe2, label: "Development" },
+              { Icon: Briefcase, label: "Private Sector" },
+              { Icon: Users, label: "Non-Profits" },
+              { Icon: Award, label: "Academia" },
+              { Icon: HeartPulse, label: "Healthcare" },
+            ].map((s) => (
+              <Link
+                key={s.label}
+                to="/industries"
+                className="rounded-2xl border border-border bg-card p-5 text-center hover:border-primary/40 hover:-translate-y-0.5 transition-all"
+              >
+                <s.Icon className="h-6 w-6 text-primary mx-auto" />
+                <div className="mt-3 text-sm font-semibold text-foreground">{s.label}</div>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ============ TESTIMONIALS ============ */}
+      <section className="py-24 sm:py-32 bg-card/40">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <SectionHeading
+            eyebrow="What clients say"
             title={
               <>
-                The teams that ship with us, <span className="italic text-primary">stay with us</span>
+                The institutions that work with us, <span className="italic text-primary">come back</span>
               </>
             }
           />
@@ -382,9 +504,10 @@ export default function Home() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: i * 0.1 }}
-                className="rounded-2xl border border-border bg-card p-7"
+                className="rounded-2xl border border-border bg-background p-7"
               >
-                <div className="flex gap-1 mb-4">
+                <Quote className="h-6 w-6 text-primary/60" />
+                <div className="flex gap-1 my-4">
                   {Array.from({ length: 5 }).map((_, j) => (
                     <Star key={j} className="h-4 w-4 fill-primary text-primary" />
                   ))}
@@ -408,24 +531,24 @@ export default function Home() {
         <div className="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <TrendingUp className="h-10 w-10 text-primary mx-auto" />
           <h2 className="mt-6 font-serif text-4xl sm:text-5xl tracking-tight leading-tight">
-            Let's build the platform your{" "}
-            <span className="italic text-primary">next decade</span> runs on.
+            Let's design the next chapter of your{" "}
+            <span className="italic text-primary">institution</span>.
           </h2>
           <p className="mt-6 text-sidebar-foreground max-w-2xl mx-auto">
-            Talk to a principal engineer about your roadmap. We'll respond within one business day
-            with a scoped proposal.
+            Talk to a Lantid principal about your strategy, research, brand or technology
+            challenge. We respond within one business day with a tailored scope and next steps.
           </p>
           <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-3">
             <Link
               to="/contact"
               className="group inline-flex items-center gap-2 rounded-full bg-primary text-primary-foreground px-7 py-3.5 text-sm font-semibold hover:shadow-2xl hover:shadow-primary/30 transition-all hover:gap-3"
             >
-              Start a conversation
-              <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+              Book a discovery call
+              <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
             </Link>
             <a
               href="tel:+2347074430088"
-              className="inline-flex items-center gap-2 rounded-full border border-sidebar-border px-7 py-3.5 text-sm font-semibold hover:bg-sidebar-accent transition-all"
+              className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-7 py-3.5 text-sm font-semibold text-sidebar-primary hover:bg-white/10 transition-all"
             >
               +234 707 443 0088
             </a>
