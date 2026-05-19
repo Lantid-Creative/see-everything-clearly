@@ -4,7 +4,7 @@
 @tailwind components;
 @tailwind utilities;
 
-/* MMC-inspired dark theme — green gradient on near-black */
+/* Lantid theme — Orange #FA5D36 on black + white */
 @layer base {
   :root {
     --background: 0 0% 4%;
@@ -16,43 +16,43 @@
     --popover: 0 0% 6%;
     --popover-foreground: 0 0% 98%;
 
-    /* Vivid MMC green */
-    --primary: 145 75% 45%;
+    /* Lantid orange #FA5D36 */
+    --primary: 13 95% 60%;
     --primary-foreground: 0 0% 100%;
-    --primary-glow: 90 80% 55%;
+    --primary-glow: 18 100% 68%;
 
     --secondary: 0 0% 11%;
     --secondary-foreground: 0 0% 98%;
 
     --muted: 0 0% 11%;
-    --muted-foreground: 0 0% 62%;
+    --muted-foreground: 0 0% 65%;
 
-    --accent: 0 0% 13%;
-    --accent-foreground: 0 0% 98%;
+    --accent: 13 95% 60%;
+    --accent-foreground: 0 0% 100%;
 
     --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 100%;
 
-    --success: 145 75% 45%;
+    --success: 145 65% 45%;
     --success-foreground: 0 0% 100%;
 
     --border: 0 0% 14%;
     --input: 0 0% 14%;
-    --ring: 145 75% 45%;
+    --ring: 13 95% 60%;
 
     --radius: 0.75rem;
 
     --sidebar-background: 0 0% 3%;
     --sidebar-foreground: 0 0% 70%;
-    --sidebar-primary: 0 0% 100%;
-    --sidebar-primary-foreground: 0 0% 4%;
+    --sidebar-primary: 13 95% 60%;
+    --sidebar-primary-foreground: 0 0% 100%;
     --sidebar-accent: 0 0% 9%;
     --sidebar-accent-foreground: 0 0% 95%;
     --sidebar-border: 0 0% 12%;
-    --sidebar-ring: 145 75% 45%;
+    --sidebar-ring: 13 95% 60%;
     --sidebar-muted: 0 0% 50%;
 
-    --chat-bubble-user: 145 75% 45%;
+    --chat-bubble-user: 13 95% 60%;
     --chat-bubble-user-foreground: 0 0% 100%;
     --chat-bubble-ai: 0 0% 12%;
     --chat-bubble-ai-foreground: 0 0% 98%;
@@ -60,40 +60,40 @@
     --workspace-header: 0 0% 7%;
     --workspace-divider: 0 0% 14%;
 
-    /* MMC green→lime gradient */
-    --gradient-brand: linear-gradient(90deg, hsl(145 75% 40%) 0%, hsl(120 80% 50%) 50%, hsl(80 85% 55%) 100%);
-    --gradient-brand-soft: linear-gradient(135deg, hsl(145 75% 45% / 0.18), hsl(90 80% 55% / 0.05));
-    --glow-brand: 0 30px 80px -20px hsl(145 75% 45% / 0.45);
+    /* Orange gradient */
+    --gradient-brand: linear-gradient(90deg, hsl(13 95% 55%) 0%, hsl(18 100% 62%) 50%, hsl(28 100% 68%) 100%);
+    --gradient-brand-soft: linear-gradient(135deg, hsl(13 95% 60% / 0.18), hsl(28 100% 68% / 0.05));
+    --glow-brand: 0 30px 80px -20px hsl(13 95% 60% / 0.5);
   }
 
-  .dark { /* keep dark identical for safety */
+  .dark {
     --background: 0 0% 4%;
     --foreground: 0 0% 98%;
     --card: 0 0% 7%;
     --card-foreground: 0 0% 98%;
     --popover: 0 0% 6%;
     --popover-foreground: 0 0% 98%;
-    --primary: 145 75% 45%;
+    --primary: 13 95% 60%;
     --primary-foreground: 0 0% 100%;
     --secondary: 0 0% 11%;
     --secondary-foreground: 0 0% 98%;
     --muted: 0 0% 11%;
-    --muted-foreground: 0 0% 62%;
-    --accent: 0 0% 13%;
-    --accent-foreground: 0 0% 98%;
+    --muted-foreground: 0 0% 65%;
+    --accent: 13 95% 60%;
+    --accent-foreground: 0 0% 100%;
     --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 100%;
     --border: 0 0% 14%;
     --input: 0 0% 14%;
-    --ring: 145 75% 45%;
+    --ring: 13 95% 60%;
     --sidebar-background: 0 0% 3%;
     --sidebar-foreground: 0 0% 70%;
-    --sidebar-primary: 0 0% 100%;
-    --sidebar-primary-foreground: 0 0% 4%;
+    --sidebar-primary: 13 95% 60%;
+    --sidebar-primary-foreground: 0 0% 100%;
     --sidebar-accent: 0 0% 9%;
     --sidebar-accent-foreground: 0 0% 95%;
     --sidebar-border: 0 0% 12%;
-    --sidebar-ring: 145 75% 45%;
+    --sidebar-ring: 13 95% 60%;
     --sidebar-muted: 0 0% 50%;
   }
 }
@@ -101,11 +101,17 @@
 @layer base {
   * { @apply border-border; }
 
-  html { color-scheme: dark; }
+  html { color-scheme: dark; scroll-behavior: smooth; }
 
   body {
     @apply bg-background text-foreground font-sans antialiased;
     font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    font-feature-settings: "ss01", "cv11";
+  }
+
+  ::selection {
+    background: hsl(13 95% 60% / 0.35);
+    color: hsl(0 0% 100%);
   }
 }
 
@@ -130,12 +136,50 @@
   }
   .hero-radial {
     background:
-      radial-gradient(ellipse 80% 60% at 50% 0%, hsl(145 75% 40% / 0.35), transparent 70%),
-      radial-gradient(ellipse 60% 50% at 50% 100%, hsl(90 80% 50% / 0.18), transparent 70%);
+      radial-gradient(ellipse 80% 60% at 50% 0%, hsl(13 95% 55% / 0.38), transparent 70%),
+      radial-gradient(ellipse 60% 50% at 50% 100%, hsl(28 100% 65% / 0.18), transparent 70%);
   }
+  .noise-overlay {
+    position: relative;
+  }
+  .noise-overlay::after {
+    content: "";
+    position: absolute; inset: 0;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 0.06 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+    pointer-events: none;
+    mix-blend-mode: overlay;
+    opacity: 0.5;
+  }
+  .glass-card {
+    background: linear-gradient(180deg, hsl(0 0% 100% / 0.04), hsl(0 0% 100% / 0.01));
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border: 1px solid hsl(0 0% 100% / 0.08);
+  }
+  .text-balance { text-wrap: balance; }
+  .text-pretty { text-wrap: pretty; }
+
+  @keyframes shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+  }
+  .shimmer-text {
+    background: linear-gradient(90deg, hsl(0 0% 70%) 0%, hsl(0 0% 100%) 25%, hsl(13 95% 60%) 50%, hsl(0 0% 100%) 75%, hsl(0 0% 70%) 100%);
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    animation: shimmer 6s linear infinite;
+  }
+
+  @keyframes float-slow {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-12px); }
+  }
+  .float-slow { animation: float-slow 8s ease-in-out infinite; }
 }
 
 ::-webkit-scrollbar { width: 8px; height: 8px; }
 ::-webkit-scrollbar-track { background: hsl(0 0% 5%); }
-::-webkit-scrollbar-thumb { background: hsl(145 75% 45% / 0.4); border-radius: 4px; }
-::-webkit-scrollbar-thumb:hover { background: hsl(145 75% 45% / 0.7); }
+::-webkit-scrollbar-thumb { background: hsl(13 95% 60% / 0.45); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: hsl(13 95% 60% / 0.8); }
