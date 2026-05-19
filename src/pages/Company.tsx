@@ -27,6 +27,8 @@ import {
   MapPin,
 } from "lucide-react";
 import { SectionHeading } from "@/components/site/SectionHeading";
+import { Seo } from "@/components/site/Seo";
+
 
 const services = [
   {
