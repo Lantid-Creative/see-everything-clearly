@@ -130,9 +130,9 @@ export default function Contact() {
             <InfoCard
               Icon={Phone}
               title="Call us"
-              value="+971 4 439 7212"
-              sub="Mon–Fri, 9am–6pm GST"
-              href="tel:+97144397212"
+              value="+234 707 443 0088"
+              sub="Also: +234 903 755 7699 · Mon–Fri, 9am–6pm WAT"
+              href="tel:+2347074430088"
             />
             <InfoCard
               Icon={Mail}
@@ -143,9 +143,15 @@ export default function Contact() {
             />
             <InfoCard
               Icon={MapPin}
-              title="Visit us"
-              value="Dubai, United Arab Emirates"
-              sub="DIFC, Gate Avenue Level 3"
+              title="Nigeria HQ"
+              value="Lantid Creative LTD"
+              sub="No 14 Greenline, Festrut Estate, Katampe Main, Abuja"
+            />
+            <InfoCard
+              Icon={MapPin}
+              title="United Kingdom"
+              value="Lantid Creative UK LTD"
+              sub="39 Davy Road, New Rossington, Doncaster, England, DN11 0LQ"
             />
 
             <div className="rounded-2xl border border-border bg-sidebar text-sidebar-primary p-6">
