@@ -212,24 +212,7 @@ export default function Home() {
       </section>
 
 
-      {/* ============ PARTNERS / TRUST ============ */}
-      <section className="border-y border-border bg-card/40 py-12">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <p className="text-center text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground mb-8">
-            Trusted by government, development and enterprise clients
-          </p>
-          <div className="flex flex-wrap items-center justify-center gap-x-10 gap-y-6">
-            {partners.map((p) => (
-              <span
-                key={p}
-                className="text-sm sm:text-base font-semibold text-muted-foreground/70 hover:text-foreground transition-colors"
-              >
-                {p}
-              </span>
-            ))}
-          </div>
-        </div>
-      </section>
+
 
       {/* ============ SERVICES ============ */}
       <section className="py-24 sm:py-32">
