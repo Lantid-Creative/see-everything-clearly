@@ -66,10 +66,10 @@ export function SiteFooter() {
                 <Phone className="h-4 w-4 text-primary" /> +234 903 755 7699
               </a>
               <a
-                href="mailto:hello@lantid.com"
+                href="mailto:hi@lantid.com"
                 className="flex items-center gap-2 hover:text-sidebar-primary transition-colors"
               >
-                <Mail className="h-4 w-4 text-primary" /> hello@lantid.com
+                <Mail className="h-4 w-4 text-primary" /> hi@lantid.com
               </a>
               <div className="flex items-start gap-2">
                 <MapPin className="h-4 w-4 text-primary mt-0.5" />
