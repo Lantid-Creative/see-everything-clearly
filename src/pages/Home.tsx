@@ -182,10 +182,6 @@ export default function Home() {
             transition={{ duration: 0.4 }}
             className="text-center max-w-3xl mx-auto"
           >
-            <div className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.18em] text-primary mb-6">
-              <span className="h-1.5 w-1.5 rounded-full bg-primary" />
-              Founded 2023 · Abuja · Doncaster
-            </div>
 
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight leading-[1.05] text-foreground">
               Strategy, research, brand and technology — under one roof.
