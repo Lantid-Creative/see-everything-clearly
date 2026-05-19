@@ -5,7 +5,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider } from "@/hooks/useAuth";
 import { ThemeProvider } from "@/hooks/useTheme";
-import { FloatingThemeToggle } from "@/components/ThemeToggle";
+
 import { SiteLayout } from "@/components/site/SiteLayout";
 import Home from "./pages/Home";
 import Services from "./pages/Services";
@@ -27,7 +27,7 @@ const App = () => (
         <Sonner />
         <BrowserRouter>
           <AuthProvider>
-            <FloatingThemeToggle />
+            
             <Routes>
               <Route element={<SiteLayout />}>
                 <Route path="/" element={<Home />} />
