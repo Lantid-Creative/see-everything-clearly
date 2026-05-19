@@ -52,7 +52,7 @@ export default function Contact() {
               remarkable together
             </span>
           </h1>
-          <p className="mt-6 text-sidebar-foreground max-w-2xl mx-auto leading-relaxed">
+          <p className="mt-6 text-muted-foreground max-w-2xl mx-auto leading-relaxed">
             Whether you're scoping a national strategy, designing an M&E framework, refreshing a
             brand or digitising a service — a Lantid principal will respond within one business
             day. Real reply, not a template.
@@ -188,7 +188,7 @@ export default function Contact() {
 
             <div className="rounded-2xl border border-border bg-background text-foreground border-y border-border p-6">
               <h3 className="font-semibold">Prefer to skip the form?</h3>
-              <p className="mt-2 text-sm text-sidebar-foreground">
+              <p className="mt-2 text-sm text-muted-foreground">
                 Book a 30-minute discovery call directly with one of our principals.
               </p>
               <a

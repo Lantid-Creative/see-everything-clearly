@@ -221,7 +221,7 @@ export default function Services() {
               strategize, build and scale
             </span>
           </h1>
-          <p className="mt-8 text-base sm:text-lg text-sidebar-foreground max-w-3xl mx-auto leading-relaxed">
+          <p className="mt-8 text-base sm:text-lg text-muted-foreground max-w-3xl mx-auto leading-relaxed">
             Eight integrated practices, one delivery standard. Engage a single capability or commission
             a multidisciplinary team — every Lantid engagement is led by experienced practitioners and
             grounded in evidence, not opinion.
@@ -344,7 +344,7 @@ export default function Services() {
           <h2 className="font-serif text-4xl sm:text-5xl tracking-tight">
             Ready to scope your engagement?
           </h2>
-          <p className="mt-6 text-sidebar-foreground">
+          <p className="mt-6 text-muted-foreground">
             Tell us what you're working on and we'll come back within one business day with a clear
             scope, timeline and indicative investment.
           </p>

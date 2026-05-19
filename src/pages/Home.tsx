@@ -287,7 +287,7 @@ export default function Home() {
                   {s.value}
                 </span>
               </div>
-              <div className="mt-2 text-xs sm:text-sm text-sidebar-foreground uppercase tracking-wider">
+              <div className="mt-2 text-xs sm:text-sm text-muted-foreground uppercase tracking-wider">
                 {s.label}
               </div>
             </div>
@@ -468,7 +468,7 @@ export default function Home() {
             Let's design the next chapter of your{" "}
             <span className="italic text-primary">institution</span>.
           </h2>
-          <p className="mt-6 text-sidebar-foreground max-w-2xl mx-auto">
+          <p className="mt-6 text-muted-foreground max-w-2xl mx-auto">
             Talk to a Lantid principal about your strategy, research, brand or technology
             challenge. We respond within one business day with a tailored scope and next steps.
           </p>

@@ -113,7 +113,7 @@ export default function CaseStudy() {
               institutional needle
             </span>
           </h1>
-          <p className="mt-8 text-base sm:text-lg text-sidebar-foreground max-w-3xl mx-auto leading-relaxed">
+          <p className="mt-8 text-base sm:text-lg text-muted-foreground max-w-3xl mx-auto leading-relaxed">
             A selection of engagements drawn from government, development and private sector
             partners. Each one combines several Lantid practices into a coherent outcome — not a
             stack of deliverables.

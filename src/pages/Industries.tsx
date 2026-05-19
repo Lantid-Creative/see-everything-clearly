@@ -116,7 +116,7 @@ export default function Industries() {
               the sectors that shape economies
             </span>
           </h1>
-          <p className="mt-8 text-base sm:text-lg text-sidebar-foreground max-w-3xl mx-auto leading-relaxed">
+          <p className="mt-8 text-base sm:text-lg text-muted-foreground max-w-3xl mx-auto leading-relaxed">
             From federal ministries to multilateral programmes, from healthcare systems to high-growth
             private companies — Lantid Creative brings strategy, research, brand and technology to the
             institutions that move countries forward.
