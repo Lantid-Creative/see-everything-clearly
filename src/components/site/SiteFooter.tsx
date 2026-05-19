@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Mail, Phone, MapPin, Linkedin, Twitter, Github, ArrowUpRight } from "lucide-react";
+import { Mail, Phone, MapPin, Linkedin, Instagram, Youtube, ArrowUpRight } from "lucide-react";
 import { Logo } from "@/components/Logo";
 
 const cols = [
