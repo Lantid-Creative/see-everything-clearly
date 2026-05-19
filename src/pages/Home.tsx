@@ -424,10 +424,10 @@ export default function Home() {
               <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
             </Link>
             <a
-              href="tel:+97144397212"
+              href="tel:+2347074430088"
               className="inline-flex items-center gap-2 rounded-full border border-sidebar-border px-7 py-3.5 text-sm font-semibold hover:bg-sidebar-accent transition-all"
             >
-              +971 4 439 7212
+              +234 707 443 0088
             </a>
           </div>
         </div>

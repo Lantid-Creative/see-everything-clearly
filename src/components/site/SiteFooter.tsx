@@ -48,10 +48,16 @@ export function SiteFooter() {
             </p>
             <div className="space-y-2 text-sm">
               <a
-                href="tel:+97144397212"
+                href="tel:+2347074430088"
                 className="flex items-center gap-2 hover:text-sidebar-primary transition-colors"
               >
-                <Phone className="h-4 w-4 text-primary" /> +971 4 439 7212
+                <Phone className="h-4 w-4 text-primary" /> +234 707 443 0088
+              </a>
+              <a
+                href="tel:+2349037557699"
+                className="flex items-center gap-2 hover:text-sidebar-primary transition-colors"
+              >
+                <Phone className="h-4 w-4 text-primary" /> +234 903 755 7699
               </a>
               <a
                 href="mailto:hello@lantid.com"
@@ -61,7 +67,19 @@ export function SiteFooter() {
               </a>
               <div className="flex items-start gap-2">
                 <MapPin className="h-4 w-4 text-primary mt-0.5" />
-                <span>Dubai, United Arab Emirates</span>
+                <span>
+                  <strong className="text-sidebar-primary">Lantid Creative LTD</strong><br />
+                  No 14 Greenline, Festrut Estate,<br />
+                  Katampe Main, Abuja, Nigeria
+                </span>
+              </div>
+              <div className="flex items-start gap-2">
+                <MapPin className="h-4 w-4 text-primary mt-0.5" />
+                <span>
+                  <strong className="text-sidebar-primary">Lantid Creative UK LTD</strong><br />
+                  39 Davy Road, New Rossington,<br />
+                  Doncaster, England, DN11 0LQ
+                </span>
               </div>
             </div>
           </div>

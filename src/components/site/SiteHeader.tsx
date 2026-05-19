@@ -27,11 +27,14 @@ export function SiteHeader() {
   return (
     <>
       {/* Top utility bar — MMC green gradient */}
-      <div className="hidden md:flex w-full justify-end items-center gap-2 px-6 py-2 text-xs brand-gradient text-white">
+      <div className="hidden md:flex w-full justify-end items-center gap-4 px-6 py-2 text-xs brand-gradient text-white">
         <Phone className="h-3 w-3" />
         <span className="opacity-90">Call Us</span>
-        <a href="tel:+97144397212" className="font-semibold hover:underline">
-          🇦🇪 +971 4 439 7212
+        <a href="tel:+2347074430088" className="font-semibold hover:underline">
+          🇳🇬 +234 707 443 0088
+        </a>
+        <a href="tel:+2349037557699" className="font-semibold hover:underline">
+          +234 903 755 7699
         </a>
       </div>
 
