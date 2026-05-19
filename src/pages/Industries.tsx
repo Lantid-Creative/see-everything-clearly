@@ -102,12 +102,12 @@ export default function Industries() {
         jsonLd={jsonLd}
       />
 
-      <section className="bg-sidebar text-sidebar-primary py-20 sm:py-28 relative overflow-hidden">
+      <section className="bg-background text-foreground border-y border-border py-20 sm:py-28 relative overflow-hidden">
         <div className="absolute inset-0 pointer-events-none">
           <div className="absolute top-1/2 left-0 w-[500px] h-[500px] bg-primary/15 rounded-full blur-[140px]" />
         </div>
         <div className="relative max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-sidebar-accent border border-sidebar-border text-xs font-medium mb-6">
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-muted border border-border text-xs font-medium mb-6">
             <Sparkles className="h-3 w-3 text-primary" /> Industries
           </div>
           <h1 className="font-serif text-5xl sm:text-6xl lg:text-7xl tracking-tight leading-[1.05]">
@@ -116,7 +116,7 @@ export default function Industries() {
               the sectors that shape economies
             </span>
           </h1>
-          <p className="mt-8 text-base sm:text-lg text-sidebar-foreground max-w-3xl mx-auto leading-relaxed">
+          <p className="mt-8 text-base sm:text-lg text-muted-foreground max-w-3xl mx-auto leading-relaxed">
             From federal ministries to multilateral programmes, from healthcare systems to high-growth
             private companies — Lantid Creative brings strategy, research, brand and technology to the
             institutions that move countries forward.
@@ -178,7 +178,7 @@ export default function Industries() {
           />
           <Link
             to="/contact"
-            className="mt-8 inline-flex items-center gap-2 rounded-full bg-foreground text-background px-7 py-3.5 text-sm font-semibold hover:bg-foreground/90 transition-all hover:gap-3 group"
+            className="mt-8 inline-flex items-center gap-2 rounded-full bg-primary text-primary-foreground px-7 py-3.5 text-sm font-semibold hover:bg-primary/90 transition-all hover:gap-3 group"
           >
             Tell us about your sector
             <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />

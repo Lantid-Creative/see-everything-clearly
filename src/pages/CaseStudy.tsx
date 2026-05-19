@@ -99,12 +99,12 @@ export default function CaseStudy() {
         jsonLd={jsonLd}
       />
 
-      <section className="bg-sidebar text-sidebar-primary py-20 sm:py-28 relative overflow-hidden">
+      <section className="bg-background text-foreground border-y border-border py-20 sm:py-28 relative overflow-hidden">
         <div className="absolute inset-0">
           <div className="absolute top-0 left-1/3 w-[600px] h-[600px] bg-primary/15 rounded-full blur-[140px]" />
         </div>
         <div className="relative max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-sidebar-accent border border-sidebar-border text-xs font-medium mb-6">
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-muted border border-border text-xs font-medium mb-6">
             Case studies
           </div>
           <h1 className="font-serif text-5xl sm:text-6xl lg:text-7xl tracking-tight leading-[1.05]">
@@ -113,7 +113,7 @@ export default function CaseStudy() {
               institutional needle
             </span>
           </h1>
-          <p className="mt-8 text-base sm:text-lg text-sidebar-foreground max-w-3xl mx-auto leading-relaxed">
+          <p className="mt-8 text-base sm:text-lg text-muted-foreground max-w-3xl mx-auto leading-relaxed">
             A selection of engagements drawn from government, development and private sector
             partners. Each one combines several Lantid practices into a coherent outcome — not a
             stack of deliverables.
@@ -216,11 +216,11 @@ export default function CaseStudy() {
         </div>
       </section>
 
-      <section className="py-20 bg-sidebar text-sidebar-primary text-center">
+      <section className="py-20 bg-background text-foreground border-y border-border text-center">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
           <SectionHeading
             title={
-              <span className="text-sidebar-primary">
+              <span className="text-foreground">
                 Your mandate,{" "}
                 <span className="italic text-primary">our next case study</span>
               </span>

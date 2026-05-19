@@ -207,12 +207,12 @@ export default function Services() {
         jsonLd={jsonLd}
       />
 
-      <section className="bg-sidebar text-sidebar-primary py-20 sm:py-28 relative overflow-hidden">
+      <section className="bg-background text-foreground border-y border-border py-20 sm:py-28 relative overflow-hidden">
         <div className="absolute inset-0 pointer-events-none">
           <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-primary/15 rounded-full blur-[140px]" />
         </div>
         <div className="relative max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-sidebar-accent border border-sidebar-border text-xs font-medium mb-6">
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-muted border border-border text-xs font-medium mb-6">
             <Sparkles className="h-3 w-3 text-primary" /> Services
           </div>
           <h1 className="font-serif text-5xl sm:text-6xl lg:text-7xl tracking-tight leading-[1.05]">
@@ -221,7 +221,7 @@ export default function Services() {
               strategize, build and scale
             </span>
           </h1>
-          <p className="mt-8 text-base sm:text-lg text-sidebar-foreground max-w-3xl mx-auto leading-relaxed">
+          <p className="mt-8 text-base sm:text-lg text-muted-foreground max-w-3xl mx-auto leading-relaxed">
             Eight integrated practices, one delivery standard. Engage a single capability or commission
             a multidisciplinary team — every Lantid engagement is led by experienced practitioners and
             grounded in evidence, not opinion.
@@ -231,7 +231,7 @@ export default function Services() {
               <a
                 key={g.id}
                 href={`#${g.id}`}
-                className="px-3 py-1.5 rounded-full bg-sidebar-accent border border-sidebar-border hover:border-primary/40 transition-colors text-sidebar-primary"
+                className="px-3 py-1.5 rounded-full bg-muted border border-border hover:border-primary/40 transition-colors text-foreground"
               >
                 {g.title}
               </a>
@@ -298,7 +298,7 @@ export default function Services() {
                 </div>
                 <Link
                   to="/contact"
-                  className="mt-10 inline-flex items-center gap-2 rounded-full bg-foreground text-background px-6 py-3 text-sm font-semibold hover:bg-foreground/90 transition-all hover:gap-3 group"
+                  className="mt-10 inline-flex items-center gap-2 rounded-full bg-primary text-primary-foreground px-6 py-3 text-sm font-semibold hover:bg-primary/90 transition-all hover:gap-3 group"
                 >
                   Discuss your {g.title.toLowerCase()} need
                   <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
@@ -336,7 +336,7 @@ export default function Services() {
         </div>
       </section>
 
-      <section className="py-20 bg-sidebar text-sidebar-primary text-center relative overflow-hidden">
+      <section className="py-20 bg-background text-foreground border-y border-border text-center relative overflow-hidden">
         <div className="absolute inset-0">
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-primary/20 rounded-full blur-[120px]" />
         </div>
@@ -344,7 +344,7 @@ export default function Services() {
           <h2 className="font-serif text-4xl sm:text-5xl tracking-tight">
             Ready to scope your engagement?
           </h2>
-          <p className="mt-6 text-sidebar-foreground">
+          <p className="mt-6 text-muted-foreground">
             Tell us what you're working on and we'll come back within one business day with a clear
             scope, timeline and indicative investment.
           </p>

@@ -122,12 +122,12 @@ export default function Company() {
       />
 
       {/* HERO */}
-      <section className="bg-sidebar text-sidebar-primary py-20 sm:py-28 relative overflow-hidden">
+      <section className="bg-background text-foreground border-y border-border py-20 sm:py-28 relative overflow-hidden">
         <div className="absolute inset-0 pointer-events-none">
           <div className="absolute bottom-0 right-1/4 w-[600px] h-[600px] bg-primary/15 rounded-full blur-[140px]" />
         </div>
         <div className="relative max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-sidebar-accent border border-sidebar-border text-xs font-medium mb-6">
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-muted border border-border text-xs font-medium mb-6">
             Founded 2023 · Abuja & Doncaster
           </div>
           <h1 className="font-serif text-5xl sm:text-6xl lg:text-7xl tracking-tight leading-[1.05]">
@@ -137,16 +137,16 @@ export default function Company() {
             </span>
             .
           </h1>
-          <p className="mt-6 text-base sm:text-lg text-sidebar-primary/70 max-w-2xl mx-auto leading-relaxed">
+          <p className="mt-6 text-base sm:text-lg text-foreground/70 max-w-2xl mx-auto leading-relaxed">
             Lantid Creative Limited is a premier consulting firm delivering comprehensive solutions
             that drive organizational excellence and sustainable development outcomes — for government,
             development, and enterprise clients.
           </p>
           <div className="mt-8 flex flex-wrap items-center justify-center gap-3 text-xs">
-            <span className="px-3 py-1.5 rounded-full bg-sidebar-accent border border-sidebar-border">
+            <span className="px-3 py-1.5 rounded-full bg-muted border border-border">
               Nigeria Reg. No. 7215558
             </span>
-            <span className="px-3 py-1.5 rounded-full bg-sidebar-accent border border-sidebar-border">
+            <span className="px-3 py-1.5 rounded-full bg-muted border border-border">
               UK Reg. No. 15609717
             </span>
           </div>
@@ -343,7 +343,7 @@ export default function Company() {
       </section>
 
       {/* CTA */}
-      <section className="py-20 bg-sidebar text-sidebar-primary text-center relative overflow-hidden">
+      <section className="py-20 bg-background text-foreground border-y border-border text-center relative overflow-hidden">
         <div className="absolute inset-0">
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-primary/20 rounded-full blur-[120px]" />
         </div>

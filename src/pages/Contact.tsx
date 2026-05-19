@@ -38,12 +38,12 @@ export default function Contact() {
         jsonLd={contactJsonLd}
       />
 
-      <section className="bg-sidebar text-sidebar-primary py-20 sm:py-24 relative overflow-hidden">
+      <section className="bg-background text-foreground border-y border-border py-20 sm:py-24 relative overflow-hidden">
         <div className="absolute inset-0">
           <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[700px] h-[500px] bg-primary/15 rounded-full blur-[140px]" />
         </div>
         <div className="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-sidebar-accent border border-sidebar-border text-xs font-medium mb-6">
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-muted border border-border text-xs font-medium mb-6">
             <Sparkles className="h-3 w-3 text-primary" /> Contact
           </div>
           <h1 className="font-serif text-5xl sm:text-6xl tracking-tight leading-[1.05]">
@@ -52,19 +52,19 @@ export default function Contact() {
               remarkable together
             </span>
           </h1>
-          <p className="mt-6 text-sidebar-foreground max-w-2xl mx-auto leading-relaxed">
+          <p className="mt-6 text-muted-foreground max-w-2xl mx-auto leading-relaxed">
             Whether you're scoping a national strategy, designing an M&E framework, refreshing a
             brand or digitising a service — a Lantid principal will respond within one business
             day. Real reply, not a template.
           </p>
           <div className="mt-8 flex flex-wrap items-center justify-center gap-3 text-xs">
-            <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-sidebar-accent border border-sidebar-border">
+            <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-muted border border-border">
               <Clock className="h-3 w-3 text-primary" /> 1 business day response
             </span>
-            <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-sidebar-accent border border-sidebar-border">
+            <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-muted border border-border">
               <ShieldCheck className="h-3 w-3 text-primary" /> NDA on request
             </span>
-            <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-sidebar-accent border border-sidebar-border">
+            <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-muted border border-border">
               Senior-led from day one
             </span>
           </div>
@@ -186,9 +186,9 @@ export default function Contact() {
               sub="39 Davy Road, New Rossington, Doncaster, England, DN11 0LQ"
             />
 
-            <div className="rounded-2xl border border-border bg-sidebar text-sidebar-primary p-6">
+            <div className="rounded-2xl border border-border bg-background text-foreground border-y border-border p-6">
               <h3 className="font-semibold">Prefer to skip the form?</h3>
-              <p className="mt-2 text-sm text-sidebar-foreground">
+              <p className="mt-2 text-sm text-muted-foreground">
                 Book a 30-minute discovery call directly with one of our principals.
               </p>
               <a
