@@ -43,7 +43,7 @@ const cols = [
 
 export function SiteFooter() {
   return (
-    <footer className="bg-sidebar text-sidebar-foreground border-t border-sidebar-border">
+    <footer className="bg-background text-foreground border-t border-border">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-12">
           <div className="lg:col-span-2 space-y-6">
@@ -55,26 +55,26 @@ export function SiteFooter() {
             <div className="space-y-2 text-sm">
               <a
                 href="tel:+2347074430088"
-                className="flex items-center gap-2 hover:text-sidebar-primary transition-colors"
+                className="flex items-center gap-2 hover:text-foreground transition-colors"
               >
                 <Phone className="h-4 w-4 text-primary" /> +234 707 443 0088
               </a>
               <a
                 href="tel:+2349037557699"
-                className="flex items-center gap-2 hover:text-sidebar-primary transition-colors"
+                className="flex items-center gap-2 hover:text-foreground transition-colors"
               >
                 <Phone className="h-4 w-4 text-primary" /> +234 903 755 7699
               </a>
               <a
                 href="mailto:hi@lantid.com"
-                className="flex items-center gap-2 hover:text-sidebar-primary transition-colors"
+                className="flex items-center gap-2 hover:text-foreground transition-colors"
               >
                 <Mail className="h-4 w-4 text-primary" /> hi@lantid.com
               </a>
               <div className="flex items-start gap-2">
                 <MapPin className="h-4 w-4 text-primary mt-0.5" />
                 <span>
-                  <strong className="text-sidebar-primary">Lantid Creative LTD</strong><br />
+                  <strong className="text-foreground">Lantid Creative LTD</strong><br />
                   No 14 Greenline, Festrut Estate,<br />
                   Katampe Main, Abuja, Nigeria
                 </span>
@@ -82,7 +82,7 @@ export function SiteFooter() {
               <div className="flex items-start gap-2">
                 <MapPin className="h-4 w-4 text-primary mt-0.5" />
                 <span>
-                  <strong className="text-sidebar-primary">Lantid Creative UK LTD</strong><br />
+                  <strong className="text-foreground">Lantid Creative UK LTD</strong><br />
                   39 Davy Road, New Rossington,<br />
                   Doncaster, England, DN11 0LQ
                 </span>
@@ -92,7 +92,7 @@ export function SiteFooter() {
 
           {cols.map((col) => (
             <div key={col.title}>
-              <h4 className="text-sidebar-primary font-semibold text-sm uppercase tracking-wider mb-4">
+              <h4 className="text-foreground font-semibold text-sm uppercase tracking-wider mb-4">
                 {col.title}
               </h4>
               <ul className="space-y-2.5">
@@ -112,8 +112,8 @@ export function SiteFooter() {
           ))}
         </div>
 
-        <div className="mt-14 pt-8 border-t border-sidebar-border flex flex-col md:flex-row items-center justify-between gap-4">
-          <p className="text-xs text-sidebar-muted">
+        <div className="mt-14 pt-8 border-t border-border flex flex-col md:flex-row items-center justify-between gap-4">
+          <p className="text-xs text-muted-foreground">
             © {new Date().getFullYear()} Lantid. All rights reserved.
           </p>
           <div className="flex items-center gap-2">
@@ -129,7 +129,7 @@ export function SiteFooter() {
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label={label}
-                className="h-9 w-9 rounded-full border border-sidebar-border flex items-center justify-center hover:bg-primary hover:border-primary hover:text-primary-foreground transition-all"
+                className="h-9 w-9 rounded-full border border-border flex items-center justify-center hover:bg-primary hover:border-primary hover:text-primary-foreground transition-all"
               >
                 <Icon className="h-4 w-4" />
               </a>

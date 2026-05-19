@@ -277,12 +277,12 @@ export default function Home() {
       </section>
 
       {/* ============ STATS ============ */}
-      <section className="py-20 bg-sidebar text-sidebar-primary relative overflow-hidden">
+      <section className="py-20 bg-background text-foreground border-y border-border relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-r from-primary/5 via-transparent to-primary/5" />
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-2 lg:grid-cols-4 gap-8">
           {stats.map((s) => (
             <div key={s.label} className="text-center">
-              <div className="font-serif text-4xl sm:text-5xl text-sidebar-primary">
+              <div className="font-serif text-4xl sm:text-5xl text-foreground">
                 <span className="bg-gradient-to-br from-primary to-primary/60 bg-clip-text text-transparent">
                   {s.value}
                 </span>
@@ -458,7 +458,7 @@ export default function Home() {
       </section>
 
       {/* ============ CTA ============ */}
-      <section className="py-24 sm:py-32 bg-sidebar text-sidebar-primary relative overflow-hidden">
+      <section className="py-24 sm:py-32 bg-background text-foreground border-y border-border relative overflow-hidden">
         <div className="absolute inset-0">
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-primary/20 rounded-full blur-[120px]" />
         </div>
@@ -482,7 +482,7 @@ export default function Home() {
             </Link>
             <a
               href="tel:+2347074430088"
-              className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-7 py-3.5 text-sm font-semibold text-sidebar-primary hover:bg-white/10 transition-all"
+              className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-7 py-3.5 text-sm font-semibold text-foreground hover:bg-white/10 transition-all"
             >
               +234 707 443 0088
             </a>
