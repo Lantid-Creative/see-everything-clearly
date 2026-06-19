@@ -177,7 +177,7 @@ export default function Contact() {
               Icon={MapPin}
               title="Nigeria HQ"
               value="Lantid Creative LTD"
-              sub="No 14 Greenline, Festrut Estate, Katampe Main, Abuja"
+              sub="14 Greenline, Festrut Estate, Katampe main, Abuja, Nigeria"
             />
             <InfoCard
               Icon={MapPin}
