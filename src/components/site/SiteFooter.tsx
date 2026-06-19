@@ -75,8 +75,8 @@ export function SiteFooter() {
                 <MapPin className="h-4 w-4 text-primary mt-0.5" />
                 <span>
                   <strong className="text-foreground">Lantid Creative LTD</strong><br />
-                  No 14 Greenline, Festrut Estate,<br />
-                  Katampe Main, Abuja, Nigeria
+                  14 Greenline, Festrut Estate,<br />
+                  Katampe main, Abuja, Nigeria
                 </span>
               </div>
               <div className="flex items-start gap-2">

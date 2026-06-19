@@ -319,7 +319,7 @@ export default function Company() {
               <h3 className="mt-4 font-serif text-2xl text-foreground">Lantid Creative LTD</h3>
               <p className="mt-1 text-xs uppercase tracking-wider text-muted-foreground">Nigeria HQ · RC 7215558</p>
               <p className="mt-4 text-muted-foreground leading-relaxed">
-                No 14 Greenline, Festrut Estate, Katampe Main, Abuja, Nigeria.
+                14 Greenline, Festrut Estate, Katampe main, Abuja, Nigeria.
               </p>
             </div>
             <div className="rounded-3xl border border-border bg-background p-8">
