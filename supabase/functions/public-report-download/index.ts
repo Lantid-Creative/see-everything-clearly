@@ -177,10 +177,17 @@ async function buildPdf(args: {
   };
 
   // -------- Header / Logo --------
-  page.drawRectangle({ x: margin, y: y - 28, width: 28, height: 28, color: BRAND_ORANGE });
-  page.drawText("L", { x: margin + 8, y: y - 22, size: 18, font: bold, color: rgb(1,1,1) });
-  page.drawText("LANTID", { x: margin + 38, y: y - 18, size: 18, font: bold, color: TEXT });
-  page.drawText("Autonomous Security Assurance", { x: margin + 38, y: y - 30, size: 8, font, color: MUTED });
+  const LOGO_URL = "https://duqpnawfzihqbyttcrvk.supabase.co/storage/v1/object/public/attachments/brand%2Flantid-logo.png";
+  try {
+    const logoBytes = new Uint8Array(await (await fetch(LOGO_URL)).arrayBuffer());
+    const logoImg = await doc.embedPng(logoBytes);
+    const logoH = 32;
+    const logoW = (logoImg.width / logoImg.height) * logoH;
+    page.drawImage(logoImg, { x: margin, y: y - logoH, width: logoW, height: logoH });
+  } catch (_) {
+    // Fallback if fetch fails: simple wordmark
+    page.drawText("LANTID", { x: margin, y: y - 22, size: 20, font: bold, color: TEXT });
+  }
 
   const pillText = args.overall === "passed" ? "ALL CHECKS PASSED" : "FINDINGS REPORTED";
   const pillColor = args.overall === "passed" ? GREEN : BRAND_ORANGE;
