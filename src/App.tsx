@@ -16,6 +16,12 @@ import Contact from "./pages/Contact";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import NotFound from "./pages/NotFound";
+import VaptLanding from "./pages/vapt/VaptLanding";
+import VaptRequest from "./pages/vapt/VaptRequest";
+import VaptDashboard from "./pages/vapt/VaptDashboard";
+import VerifyReport from "./pages/vapt/VerifyReport";
+import AdminVapt from "./pages/vapt/AdminVapt";
+import PaymentCallback from "./pages/vapt/PaymentCallback";
 
 const queryClient = new QueryClient();
 
@@ -36,11 +42,18 @@ const App = () => (
                 <Route path="/company" element={<Company />} />
                 <Route path="/case-study" element={<CaseStudy />} />
                 <Route path="/contact" element={<Contact />} />
+                <Route path="/vapt" element={<VaptLanding />} />
+                <Route path="/vapt/request" element={<VaptRequest />} />
+                <Route path="/vapt/dashboard" element={<VaptDashboard />} />
+                <Route path="/vapt/payment-callback" element={<PaymentCallback />} />
+                <Route path="/verify-report" element={<VerifyReport />} />
+                <Route path="/verify-report/:code" element={<VerifyReport />} />
+                <Route path="/admin/vapt" element={<AdminVapt />} />
               </Route>
               <Route path="/login" element={<Login />} />
               <Route path="/signup" element={<Signup />} />
               <Route path="/auth" element={<Navigate to="/login" replace />} />
-              <Route path="/app" element={<Navigate to="/" replace />} />
+              <Route path="/app" element={<Navigate to="/vapt/dashboard" replace />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </AuthProvider>

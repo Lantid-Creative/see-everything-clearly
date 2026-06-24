@@ -5,10 +5,12 @@ import { Logo } from "@/components/Logo";
 
 const nav = [
   { to: "/services", label: "Services" },
+  { to: "/vapt", label: "VAPT" },
   { to: "/industries", label: "Industries" },
   { to: "/company", label: "Company" },
   { to: "/case-study", label: "Case Studies" },
   { to: "/contact", label: "Contact" },
+  { to: "/verify-report", label: "Verify Report" },
 ];
 
 export function SiteHeader() {
