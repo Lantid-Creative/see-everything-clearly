@@ -47,6 +47,36 @@ export type Database = {
         }
         Relationships: []
       }
+      audit_logs: {
+        Row: {
+          action: string
+          actor_id: string | null
+          created_at: string
+          entity_id: string | null
+          entity_type: string | null
+          id: string
+          metadata: Json | null
+        }
+        Insert: {
+          action: string
+          actor_id?: string | null
+          created_at?: string
+          entity_id?: string | null
+          entity_type?: string | null
+          id?: string
+          metadata?: Json | null
+        }
+        Update: {
+          action?: string
+          actor_id?: string | null
+          created_at?: string
+          entity_id?: string | null
+          entity_type?: string | null
+          id?: string
+          metadata?: Json | null
+        }
+        Relationships: []
+      }
       checklist_progress: {
         Row: {
           completed_at: string
@@ -290,6 +320,92 @@ export type Database = {
         }
         Relationships: []
       }
+      organizations: {
+        Row: {
+          company_name: string
+          contact_person: string
+          created_at: string
+          email: string
+          id: string
+          owner_id: string
+          phone: string | null
+          updated_at: string
+          website_url: string | null
+        }
+        Insert: {
+          company_name: string
+          contact_person: string
+          created_at?: string
+          email: string
+          id?: string
+          owner_id: string
+          phone?: string | null
+          updated_at?: string
+          website_url?: string | null
+        }
+        Update: {
+          company_name?: string
+          contact_person?: string
+          created_at?: string
+          email?: string
+          id?: string
+          owner_id?: string
+          phone?: string | null
+          updated_at?: string
+          website_url?: string | null
+        }
+        Relationships: []
+      }
+      payments: {
+        Row: {
+          amount_kobo: number
+          created_at: string
+          currency: string
+          id: string
+          provider: string
+          provider_reference: string | null
+          raw_response: Json | null
+          request_id: string
+          status: Database["public"]["Enums"]["payment_status"]
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          amount_kobo: number
+          created_at?: string
+          currency?: string
+          id?: string
+          provider?: string
+          provider_reference?: string | null
+          raw_response?: Json | null
+          request_id: string
+          status?: Database["public"]["Enums"]["payment_status"]
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          amount_kobo?: number
+          created_at?: string
+          currency?: string
+          id?: string
+          provider?: string
+          provider_reference?: string | null
+          raw_response?: Json | null
+          request_id?: string
+          status?: Database["public"]["Enums"]["payment_status"]
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payments_request_id_fkey"
+            columns: ["request_id"]
+            isOneToOne: false
+            referencedRelation: "vapt_requests"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       product_details: {
         Row: {
           context_notes: string | null
@@ -399,6 +515,71 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      reports: {
+        Row: {
+          assessment_type: Database["public"]["Enums"]["assessment_type"]
+          company_name: string
+          created_at: string
+          id: string
+          issued_at: string
+          overall_result: string
+          request_id: string | null
+          revoked_at: string | null
+          revoked_reason: string | null
+          scope_summary: string
+          sha256_hash: string
+          status: string
+          storage_path: string | null
+          target: string
+          updated_at: string
+          verification_code: string
+        }
+        Insert: {
+          assessment_type?: Database["public"]["Enums"]["assessment_type"]
+          company_name: string
+          created_at?: string
+          id?: string
+          issued_at?: string
+          overall_result?: string
+          request_id?: string | null
+          revoked_at?: string | null
+          revoked_reason?: string | null
+          scope_summary: string
+          sha256_hash: string
+          status?: string
+          storage_path?: string | null
+          target: string
+          updated_at?: string
+          verification_code: string
+        }
+        Update: {
+          assessment_type?: Database["public"]["Enums"]["assessment_type"]
+          company_name?: string
+          created_at?: string
+          id?: string
+          issued_at?: string
+          overall_result?: string
+          request_id?: string | null
+          revoked_at?: string | null
+          revoked_reason?: string | null
+          scope_summary?: string
+          sha256_hash?: string
+          status?: string
+          storage_path?: string | null
+          target?: string
+          updated_at?: string
+          verification_code?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reports_request_id_fkey"
+            columns: ["request_id"]
+            isOneToOne: false
+            referencedRelation: "vapt_requests"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       slide_decks: {
         Row: {
@@ -592,6 +773,110 @@ export type Database = {
         }
         Relationships: []
       }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
+      vapt_requests: {
+        Row: {
+          amount_kobo: number
+          assessment_type: Database["public"]["Enums"]["assessment_type"]
+          created_at: string
+          currency: string
+          id: string
+          notes: string | null
+          organization_id: string
+          public_id: string
+          scope: string
+          status: Database["public"]["Enums"]["request_status"]
+          target: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          amount_kobo?: number
+          assessment_type?: Database["public"]["Enums"]["assessment_type"]
+          created_at?: string
+          currency?: string
+          id?: string
+          notes?: string | null
+          organization_id: string
+          public_id?: string
+          scope: string
+          status?: Database["public"]["Enums"]["request_status"]
+          target: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          amount_kobo?: number
+          assessment_type?: Database["public"]["Enums"]["assessment_type"]
+          created_at?: string
+          currency?: string
+          id?: string
+          notes?: string | null
+          organization_id?: string
+          public_id?: string
+          scope?: string
+          status?: Database["public"]["Enums"]["request_status"]
+          target?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "vapt_requests_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      verification_attempts: {
+        Row: {
+          created_at: string
+          id: string
+          ip: string | null
+          result: string
+          user_agent: string | null
+          verification_code: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          ip?: string | null
+          result: string
+          user_agent?: string | null
+          verification_code: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          ip?: string | null
+          result?: string
+          user_agent?: string | null
+          verification_code?: string
+        }
+        Relationships: []
+      }
       workflows: {
         Row: {
           created_at: string
@@ -627,6 +912,13 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
       has_team_role: {
         Args: {
           _role: Database["public"]["Enums"]["team_role"]
@@ -641,6 +933,15 @@ export type Database = {
       }
     }
     Enums: {
+      app_role: "admin" | "user"
+      assessment_type: "basic" | "standard" | "advanced"
+      payment_status: "pending" | "paid" | "failed" | "refunded"
+      request_status:
+        | "pending_payment"
+        | "paid"
+        | "processing"
+        | "completed"
+        | "cancelled"
       team_role: "owner" | "admin" | "member" | "viewer"
     }
     CompositeTypes: {
@@ -769,6 +1070,16 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      app_role: ["admin", "user"],
+      assessment_type: ["basic", "standard", "advanced"],
+      payment_status: ["pending", "paid", "failed", "refunded"],
+      request_status: [
+        "pending_payment",
+        "paid",
+        "processing",
+        "completed",
+        "cancelled",
+      ],
       team_role: ["owner", "admin", "member", "viewer"],
     },
   },
