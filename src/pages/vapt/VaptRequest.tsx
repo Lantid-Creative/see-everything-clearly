@@ -82,7 +82,7 @@ export default function VaptRequest() {
         <Field label="Website URL"><input className={inputCls} value={website} onChange={(e)=>setWebsite(e.target.value)} placeholder="https://" /></Field>
         <Field label="Contact person" required><input className={inputCls} value={contactPerson} onChange={(e)=>setContactPerson(e.target.value)} required /></Field>
         <Field label="Email" required><input type="email" className={inputCls} value={email} onChange={(e)=>setEmail(e.target.value)} required /></Field>
-        <Field label="Phone"><input className={inputCls} value={phone} onChange={(e)=>setPhone(e.target.value)} /></Field>
+        
         <Field label="Assessment tier" required>
           <select className={inputCls} value={tier} onChange={(e)=>setTier(e.target.value as keyof typeof TIER_AMOUNTS)}>
             {Object.entries(TIER_AMOUNTS).map(([k,v])=>(<option key={k} value={k}>{v.label}</option>))}
