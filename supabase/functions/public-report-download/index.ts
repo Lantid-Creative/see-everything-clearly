@@ -225,7 +225,7 @@ async function buildPdf(args: {
   kv("Report Date", formatDate(args.issued));
   kv("Report Version", "1.0");
   kv("Verification Code", args.verificationCode);
-  kv("Overall Result", args.overall === "passed" ? "PASSED — No vulnerabilities identified" : "FINDINGS REPORTED");
+  kv("Overall Result", args.overall === "passed" ? "PASSED — No exploitable vulnerabilities" : "FINDINGS REPORTED");
   y -= 8;
 
   // -------- Executive Summary --------
