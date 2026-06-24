@@ -100,9 +100,8 @@ export default function Contact() {
                   <Field label="Full name" name="name" type="text" required placeholder="Jane Doe" />
                   <Field label="Work email" name="email" type="email" required placeholder="jane@company.com" />
                 </div>
-                <div className="grid sm:grid-cols-2 gap-4">
+                <div className="grid sm:grid-cols-1 gap-4">
                   <Field label="Company" name="company" type="text" placeholder="Acme Corp" />
-                  <Field label="Phone" name="phone" type="tel" placeholder="+1 555 000 0000" />
                 </div>
 
                 <div>
