@@ -33,7 +33,7 @@ export default function Contact() {
     <>
       <Seo
         title="Contact Lantid Creative — Abuja & Doncaster | Strategy, Brand & Tech"
-        description="Get in touch with Lantid Creative Limited. Offices in Abuja, Nigeria and Doncaster, UK. Email hi@lantid.com or call +234 707 443 0088. We respond within one business day."
+        description="Get in touch with Lantid Creative Limited. Offices in Abuja, Nigeria and Doncaster, UK. Email hello@lantid.com — we respond within one business day."
         path="/contact"
         jsonLd={contactJsonLd}
       />
