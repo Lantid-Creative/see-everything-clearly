@@ -1,0 +1,1 @@
+UPDATE public.reports SET storage_path = NULL, sha256_hash = 'pending-hash-on-pdf-upload' WHERE verification_code = 'LNTD-VAPT-HRN-2026-8F4K91';
