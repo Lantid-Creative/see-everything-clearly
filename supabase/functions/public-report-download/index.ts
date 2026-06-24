@@ -354,10 +354,9 @@ async function buildPdf(args: {
   ensure(140);
   y -= 10;
   drawText("Signed for and on behalf of Lantid:", { size: 10, color: MUTED }); y -= 8;
-  const SIG_URL = "https://duqpnawfzihqbyttcrvk.supabase.co/storage/v1/object/public/attachments/brand%2Fsignature-adenike.png";
   try {
-    const sigBytes = new Uint8Array(await (await fetch(SIG_URL)).arrayBuffer());
-    const sigImg = await doc.embedPng(sigBytes);
+    if (!args.sigBytes) throw new Error("no-sig");
+    const sigImg = await doc.embedPng(args.sigBytes);
     const sigH = 60;
     const sigW = (sigImg.width / sigImg.height) * sigH;
     page.drawImage(sigImg, { x: margin, y: y - sigH, width: sigW, height: sigH });
