@@ -34,6 +34,19 @@ export default function VerifyReport() {
     verify(c);
   };
 
+  const downloadReport = async (c: string) => {
+    setDownloading(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("public-report-download", { body: { code: c } });
+      if (error || !data?.url) throw new Error(data?.error || error?.message || "Download failed");
+      window.open(data.url, "_blank", "noopener,noreferrer");
+    } catch (e) {
+      toast({ title: "Download failed", description: (e as Error).message, variant: "destructive" });
+    } finally {
+      setDownloading(false);
+    }
+  };
+
   return (
     <div className="min-h-[80vh] bg-background">
       <div className="max-w-3xl mx-auto px-6 py-16">
