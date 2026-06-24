@@ -341,6 +341,27 @@ async function buildPdf(args: {
   section("9. Disclaimer");
   paragraph("This report has been prepared by Lantid solely for the client named herein and is based on the scope, methodology, and information available at the time of the engagement. Penetration testing is a point-in-time exercise; no security assessment can guarantee the absence of all vulnerabilities. Lantid accepts no liability for issues arising from changes made to the application or its environment after the report date. Distribution of this report outside of the client organization requires the prior written consent of Lantid.", italic);
 
+  // -------- Signature block --------
+  ensure(140);
+  y -= 10;
+  drawText("Signed for and on behalf of Lantid:", { size: 10, color: MUTED }); y -= 8;
+  const SIG_URL = "https://duqpnawfzihqbyttcrvk.supabase.co/storage/v1/object/public/attachments/brand%2Fsignature-adenike.png";
+  try {
+    const sigBytes = new Uint8Array(await (await fetch(SIG_URL)).arrayBuffer());
+    const sigImg = await doc.embedPng(sigBytes);
+    const sigH = 60;
+    const sigW = (sigImg.width / sigImg.height) * sigH;
+    page.drawImage(sigImg, { x: margin, y: y - sigH, width: sigW, height: sigH });
+    y -= sigH + 4;
+  } catch (_) { y -= 40; }
+  page.drawLine({ start: { x: margin, y }, end: { x: margin + 220, y }, thickness: 0.5, color: TEXT });
+  y -= 14;
+  drawText("Adenike Tunde-Dauda", { size: 11, f: bold }); y -= 14;
+  drawText("Cybersecurity Analyst", { size: 10, color: MUTED }); y -= 12;
+  drawText("Lantid Creative UK LTD", { size: 10, color: MUTED }); y -= 12;
+  drawText("Date: " + formatDate(args.issued), { size: 9, color: MUTED }); y -= 10;
+
+
   // -------- Verification block --------
   ensure(220);
   y -= 4;
