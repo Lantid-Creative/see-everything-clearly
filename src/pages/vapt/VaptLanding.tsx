@@ -14,7 +14,7 @@ const TIERS = [
     name: "Standard",
     price: "₦400,000",
     blurb: "Web app + APIs with authenticated testing and business-logic review.",
-    items: ["Web app + REST/GraphQL APIs", "Authenticated + unauthenticated testing", "OWASP WSTG + PTES methodology", "PDF report, verification code, re-test"],
+    items: ["Web app + REST/GraphQL APIs", "Authenticated + unauthenticated testing", "OWASP WSTG + PTES methodology", "PDF report, verification code, re-test", "Turnaround: 24 hours"],
     highlighted: true,
   },
   {
@@ -22,7 +22,7 @@ const TIERS = [
     name: "Advanced",
     price: "₦1,000,000",
     blurb: "Full-stack assessment incl. infrastructure, business logic, and chained attack paths.",
-    items: ["Web + API + infra surface", "Manual exploitation & chained attacks", "Executive + technical reports", "Re-test + remediation walkthrough"],
+    items: ["Web + API + infra surface", "Manual exploitation & chained attacks", "Executive + technical reports", "Re-test + remediation walkthrough", "Expedited turnaround: 6 hours"],
   },
 ];
 
