@@ -45,9 +45,9 @@ export default function AdminVapt() {
   const reportByRequest = new Map(reports.filter((r) => r.request_id).map((r) => [r.request_id!, r]));
   const orphanReports = reports.filter((r) => !r.request_id);
 
-  const setStatus = async (id: string, status: string) => {
+  const setStatus = async (id: string, status: Req["status"]) => {
     setBusy(id);
-    const { error } = await supabase.from("vapt_requests").update({ status }).eq("id", id);
+    const { error } = await supabase.from("vapt_requests").update({ status } as never).eq("id", id);
     setBusy(null);
     if (error) toast({ title: "Update failed", description: error.message, variant: "destructive" });
     else refresh();
@@ -93,7 +93,7 @@ export default function AdminVapt() {
   const revoke = async (rep: Report) => {
     if (!confirm("Revoke this report? Verification will start returning 'revoked'.")) return;
     setBusy(rep.id);
-    const { error } = await supabase.from("reports").update({ status: "revoked", revoked_at: new Date().toISOString() }).eq("id", rep.id);
+    const { error } = await supabase.from("reports").update({ status: "revoked", revoked_at: new Date().toISOString() } as never).eq("id", rep.id);
     setBusy(null);
     if (error) toast({ title: "Failed", description: error.message, variant: "destructive" });
     else refresh();

@@ -70,17 +70,20 @@ export default function VerifyReport() {
             </div>
           )}
 
-          {result && !result.valid && (
-            <div className="rounded-2xl border border-destructive/30 bg-destructive/5 p-6">
-              <div className="flex items-center gap-2 text-destructive font-semibold"><ShieldX className="h-5 w-5" /> {result.reason === "revoked" ? "Report revoked" : result.reason === "rate_limited" ? "Too many attempts" : "Not a valid report"}</div>
-              <p className="mt-2 text-sm text-muted-foreground">
-                {result.reason === "revoked" && `This report was revoked on ${result.revoked_at ? new Date(result.revoked_at).toLocaleDateString() : "an unknown date"}. It is no longer valid.`}
-                {result.reason === "rate_limited" && "Please wait a minute before trying again."}
-                {result.reason === "not_found" && "No report exists with that verification code. Please double-check the code on the document."}
-                {result.reason === "invalid_code" && "That code format isn't valid."}
-              </p>
-            </div>
-          )}
+          {result && result.valid === false && (() => {
+            const r = result;
+            return (
+              <div className="rounded-2xl border border-destructive/30 bg-destructive/5 p-6">
+                <div className="flex items-center gap-2 text-destructive font-semibold"><ShieldX className="h-5 w-5" /> {r.reason === "revoked" ? "Report revoked" : r.reason === "rate_limited" ? "Too many attempts" : "Not a valid report"}</div>
+                <p className="mt-2 text-sm text-muted-foreground">
+                  {r.reason === "revoked" && `This report was revoked on ${r.revoked_at ? new Date(r.revoked_at).toLocaleDateString() : "an unknown date"}. It is no longer valid.`}
+                  {r.reason === "rate_limited" && "Please wait a minute before trying again."}
+                  {r.reason === "not_found" && "No report exists with that verification code. Please double-check the code on the document."}
+                  {r.reason === "invalid_code" && "That code format isn't valid."}
+                </p>
+              </div>
+            );
+          })()}
         </div>
       </div>
     </div>

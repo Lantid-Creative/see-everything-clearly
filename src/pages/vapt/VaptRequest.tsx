@@ -41,19 +41,21 @@ export default function VaptRequest() {
       const { data: org, error: orgErr } = await supabase.from("organizations").insert({
         owner_id: user.id, company_name: companyName, website_url: website, contact_person: contactPerson,
         email, phone,
-      }).select().single();
+      } as never).select().single();
       if (orgErr) throw orgErr;
+      const orgRow = org as { id: string };
 
       const { data: reqRow, error: reqErr } = await supabase.from("vapt_requests").insert({
-        user_id: user.id, organization_id: org.id, target, scope,
+        user_id: user.id, organization_id: orgRow.id, target, scope,
         assessment_type: tier, notes, amount_kobo: TIER_AMOUNTS[tier].kobo, currency: "NGN",
-      }).select().single();
+      } as never).select().single();
       if (reqErr) throw reqErr;
+      const reqRowTyped = reqRow as { id: string };
 
       // Initialize Paystack
       const callback = `${window.location.origin}/vapt/payment-callback`;
       const { data: init, error: initErr } = await supabase.functions.invoke("paystack-init", {
-        body: { request_id: reqRow.id, callback_url: callback },
+        body: { request_id: reqRowTyped.id, callback_url: callback },
       });
       if (initErr || !init?.authorization_url) {
         toast({ title: "Payment init failed", description: initErr?.message || init?.error || "Try again", variant: "destructive" });
