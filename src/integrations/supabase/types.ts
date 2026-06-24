@@ -528,7 +528,7 @@ export type Database = {
           revoked_at: string | null
           revoked_reason: string | null
           scope_summary: string
-          sha256_hash: string
+          sha256_hash: string | null
           status: string
           storage_path: string | null
           target: string
@@ -546,7 +546,7 @@ export type Database = {
           revoked_at?: string | null
           revoked_reason?: string | null
           scope_summary: string
-          sha256_hash: string
+          sha256_hash?: string | null
           status?: string
           storage_path?: string | null
           target: string
@@ -564,7 +564,7 @@ export type Database = {
           revoked_at?: string | null
           revoked_reason?: string | null
           scope_summary?: string
-          sha256_hash?: string
+          sha256_hash?: string | null
           status?: string
           storage_path?: string | null
           target?: string
