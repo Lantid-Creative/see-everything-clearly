@@ -47,6 +47,13 @@ Deno.serve(async (req) => {
       const qrDataUrl = await QRCode.toDataURL(verifyUrl, { margin: 1, width: 320 });
       const qrPngBytes = Uint8Array.from(atob(qrDataUrl.split(",")[1]), (c) => c.charCodeAt(0));
 
+      const [logoDl, sigDl] = await Promise.all([
+        admin.storage.from("attachments").download("brand/lantid-logo.png").catch(() => null),
+        admin.storage.from("attachments").download("brand/signature-adenike.png").catch(() => null),
+      ]);
+      const logoBytes = logoDl?.data ? new Uint8Array(await logoDl.data.arrayBuffer()) : null;
+      const sigBytes = sigDl?.data ? new Uint8Array(await sigDl.data.arrayBuffer()) : null;
+
       const pdfBytes = await buildPdf({
         company: report.company_name,
         target: report.target,
@@ -57,6 +64,8 @@ Deno.serve(async (req) => {
         verificationCode: code,
         verifyUrl,
         qrPngBytes,
+        logoBytes,
+        sigBytes,
       });
 
       const hashBuf = await crypto.subtle.digest("SHA-256", pdfBytes);
@@ -103,6 +112,7 @@ async function buildPdf(args: {
   company: string; target: string; scope: string;
   aType: string; overall: string; issued: string;
   verificationCode: string; verifyUrl: string; qrPngBytes: Uint8Array;
+  logoBytes?: Uint8Array | null; sigBytes?: Uint8Array | null;
 }) {
   const doc = await PDFDocument.create();
   const font = await doc.embedFont(StandardFonts.Helvetica);
