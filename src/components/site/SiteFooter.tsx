@@ -54,18 +54,6 @@ export function SiteFooter() {
             </p>
             <div className="space-y-2 text-sm">
               <a
-                href="tel:+2347074430088"
-                className="flex items-center gap-2 hover:text-foreground transition-colors"
-              >
-                <Phone className="h-4 w-4 text-primary" /> +234 707 443 0088
-              </a>
-              <a
-                href="tel:+2349037557699"
-                className="flex items-center gap-2 hover:text-foreground transition-colors"
-              >
-                <Phone className="h-4 w-4 text-primary" /> +234 903 755 7699
-              </a>
-              <a
                 href="mailto:hi@lantid.com"
                 className="flex items-center gap-2 hover:text-foreground transition-colors"
               >

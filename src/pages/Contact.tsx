@@ -160,13 +160,6 @@ export default function Contact() {
           {/* Sidebar */}
           <div className="lg:col-span-2 space-y-4">
             <InfoCard
-              Icon={Phone}
-              title="Call us"
-              value="+234 707 443 0088"
-              sub="Also: +234 903 755 7699 · Mon–Fri, 9am–6pm WAT"
-              href="tel:+2347074430088"
-            />
-            <InfoCard
               Icon={Mail}
               title="Email us"
               value="hello@lantid.com"
