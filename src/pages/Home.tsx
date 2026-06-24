@@ -460,10 +460,10 @@ export default function Home() {
               <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
             </Link>
             <a
-              href="tel:+2347074430088"
+              href="mailto:hello@lantid.com"
               className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-7 py-3.5 text-sm font-semibold text-foreground hover:bg-white/10 transition-all"
             >
-              +234 707 443 0088
+              hello@lantid.com
             </a>
           </div>
         </div>
