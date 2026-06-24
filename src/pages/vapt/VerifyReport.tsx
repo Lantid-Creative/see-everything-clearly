@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { Loader2, ShieldCheck, ShieldX, Search } from "lucide-react";
+import { Loader2, ShieldCheck, ShieldX, Search, Download } from "lucide-react";
+import { toast } from "@/hooks/use-toast";
 import { Logo } from "@/components/Logo";
 
 type VerifyResult =
