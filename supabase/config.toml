@@ -20,3 +20,9 @@ verify_jwt = false
 
 [functions.gtm-generator]
 verify_jwt = false
+
+[functions.verify-report]
+verify_jwt = false
+
+[functions.public-report-download]
+verify_jwt = false
