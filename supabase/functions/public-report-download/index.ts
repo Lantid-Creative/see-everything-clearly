@@ -187,15 +187,14 @@ async function buildPdf(args: {
   };
 
   // -------- Header / Logo --------
-  const LOGO_URL = "https://duqpnawfzihqbyttcrvk.supabase.co/storage/v1/object/public/attachments/brand%2Flantid-logo.png";
   try {
-    const logoBytes = new Uint8Array(await (await fetch(LOGO_URL)).arrayBuffer());
-    const logoImg = await doc.embedPng(logoBytes);
+    if (!args.logoBytes) throw new Error("no-logo");
+    const logoImg = await doc.embedPng(args.logoBytes);
     const logoH = 32;
     const logoW = (logoImg.width / logoImg.height) * logoH;
     page.drawImage(logoImg, { x: margin, y: y - logoH, width: logoW, height: logoH });
   } catch (_) {
-    // Fallback if fetch fails: simple wordmark
+    // Fallback if download fails: simple wordmark
     page.drawText("LANTID", { x: margin, y: y - 22, size: 20, font: bold, color: TEXT });
   }
 
