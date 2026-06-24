@@ -14,6 +14,7 @@ export default function VerifyReport() {
   const navigate = useNavigate();
   const [code, setCode] = useState(codeParam || "");
   const [loading, setLoading] = useState(false);
+  const [downloading, setDownloading] = useState(false);
   const [result, setResult] = useState<VerifyResult | null>(null);
 
   useEffect(() => { if (codeParam) verify(codeParam); /* eslint-disable-next-line */ }, [codeParam]);
