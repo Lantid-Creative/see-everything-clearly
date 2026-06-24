@@ -82,6 +82,17 @@ export default function VerifyReport() {
                 <Row k="Result" v={result.overall_result === "passed" ? "All checks passed" : "Findings reported"} />
                 <Row k="Scope" v={result.scope_summary} full />
               </div>
+              <div className="mt-6 flex flex-wrap gap-3">
+                <button
+                  onClick={() => downloadReport(result.verification_code)}
+                  disabled={downloading}
+                  className="inline-flex items-center gap-2 rounded-xl bg-primary text-primary-foreground px-5 py-3 text-sm font-semibold hover:shadow-brand transition-all disabled:opacity-60"
+                >
+                  {downloading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
+                  {downloading ? "Preparing PDF…" : "Download full report (PDF)"}
+                </button>
+                <span className="text-xs text-muted-foreground self-center">Signed link, expires in 5 minutes.</span>
+              </div>
             </div>
           )}
 
