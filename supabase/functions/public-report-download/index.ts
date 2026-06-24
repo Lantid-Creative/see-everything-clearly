@@ -47,6 +47,13 @@ Deno.serve(async (req) => {
       const qrDataUrl = await QRCode.toDataURL(verifyUrl, { margin: 1, width: 320 });
       const qrPngBytes = Uint8Array.from(atob(qrDataUrl.split(",")[1]), (c) => c.charCodeAt(0));
 
+      const [logoDl, sigDl] = await Promise.all([
+        admin.storage.from("attachments").download("brand/lantid-logo.png").catch(() => null),
+        admin.storage.from("attachments").download("brand/signature-adenike.png").catch(() => null),
+      ]);
+      const logoBytes = logoDl?.data ? new Uint8Array(await logoDl.data.arrayBuffer()) : null;
+      const sigBytes = sigDl?.data ? new Uint8Array(await sigDl.data.arrayBuffer()) : null;
+
       const pdfBytes = await buildPdf({
         company: report.company_name,
         target: report.target,
@@ -57,6 +64,8 @@ Deno.serve(async (req) => {
         verificationCode: code,
         verifyUrl,
         qrPngBytes,
+        logoBytes,
+        sigBytes,
       });
 
       const hashBuf = await crypto.subtle.digest("SHA-256", pdfBytes);
@@ -103,6 +112,7 @@ async function buildPdf(args: {
   company: string; target: string; scope: string;
   aType: string; overall: string; issued: string;
   verificationCode: string; verifyUrl: string; qrPngBytes: Uint8Array;
+  logoBytes?: Uint8Array | null; sigBytes?: Uint8Array | null;
 }) {
   const doc = await PDFDocument.create();
   const font = await doc.embedFont(StandardFonts.Helvetica);
@@ -177,15 +187,14 @@ async function buildPdf(args: {
   };
 
   // -------- Header / Logo --------
-  const LOGO_URL = "https://duqpnawfzihqbyttcrvk.supabase.co/storage/v1/object/public/attachments/brand%2Flantid-logo.png";
   try {
-    const logoBytes = new Uint8Array(await (await fetch(LOGO_URL)).arrayBuffer());
-    const logoImg = await doc.embedPng(logoBytes);
+    if (!args.logoBytes) throw new Error("no-logo");
+    const logoImg = await doc.embedPng(args.logoBytes);
     const logoH = 32;
     const logoW = (logoImg.width / logoImg.height) * logoH;
     page.drawImage(logoImg, { x: margin, y: y - logoH, width: logoW, height: logoH });
   } catch (_) {
-    // Fallback if fetch fails: simple wordmark
+    // Fallback if download fails: simple wordmark
     page.drawText("LANTID", { x: margin, y: y - 22, size: 20, font: bold, color: TEXT });
   }
 
@@ -345,10 +354,9 @@ async function buildPdf(args: {
   ensure(140);
   y -= 10;
   drawText("Signed for and on behalf of Lantid:", { size: 10, color: MUTED }); y -= 8;
-  const SIG_URL = "https://duqpnawfzihqbyttcrvk.supabase.co/storage/v1/object/public/attachments/brand%2Fsignature-adenike.png";
   try {
-    const sigBytes = new Uint8Array(await (await fetch(SIG_URL)).arrayBuffer());
-    const sigImg = await doc.embedPng(sigBytes);
+    if (!args.sigBytes) throw new Error("no-sig");
+    const sigImg = await doc.embedPng(args.sigBytes);
     const sigH = 60;
     const sigW = (sigImg.width / sigImg.height) * sigH;
     page.drawImage(sigImg, { x: margin, y: y - sigH, width: sigW, height: sigH });
