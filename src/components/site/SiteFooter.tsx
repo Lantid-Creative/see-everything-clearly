@@ -31,6 +31,13 @@ const cols = [
     ],
   },
   {
+    title: "Security",
+    links: [
+      { to: "/vapt", label: "VAPT Services" },
+      { to: "/verify-report", label: "Verify Report" },
+    ],
+  },
+  {
     title: "Company",
     links: [
       { to: "/company", label: "About Us" },
