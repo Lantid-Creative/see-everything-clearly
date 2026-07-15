@@ -1,0 +1,25 @@
+# Lantid Creative
+
+> Nigeria & UK consulting firm bridging strategy, policy research, monitoring & evaluation, branding and technology for government, development and enterprise clients.
+
+Lantid Creative Limited operates from Abuja, Nigeria and Doncaster, United Kingdom. The firm delivers eight integrated practices — management consulting, business consulting, strategic planning, policy research, industrial policy development, monitoring & evaluation, branding, and IT & technology solutions — plus a portfolio of regulated audit and assurance services.
+
+## Pages
+
+- [Home](/): Overview of Lantid Creative's consulting practices and approach.
+- [Services](/services): The eight integrated consulting practices.
+- [Industries](/industries): Sectors served — government, development, private sector, non-profits, academia, healthcare.
+- [Company](/company): About Lantid Creative, founder, and dual-entity structure (Nigeria & UK).
+- [Case Study](/case-study): Client engagements and outcomes.
+- [Contact](/contact): Enquiries — response within one business day.
+
+## Audits & Assurance
+
+- [Audit Hub](/audits): All regulated audits offered (ISO 27001, NDPR, AML/CFT, SOC 2, PCI DSS, VAPT and more).
+- [VAPT](/vapt): Vulnerability assessment and penetration testing service.
+- [PCI DSS](/pci-dss): PCI DSS v4.0 compliance assessment.
+- [Verify Report](/verify-report): Public verification of Lantid-issued audit reports.
+
+## Optional
+
+- [Sitemap](/sitemap.xml): Machine-readable list of public routes.
