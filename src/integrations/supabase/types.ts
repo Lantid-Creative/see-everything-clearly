@@ -1098,7 +1098,26 @@ export type Database = {
     Enums: {
       app_role: "admin" | "user"
       assessment_type: "basic" | "standard" | "advanced"
-      audit_type: "aml_cft" | "iso_27001" | "ndpr"
+      audit_type:
+        | "aml_cft"
+        | "iso_27001"
+        | "ndpr"
+        | "cbn_rcsf"
+        | "swift_csp"
+        | "soc_2"
+        | "ndic"
+        | "gdpr"
+        | "hipaa"
+        | "nitda_grc"
+        | "iso_22301"
+        | "cloud_config"
+        | "source_code"
+        | "red_team"
+        | "blockchain"
+        | "iso_42001"
+        | "vendor_risk"
+        | "mobile_masvs"
+        | "dfir"
       payment_status: "pending" | "paid" | "failed" | "refunded"
       request_status:
         | "pending_payment"
@@ -1236,7 +1255,27 @@ export const Constants = {
     Enums: {
       app_role: ["admin", "user"],
       assessment_type: ["basic", "standard", "advanced"],
-      audit_type: ["aml_cft", "iso_27001", "ndpr"],
+      audit_type: [
+        "aml_cft",
+        "iso_27001",
+        "ndpr",
+        "cbn_rcsf",
+        "swift_csp",
+        "soc_2",
+        "ndic",
+        "gdpr",
+        "hipaa",
+        "nitda_grc",
+        "iso_22301",
+        "cloud_config",
+        "source_code",
+        "red_team",
+        "blockchain",
+        "iso_42001",
+        "vendor_risk",
+        "mobile_masvs",
+        "dfir",
+      ],
       payment_status: ["pending", "paid", "failed", "refunded"],
       request_status: [
         "pending_payment",

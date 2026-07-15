@@ -4,10 +4,11 @@ import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2, ShieldCheck } from "lucide-react";
+import { AUDITS, AUDIT_LABEL_BY_DBTYPE } from "@/config/audits";
 
 type AuditRow = {
   id: string;
-  audit_type: "aml_cft" | "iso_27001" | "ndpr";
+  audit_type: string;
   tier: string;
   amount_kobo: number;
   vat_kobo: number;
@@ -27,7 +28,7 @@ type AuditRow = {
 };
 
 const STATUSES = ["pending","paid","in_progress","under_review","completed","cancelled"] as const;
-const AUDIT_LABEL: Record<string,string> = { aml_cft: "AML / CFT", iso_27001: "ISO 27001", ndpr: "NDPR / NDPA" };
+const FILTER_OPTIONS = AUDITS.filter((a) => !a.external).map((a) => ({ value: a.dbType, label: a.name }));
 
 const statusTone: Record<string, string> = {
   pending: "bg-amber-500/15 text-amber-600 dark:text-amber-400",
@@ -82,16 +83,14 @@ export default function AdminAudits() {
 
   return (
     <div className="max-w-7xl mx-auto px-6 py-12">
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex items-center justify-between mb-6 gap-4 flex-wrap">
         <div>
           <h1 className="text-3xl font-serif flex items-center gap-2"><ShieldCheck className="h-7 w-7 text-primary" /> Audit submissions</h1>
-          <p className="text-muted-foreground text-sm mt-1">AML/CFT, ISO 27001, and NDPR/NDPA engagements. VAPT and PCI DSS have their own dashboards.</p>
+          <p className="text-muted-foreground text-sm mt-1">All non-VAPT / non-PCI audit engagements. VAPT and PCI DSS have their own dashboards.</p>
         </div>
-        <select value={filter} onChange={(e)=>setFilter(e.target.value)} className="rounded-xl border border-input bg-background px-3 py-2 text-sm">
-          <option value="all">All audit types</option>
-          <option value="aml_cft">AML / CFT</option>
-          <option value="iso_27001">ISO 27001</option>
-          <option value="ndpr">NDPR / NDPA</option>
+        <select value={filter} onChange={(e)=>setFilter(e.target.value)} className="rounded-xl border border-input bg-background px-3 py-2 text-sm min-w-[220px]">
+          <option value="all">All audit types ({rows.length})</option>
+          {FILTER_OPTIONS.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
         </select>
       </div>
 
@@ -117,7 +116,7 @@ export default function AdminAudits() {
               <Fragment key={r.id}>
                 <tr className="border-t border-border hover:bg-muted/30 cursor-pointer" onClick={() => setExpanded(expanded === r.id ? null : r.id)}>
                   <td className="p-3 font-mono text-xs">{r.reference}</td>
-                  <td className="p-3">{AUDIT_LABEL[r.audit_type]}</td>
+                  <td className="p-3">{AUDIT_LABEL_BY_DBTYPE[r.audit_type] || r.audit_type}</td>
                   <td className="p-3 font-medium">{r.company_name}</td>
                   <td className="p-3"><div>{r.contact_name}</div><div className="text-xs text-muted-foreground">{r.contact_email}</div></td>
                   <td className="p-3 capitalize">{r.tier}</td>
