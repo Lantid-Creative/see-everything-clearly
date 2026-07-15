@@ -19,15 +19,17 @@ import NotFound from "./pages/NotFound";
 import PciDss from "./pages/PciDss";
 import VaptLanding from "./pages/vapt/VaptLanding";
 import VaptRequest from "./pages/vapt/VaptRequest";
-import VaptDashboard from "./pages/vapt/VaptDashboard";
+
 import VerifyReport from "./pages/vapt/VerifyReport";
 import AdminVapt from "./pages/vapt/AdminVapt";
 import AdminPci from "./pages/vapt/AdminPci";
 import AdminAudits from "./pages/vapt/AdminAudits";
+import AdminQueue from "./pages/vapt/AdminQueue";
 import PaymentCallback from "./pages/vapt/PaymentCallback";
 import AuditHub from "./pages/AuditHub";
 import AuditService from "./pages/audits/AuditService";
 import MyAudits from "./pages/audits/MyAudits";
+import EngagementDetail from "./pages/audits/EngagementDetail";
 
 const queryClient = new QueryClient();
 
@@ -51,13 +53,15 @@ const App = () => (
                 <Route path="/pci-dss" element={<PciDss />} />
                 <Route path="/audits" element={<AuditHub />} />
                 <Route path="/audits/my" element={<MyAudits />} />
+                <Route path="/audits/my/:type/:id" element={<EngagementDetail />} />
                 <Route path="/audits/:slug" element={<AuditService />} />
                 <Route path="/vapt" element={<VaptLanding />} />
                 <Route path="/vapt/request" element={<VaptRequest />} />
-                <Route path="/vapt/dashboard" element={<VaptDashboard />} />
+                <Route path="/vapt/dashboard" element={<Navigate to="/audits/my" replace />} />
                 <Route path="/vapt/payment-callback" element={<PaymentCallback />} />
                 <Route path="/verify-report" element={<VerifyReport />} />
                 <Route path="/verify-report/:code" element={<VerifyReport />} />
+                <Route path="/admin/queue" element={<AdminQueue />} />
                 <Route path="/admin/vapt" element={<AdminVapt />} />
                 <Route path="/admin/pci-dss" element={<AdminPci />} />
                 <Route path="/admin/audits" element={<AdminAudits />} />

@@ -14,6 +14,39 @@ export type Database = {
   }
   public: {
     Tables: {
+      admin_action_log: {
+        Row: {
+          action: string
+          actor_id: string | null
+          created_at: string
+          entity_id: string | null
+          entity_type: string
+          id: string
+          metadata: Json
+          reason: string | null
+        }
+        Insert: {
+          action: string
+          actor_id?: string | null
+          created_at?: string
+          entity_id?: string | null
+          entity_type: string
+          id?: string
+          metadata?: Json
+          reason?: string | null
+        }
+        Update: {
+          action?: string
+          actor_id?: string | null
+          created_at?: string
+          entity_id?: string | null
+          entity_type?: string
+          id?: string
+          metadata?: Json
+          reason?: string | null
+        }
+        Relationships: []
+      }
       agent_actions: {
         Row: {
           action_type: string
@@ -94,6 +127,7 @@ export type Database = {
           paystack_reference: string | null
           reference: string
           status: string
+          status_stage: Database["public"]["Enums"]["engagement_stage"]
           tier: string
           total_kobo: number
           updated_at: string
@@ -117,6 +151,7 @@ export type Database = {
           paystack_reference?: string | null
           reference: string
           status?: string
+          status_stage?: Database["public"]["Enums"]["engagement_stage"]
           tier: string
           total_kobo: number
           updated_at?: string
@@ -140,6 +175,7 @@ export type Database = {
           paystack_reference?: string | null
           reference?: string
           status?: string
+          status_stage?: Database["public"]["Enums"]["engagement_stage"]
           tier?: string
           total_kobo?: number
           updated_at?: string
@@ -205,6 +241,36 @@ export type Database = {
         }
         Relationships: []
       }
+      download_counters: {
+        Row: {
+          count: number
+          first_at: string
+          id: string
+          ip: string | null
+          last_at: string
+          user_id: string | null
+          verification_code: string
+        }
+        Insert: {
+          count?: number
+          first_at?: string
+          id?: string
+          ip?: string | null
+          last_at?: string
+          user_id?: string | null
+          verification_code: string
+        }
+        Update: {
+          count?: number
+          first_at?: string
+          id?: string
+          ip?: string | null
+          last_at?: string
+          user_id?: string | null
+          verification_code?: string
+        }
+        Relationships: []
+      }
       email_drafts: {
         Row: {
           attachments: Json | null
@@ -248,6 +314,141 @@ export type Database = {
             columns: ["lead_id"]
             isOneToOne: false
             referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      engagement_documents: {
+        Row: {
+          created_at: string
+          engagement_id: string
+          engagement_type: Database["public"]["Enums"]["engagement_type"]
+          id: string
+          issued_at: string
+          issued_by: string | null
+          kind: Database["public"]["Enums"]["doc_kind"]
+          notes: string | null
+          sha256_hash: string | null
+          storage_path: string
+          version: number
+        }
+        Insert: {
+          created_at?: string
+          engagement_id: string
+          engagement_type: Database["public"]["Enums"]["engagement_type"]
+          id?: string
+          issued_at?: string
+          issued_by?: string | null
+          kind: Database["public"]["Enums"]["doc_kind"]
+          notes?: string | null
+          sha256_hash?: string | null
+          storage_path: string
+          version?: number
+        }
+        Update: {
+          created_at?: string
+          engagement_id?: string
+          engagement_type?: Database["public"]["Enums"]["engagement_type"]
+          id?: string
+          issued_at?: string
+          issued_by?: string | null
+          kind?: Database["public"]["Enums"]["doc_kind"]
+          notes?: string | null
+          sha256_hash?: string | null
+          storage_path?: string
+          version?: number
+        }
+        Relationships: []
+      }
+      engagement_messages: {
+        Row: {
+          attachment_path: string | null
+          body: string
+          created_at: string
+          engagement_id: string
+          engagement_type: Database["public"]["Enums"]["engagement_type"]
+          id: string
+          is_admin: boolean
+          sender_id: string
+        }
+        Insert: {
+          attachment_path?: string | null
+          body: string
+          created_at?: string
+          engagement_id: string
+          engagement_type: Database["public"]["Enums"]["engagement_type"]
+          id?: string
+          is_admin?: boolean
+          sender_id: string
+        }
+        Update: {
+          attachment_path?: string | null
+          body?: string
+          created_at?: string
+          engagement_id?: string
+          engagement_type?: Database["public"]["Enums"]["engagement_type"]
+          id?: string
+          is_admin?: boolean
+          sender_id?: string
+        }
+        Relationships: []
+      }
+      invoices: {
+        Row: {
+          amount_kobo: number
+          currency: string
+          engagement_id: string | null
+          engagement_type: Database["public"]["Enums"]["engagement_type"] | null
+          id: string
+          issued_at: string
+          metadata: Json
+          number: string
+          payment_id: string | null
+          pdf_path: string | null
+          total_kobo: number
+          user_id: string | null
+          vat_kobo: number
+        }
+        Insert: {
+          amount_kobo: number
+          currency?: string
+          engagement_id?: string | null
+          engagement_type?:
+            | Database["public"]["Enums"]["engagement_type"]
+            | null
+          id?: string
+          issued_at?: string
+          metadata?: Json
+          number: string
+          payment_id?: string | null
+          pdf_path?: string | null
+          total_kobo: number
+          user_id?: string | null
+          vat_kobo?: number
+        }
+        Update: {
+          amount_kobo?: number
+          currency?: string
+          engagement_id?: string | null
+          engagement_type?:
+            | Database["public"]["Enums"]["engagement_type"]
+            | null
+          id?: string
+          issued_at?: string
+          metadata?: Json
+          number?: string
+          payment_id?: string | null
+          pdf_path?: string | null
+          total_kobo?: number
+          user_id?: string | null
+          vat_kobo?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "invoices_payment_id_fkey"
+            columns: ["payment_id"]
+            isOneToOne: false
+            referencedRelation: "payments"
             referencedColumns: ["id"]
           },
         ]
@@ -508,6 +709,7 @@ export type Database = {
           public_id: string
           saq_type: string | null
           status: string
+          status_stage: Database["public"]["Enums"]["engagement_stage"]
           tier: string
           timeline: string | null
           updated_at: string
@@ -530,6 +732,7 @@ export type Database = {
           public_id?: string
           saq_type?: string | null
           status?: string
+          status_stage?: Database["public"]["Enums"]["engagement_stage"]
           tier?: string
           timeline?: string | null
           updated_at?: string
@@ -552,6 +755,7 @@ export type Database = {
           public_id?: string
           saq_type?: string | null
           status?: string
+          status_stage?: Database["public"]["Enums"]["engagement_stage"]
           tier?: string
           timeline?: string | null
           updated_at?: string
@@ -669,6 +873,142 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      renewal_reminders: {
+        Row: {
+          created_at: string
+          due_at: string
+          engagement_id: string
+          engagement_type: Database["public"]["Enums"]["engagement_type"]
+          id: string
+          kind: string
+          sent_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          due_at: string
+          engagement_id: string
+          engagement_type: Database["public"]["Enums"]["engagement_type"]
+          id?: string
+          kind: string
+          sent_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          due_at?: string
+          engagement_id?: string
+          engagement_type?: Database["public"]["Enums"]["engagement_type"]
+          id?: string
+          kind?: string
+          sent_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      report_findings: {
+        Row: {
+          created_at: string
+          cvss_score: number | null
+          cvss_vector: string | null
+          description: string | null
+          id: string
+          remediation: string | null
+          report_id: string
+          retest_evidence_path: string | null
+          severity: Database["public"]["Enums"]["finding_severity"]
+          sort_order: number
+          status: Database["public"]["Enums"]["finding_status"]
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          cvss_score?: number | null
+          cvss_vector?: string | null
+          description?: string | null
+          id?: string
+          remediation?: string | null
+          report_id: string
+          retest_evidence_path?: string | null
+          severity?: Database["public"]["Enums"]["finding_severity"]
+          sort_order?: number
+          status?: Database["public"]["Enums"]["finding_status"]
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          cvss_score?: number | null
+          cvss_vector?: string | null
+          description?: string | null
+          id?: string
+          remediation?: string | null
+          report_id?: string
+          retest_evidence_path?: string | null
+          severity?: Database["public"]["Enums"]["finding_severity"]
+          sort_order?: number
+          status?: Database["public"]["Enums"]["finding_status"]
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "report_findings_report_id_fkey"
+            columns: ["report_id"]
+            isOneToOne: false
+            referencedRelation: "reports"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      report_versions: {
+        Row: {
+          id: string
+          issued_at: string
+          issued_by: string | null
+          kind: Database["public"]["Enums"]["version_kind"]
+          notes: string | null
+          report_id: string
+          sha256_hash: string | null
+          storage_path: string
+          superseded: boolean
+          version_no: number
+        }
+        Insert: {
+          id?: string
+          issued_at?: string
+          issued_by?: string | null
+          kind?: Database["public"]["Enums"]["version_kind"]
+          notes?: string | null
+          report_id: string
+          sha256_hash?: string | null
+          storage_path: string
+          superseded?: boolean
+          version_no: number
+        }
+        Update: {
+          id?: string
+          issued_at?: string
+          issued_by?: string | null
+          kind?: Database["public"]["Enums"]["version_kind"]
+          notes?: string | null
+          report_id?: string
+          sha256_hash?: string | null
+          storage_path?: string
+          superseded?: boolean
+          version_no?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "report_versions_report_id_fkey"
+            columns: ["report_id"]
+            isOneToOne: false
+            referencedRelation: "reports"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       reports: {
         Row: {
@@ -963,6 +1303,7 @@ export type Database = {
           public_id: string
           scope: string
           status: Database["public"]["Enums"]["request_status"]
+          status_stage: Database["public"]["Enums"]["engagement_stage"]
           target: string
           updated_at: string
           user_id: string
@@ -978,6 +1319,7 @@ export type Database = {
           public_id?: string
           scope: string
           status?: Database["public"]["Enums"]["request_status"]
+          status_stage?: Database["public"]["Enums"]["engagement_stage"]
           target: string
           updated_at?: string
           user_id: string
@@ -993,6 +1335,7 @@ export type Database = {
           public_id?: string
           scope?: string
           status?: Database["public"]["Enums"]["request_status"]
+          status_stage?: Database["public"]["Enums"]["engagement_stage"]
           target?: string
           updated_at?: string
           user_id?: string
@@ -1066,9 +1409,33 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      engagements_v: {
+        Row: {
+          amount_kobo: number | null
+          company_name: string | null
+          created_at: string | null
+          currency: string | null
+          id: string | null
+          public_id: string | null
+          raw_status: string | null
+          status_stage: Database["public"]["Enums"]["engagement_stage"] | null
+          subject: string | null
+          type: Database["public"]["Enums"]["engagement_type"] | null
+          updated_at: string | null
+          user_id: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
+      can_access_engagement: {
+        Args: {
+          _engagement_id: string
+          _type: Database["public"]["Enums"]["engagement_type"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -1121,6 +1488,23 @@ export type Database = {
         | "vendor_risk"
         | "mobile_masvs"
         | "dfir"
+      doc_kind:
+        | "engagement_letter"
+        | "scope_confirmation"
+        | "report"
+        | "retest"
+        | "invoice"
+        | "other"
+      engagement_stage:
+        | "requested"
+        | "scoping"
+        | "testing"
+        | "draft"
+        | "issued"
+        | "revoked"
+      engagement_type: "vapt" | "pci_dss" | "audit"
+      finding_severity: "critical" | "high" | "medium" | "low" | "info"
+      finding_status: "open" | "remediated" | "risk_accepted" | "wont_fix"
       payment_status: "pending" | "paid" | "failed" | "refunded"
       request_status:
         | "pending_payment"
@@ -1129,6 +1513,7 @@ export type Database = {
         | "completed"
         | "cancelled"
       team_role: "owner" | "admin" | "member" | "viewer"
+      version_kind: "initial" | "retest" | "delta" | "revision"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -1279,6 +1664,25 @@ export const Constants = {
         "mobile_masvs",
         "dfir",
       ],
+      doc_kind: [
+        "engagement_letter",
+        "scope_confirmation",
+        "report",
+        "retest",
+        "invoice",
+        "other",
+      ],
+      engagement_stage: [
+        "requested",
+        "scoping",
+        "testing",
+        "draft",
+        "issued",
+        "revoked",
+      ],
+      engagement_type: ["vapt", "pci_dss", "audit"],
+      finding_severity: ["critical", "high", "medium", "low", "info"],
+      finding_status: ["open", "remediated", "risk_accepted", "wont_fix"],
       payment_status: ["pending", "paid", "failed", "refunded"],
       request_status: [
         "pending_payment",
@@ -1288,6 +1692,7 @@ export const Constants = {
         "cancelled",
       ],
       team_role: ["owner", "admin", "member", "viewer"],
+      version_kind: ["initial", "retest", "delta", "revision"],
     },
   },
 } as const
