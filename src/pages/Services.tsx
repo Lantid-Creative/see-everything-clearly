@@ -166,6 +166,28 @@ const groups = [
       "Tech assets you fully own and operate",
     ],
   },
+  {
+    id: "audits",
+    icon: ShieldCheck,
+    title: "Audits & Assurance",
+    desc: "Regulated audits and independent assurance delivered by Lantid's in-house assessors. From vulnerability assessments and penetration testing (VAPT) to PCI DSS v4.0, ISO 27001, SOC 2, NDPR, HIPAA and AML/CFT, we scope, test, report and support remediation — issuing verifiable, publicly attestable reports that hold up to regulator, board and customer scrutiny.",
+    bullets: [
+      "Vulnerability Assessment & Penetration Testing (VAPT)",
+      "PCI DSS v4.0 assessment & attestation",
+      "ISO 27001 readiness & internal audit",
+      "SOC 2 Type I & Type II readiness",
+      "NDPR / GDPR data protection audits",
+      "HIPAA security & privacy audits",
+      "AML/CFT compliance audits",
+      "Publicly verifiable, tamper-evident reports",
+    ],
+    outcomes: [
+      "Regulator-ready evidence and attestations",
+      "Prioritised remediation with retest support",
+      "Independent reports customers can verify online",
+    ],
+    cta: { to: "/audits", label: "Explore audit services" },
+  },
 ];
 
 const faqs = [
