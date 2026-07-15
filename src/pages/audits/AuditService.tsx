@@ -19,6 +19,41 @@ export default function AuditService() {
   const [tier, setTier] = useState<TierKey>(initialTier);
   const [submitting, setSubmitting] = useState(false);
   const [form, setForm] = useState<Record<string, string>>({});
+  const [uploading, setUploading] = useState<Record<string, boolean>>({});
+
+  const handleFileUpload = async (fieldName: string, files: FileList | null) => {
+    if (!files || files.length === 0 || !user) return;
+    setUploading((s) => ({ ...s, [fieldName]: true }));
+    try {
+      const existing = form[`__file_${fieldName}`] ? JSON.parse(form[`__file_${fieldName}`]) as { name: string; path: string }[] : [];
+      const uploaded: { name: string; path: string }[] = [...existing];
+      for (const file of Array.from(files)) {
+        if (file.size > 25 * 1024 * 1024) {
+          toast({ title: "File too large", description: `${file.name} exceeds 25 MB.`, variant: "destructive" });
+          continue;
+        }
+        const safe = file.name.replace(/[^a-zA-Z0-9._-]/g, "_");
+        const path = `${user.id}/audit-intake/${audit?.slug}/${fieldName}/${Date.now()}-${safe}`;
+        const { error } = await supabase.storage.from("attachments").upload(path, file, { upsert: false, contentType: file.type || undefined });
+        if (error) {
+          toast({ title: "Upload failed", description: `${file.name}: ${error.message}`, variant: "destructive" });
+          continue;
+        }
+        uploaded.push({ name: file.name, path });
+      }
+      setForm((s) => ({ ...s, [`__file_${fieldName}`]: JSON.stringify(uploaded) }));
+    } finally {
+      setUploading((s) => ({ ...s, [fieldName]: false }));
+    }
+  };
+
+  const removeFile = async (fieldName: string, index: number) => {
+    const existing = form[`__file_${fieldName}`] ? JSON.parse(form[`__file_${fieldName}`]) as { name: string; path: string }[] : [];
+    const target = existing[index];
+    if (target) await supabase.storage.from("attachments").remove([target.path]);
+    const next = existing.filter((_, i) => i !== index);
+    setForm((s) => ({ ...s, [`__file_${fieldName}`]: next.length ? JSON.stringify(next) : "" }));
+  };
 
   const [companyName, setCompanyName] = useState("");
   const [contactName, setContactName] = useState("");
