@@ -140,7 +140,7 @@ export default function PciDss() {
           timeline,
           notes,
           tier,
-          amount_kobo: TIERS[tier].kobo,
+          amount_kobo: TIERS[tier].kobo + Math.round(TIERS[tier].kobo * VAT_RATE),
           currency: "NGN",
           status: "pending_payment",
         } as never)
