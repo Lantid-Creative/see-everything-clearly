@@ -213,7 +213,42 @@ export default function AuditService() {
 
   return (
     <>
-      <Seo title={`${audit.name} · Lantid`} description={audit.hero} path={audit.route} />
+      <Seo
+        title={`${audit.name} · Lantid`}
+        description={audit.hero}
+        path={audit.route}
+        jsonLd={[
+          {
+            "@context": "https://schema.org",
+            "@type": "Service",
+            name: audit.name,
+            serviceType: audit.standard,
+            description: audit.hero,
+            provider: {
+              "@type": "Organization",
+              name: "Lantid",
+              url: "https://lantid.com",
+              logo: "https://lantid.com/og-image.png",
+            },
+            areaServed: { "@type": "Country", name: "Nigeria" },
+            offers: {
+              "@type": "AggregateOffer",
+              priceCurrency: "NGN",
+              lowPrice: "250000",
+              highPrice: "1500000",
+              offerCount: 3,
+            },
+          },
+          {
+            "@context": "https://schema.org",
+            "@type": "Organization",
+            name: "Lantid",
+            url: "https://lantid.com",
+            logo: "https://lantid.com/og-image.png",
+            sameAs: ["https://lantid.com"],
+          },
+        ]}
+      />
 
       {/* Hero */}
       <section className="relative border-b border-border">

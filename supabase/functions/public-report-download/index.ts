@@ -92,6 +92,25 @@ Deno.serve(async (req) => {
       .createSignedUrl(storagePath, 60 * 5, { download: `${downloadPrefix}-${code}.pdf` });
     if (signErr) throw signErr;
 
+    // Increment download counter (anomaly detection)
+    const ip = req.headers.get("x-forwarded-for")?.split(",")[0].trim() || "unknown";
+    const { data: existing } = await admin
+      .from("download_counters")
+      .select("id, count")
+      .eq("verification_code", code)
+      .eq("ip", ip)
+      .maybeSingle();
+    if (existing) {
+      await admin.from("download_counters")
+        .update({ count: (existing.count ?? 0) + 1, last_at: new Date().toISOString() })
+        .eq("id", existing.id);
+    } else {
+      await admin.from("download_counters").insert({
+        verification_code: code, ip, count: 1,
+        first_at: new Date().toISOString(), last_at: new Date().toISOString(),
+      });
+    }
+
     return json({ url: signed.signedUrl, expires_in: 300 });
   } catch (e) {
     console.error(e);

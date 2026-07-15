@@ -8,6 +8,7 @@ const corsHeaders = {
 
 const RATE_LIMIT_WINDOW_SEC = 60;
 const RATE_LIMIT_MAX = 15;
+const PER_CODE_MAX = 5;
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
@@ -27,14 +28,15 @@ Deno.serve(async (req) => {
     const ip = req.headers.get("x-forwarded-for")?.split(",")[0].trim() || "unknown";
     const ua = req.headers.get("user-agent")?.slice(0, 256) || "";
 
-    // Rate limit: count attempts in last window
+    // Rate limit: per-IP overall + per-code burst
     const since = new Date(Date.now() - RATE_LIMIT_WINDOW_SEC * 1000).toISOString();
-    const { count } = await supabase
-      .from("verification_attempts")
-      .select("id", { count: "exact", head: true })
-      .eq("ip", ip)
-      .gte("created_at", since);
-    if ((count ?? 0) >= RATE_LIMIT_MAX) {
+    const [{ count: ipCount }, { count: codeCount }] = await Promise.all([
+      supabase.from("verification_attempts").select("id", { count: "exact", head: true })
+        .eq("ip", ip).gte("created_at", since),
+      supabase.from("verification_attempts").select("id", { count: "exact", head: true })
+        .eq("verification_code", code).gte("created_at", since),
+    ]);
+    if ((ipCount ?? 0) >= RATE_LIMIT_MAX || (codeCount ?? 0) >= PER_CODE_MAX) {
       await supabase.from("verification_attempts").insert({ verification_code: code, ip, user_agent: ua, result: "rate_limited" });
       return json({ valid: false, reason: "rate_limited" }, 429);
     }
