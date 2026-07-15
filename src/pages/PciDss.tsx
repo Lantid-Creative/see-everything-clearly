@@ -323,18 +323,19 @@ export default function PciDss() {
                 <textarea value={notes} onChange={(e)=>setNotes(e.target.value)} rows={3} className={`${input} resize-none`} />
               </div>
 
-              <div className="flex items-center justify-between rounded-xl border border-border bg-background p-4">
-                <div>
-                  <div className="text-xs uppercase tracking-wider text-muted-foreground">Selected tier</div>
-                  <div className="text-2xl font-serif capitalize">{tier} — {t.price}</div>
-                  <div className="text-xs text-muted-foreground">Turnaround: {t.turnaround}</div>
+              <div className="rounded-xl border border-border bg-background p-5">
+                <div className="text-xs uppercase tracking-wider text-muted-foreground mb-3">Order summary</div>
+                <div className="space-y-1.5 text-sm">
+                  <div className="flex justify-between"><span className="text-muted-foreground capitalize">PCI DSS — {tier} ({t.turnaround})</span><span className="font-medium">{fmt(t.kobo)}</span></div>
+                  <div className="flex justify-between"><span className="text-muted-foreground">VAT (7.5%)</span><span className="font-medium">{fmt(Math.round(t.kobo * VAT_RATE))}</span></div>
+                  <div className="flex justify-between border-t border-border pt-2 mt-2 text-base"><span className="font-semibold">Total due</span><span className="font-serif text-xl">{fmt(t.kobo + Math.round(t.kobo * VAT_RATE))}</span></div>
                 </div>
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="inline-flex items-center gap-2 rounded-xl bg-primary text-primary-foreground px-5 py-3 text-sm font-semibold hover:shadow-brand transition-all disabled:opacity-50"
+                  className="mt-5 w-full inline-flex items-center justify-center gap-2 rounded-xl bg-primary text-primary-foreground px-5 py-3 text-sm font-semibold hover:shadow-brand transition-all disabled:opacity-50"
                 >
-                  {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : (<>Continue to payment <ArrowRight className="h-4 w-4" /></>)}
+                  {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : (<>Pay {fmt(t.kobo + Math.round(t.kobo * VAT_RATE))} & start audit <ArrowRight className="h-4 w-4" /></>)}
                 </button>
               </div>
 
