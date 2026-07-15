@@ -52,7 +52,11 @@ const App = () => (
                 <Route path="/pci-dss" element={<PciDss />} />
                 <Route path="/audits" element={<AuditHub />} />
                 <Route path="/audits/my" element={<MyAudits />} />
+                <Route path="/audits/my/:type/:id" element={<EngagementDetail />} />
                 <Route path="/audits/:slug" element={<AuditService />} />
+                <Route path="/vapt" element={<VaptLanding />} />
+                <Route path="/vapt/request" element={<VaptRequest />} />
+                <Route path="/vapt/dashboard" element={<Navigate to="/audits/my" replace />} />
                 <Route path="/vapt" element={<VaptLanding />} />
                 <Route path="/vapt/request" element={<VaptRequest />} />
                 <Route path="/vapt/dashboard" element={<VaptDashboard />} />
