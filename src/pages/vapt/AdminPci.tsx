@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, Fragment } from "react";
 import { Navigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
@@ -149,8 +149,8 @@ export default function AdminPci() {
               </thead>
               <tbody>
                 {rows.map((r) => (
-                  <>
-                    <tr key={r.id} className="border-t border-border hover:bg-muted/30">
+                  <Fragment key={r.id}>
+                    <tr className="border-t border-border hover:bg-muted/30">
                       <td className="px-4 py-3 font-mono text-xs">{r.public_id}</td>
                       <td className="px-4 py-3 font-semibold text-foreground">{r.company}</td>
                       <td className="px-4 py-3">
@@ -201,7 +201,7 @@ export default function AdminPci() {
                         </td>
                       </tr>
                     )}
-                  </>
+                  </Fragment>
                 ))}
               </tbody>
             </table>
