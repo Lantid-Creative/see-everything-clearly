@@ -247,7 +247,7 @@ export default function Home() {
                   to="/services"
                   className="mt-5 inline-flex items-center gap-1 text-sm font-medium text-primary opacity-0 group-hover:opacity-100 transition-all"
                 >
-                  Learn more <ArrowRight className="h-3.5 w-3.5" />
+                  Learn more about our services <ArrowRight className="h-3.5 w-3.5" />
                 </Link>
               </motion.div>
             ))}
