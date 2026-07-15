@@ -61,6 +61,7 @@ const App = () => (
                 <Route path="/vapt/payment-callback" element={<PaymentCallback />} />
                 <Route path="/verify-report" element={<VerifyReport />} />
                 <Route path="/verify-report/:code" element={<VerifyReport />} />
+                <Route path="/admin/queue" element={<AdminQueue />} />
                 <Route path="/admin/vapt" element={<AdminVapt />} />
                 <Route path="/admin/pci-dss" element={<AdminPci />} />
                 <Route path="/admin/audits" element={<AdminAudits />} />
