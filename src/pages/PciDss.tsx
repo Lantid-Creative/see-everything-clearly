@@ -251,7 +251,7 @@ export default function PciDss() {
       </section>
 
       {/* Form */}
-      <section className="max-w-4xl mx-auto px-6 py-14">
+      <section id="pci-next-step" className="max-w-4xl mx-auto px-6 py-14 scroll-mt-24">
         <div className="rounded-3xl border border-border bg-card p-8 lg:p-10">
           {!user ? (
             <div className="text-center py-8">
