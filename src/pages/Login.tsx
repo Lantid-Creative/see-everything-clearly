@@ -37,7 +37,7 @@ const Login = () => {
   return (
     <AuthLayout>
       <h1 className="text-2xl font-serif tracking-tight text-foreground mb-1">
-        Welcome back
+        Sign in to Lantid Creative
       </h1>
       <p className="text-sm text-muted-foreground mb-8">
         Sign in to pick up where you left off
@@ -45,36 +45,38 @@ const Login = () => {
 
       <form onSubmit={handleSubmit} className="space-y-5">
         <div>
-          <label className="text-xs font-medium text-foreground/70 mb-1.5 block uppercase tracking-wider">
+          <label htmlFor="login-email" className="text-xs font-medium text-foreground/70 mb-1.5 block uppercase tracking-wider">
             Email
           </label>
           <div className="relative">
             <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <input
+              id="login-email"
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="you@company.com"
               required
-              className="w-full rounded-xl border border-input bg-card pl-10 pr-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-ring/50 focus:border-ring/50 transition-all"
+              className="w-full rounded-xl border border-input bg-card pl-10 pr-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring/50 focus:border-ring/50 transition-all"
             />
           </div>
         </div>
 
         <div>
-          <label className="text-xs font-medium text-foreground/70 mb-1.5 block uppercase tracking-wider">
+          <label htmlFor="login-password" className="text-xs font-medium text-foreground/70 mb-1.5 block uppercase tracking-wider">
             Password
           </label>
           <div className="relative">
             <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <input
+              id="login-password"
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="••••••••"
               required
               minLength={6}
-              className="w-full rounded-xl border border-input bg-card pl-10 pr-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-ring/50 focus:border-ring/50 transition-all"
+              className="w-full rounded-xl border border-input bg-card pl-10 pr-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring/50 focus:border-ring/50 transition-all"
             />
           </div>
         </div>

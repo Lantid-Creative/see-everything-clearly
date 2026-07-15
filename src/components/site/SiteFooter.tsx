@@ -61,8 +61,9 @@ export function SiteFooter() {
           <div className="lg:col-span-2 space-y-6">
             <Logo size="md" variant="dark" />
             <p className="text-sm leading-relaxed max-w-sm">
-              Lantid builds scalable, secure, high-performance digital solutions for
-              enterprises — from software and AI to cybersecurity and blockchain.
+              Lantid Creative is a Nigeria & UK consulting firm bridging strategy, policy
+              research, monitoring & evaluation, branding and technology for government,
+              development and enterprise clients.
             </p>
             <div className="space-y-2 text-sm">
               <a

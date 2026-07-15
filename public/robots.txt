@@ -12,3 +12,11 @@ Allow: /
 
 User-agent: *
 Allow: /
+Disallow: /admin/
+Disallow: /login
+Disallow: /signup
+Disallow: /vapt/dashboard
+Disallow: /vapt/payment-callback
+Disallow: /audits/my
+
+Sitemap: https://lantid.com/sitemap.xml
