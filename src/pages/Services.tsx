@@ -319,10 +319,10 @@ export default function Services() {
                   </ul>
                 </div>
                 <Link
-                  to="/contact"
+                  to={(g as any).cta?.to ?? "/contact"}
                   className="mt-10 inline-flex items-center gap-2 rounded-full bg-primary text-primary-foreground px-6 py-3 text-sm font-semibold hover:bg-primary/90 transition-all hover:gap-3 group"
                 >
-                  Discuss your {g.title.toLowerCase()} need
+                  {(g as any).cta?.label ?? `Discuss your ${g.title.toLowerCase()} need`}
                   <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
                 </Link>
               </div>
