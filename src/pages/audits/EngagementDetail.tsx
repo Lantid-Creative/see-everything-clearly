@@ -103,7 +103,7 @@ export default function EngagementDetail() {
         if (up.error) throw up.error;
         attachment_path = path;
       }
-      const { error } = await supabase.from("engagement_messages" as never).insert({
+      const { error } = await (supabase.from("engagement_messages" as never) as never).insert({
         engagement_id: id,
         engagement_type: type,
         sender_id: user.id,
