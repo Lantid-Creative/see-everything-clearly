@@ -27,6 +27,7 @@ import AdminAudits from "./pages/vapt/AdminAudits";
 import PaymentCallback from "./pages/vapt/PaymentCallback";
 import AuditHub from "./pages/AuditHub";
 import AuditService from "./pages/audits/AuditService";
+import MyAudits from "./pages/audits/MyAudits";
 
 const queryClient = new QueryClient();
 
@@ -49,6 +50,7 @@ const App = () => (
                 <Route path="/contact" element={<Contact />} />
                 <Route path="/pci-dss" element={<PciDss />} />
                 <Route path="/audits" element={<AuditHub />} />
+                <Route path="/audits/my" element={<MyAudits />} />
                 <Route path="/audits/:slug" element={<AuditService />} />
                 <Route path="/vapt" element={<VaptLanding />} />
                 <Route path="/vapt/request" element={<VaptRequest />} />
