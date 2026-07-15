@@ -41,7 +41,7 @@ Deno.serve(async (req) => {
 
     const { data: report } = await supabase
       .from("reports")
-      .select("verification_code, company_name, target, scope_summary, assessment_type, status, overall_result, issued_at, revoked_at")
+      .select("verification_code, company_name, target, scope_summary, assessment_type, report_type, status, overall_result, issued_at, revoked_at")
       .eq("verification_code", code)
       .maybeSingle();
 
@@ -68,6 +68,7 @@ Deno.serve(async (req) => {
         target: report.target,
         scope_summary: report.scope_summary,
         assessment_type: report.assessment_type,
+        report_type: (report as { report_type?: string }).report_type ?? "vapt",
         overall_result: report.overall_result,
         issued_at: report.issued_at,
         issuer: "Lantid",
