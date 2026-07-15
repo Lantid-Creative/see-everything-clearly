@@ -116,7 +116,7 @@ export default function AdminAudits() {
               <Fragment key={r.id}>
                 <tr className="border-t border-border hover:bg-muted/30 cursor-pointer" onClick={() => setExpanded(expanded === r.id ? null : r.id)}>
                   <td className="p-3 font-mono text-xs">{r.reference}</td>
-                  <td className="p-3">{AUDIT_LABEL[r.audit_type]}</td>
+                  <td className="p-3">{AUDIT_LABEL_BY_DBTYPE[r.audit_type] || r.audit_type}</td>
                   <td className="p-3 font-medium">{r.company_name}</td>
                   <td className="p-3"><div>{r.contact_name}</div><div className="text-xs text-muted-foreground">{r.contact_email}</div></td>
                   <td className="p-3 capitalize">{r.tier}</td>
