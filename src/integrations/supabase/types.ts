@@ -330,6 +330,7 @@ export type Database = {
           notes: string | null
           sha256_hash: string | null
           storage_path: string
+          superseded: boolean
           version: number
         }
         Insert: {
@@ -343,6 +344,7 @@ export type Database = {
           notes?: string | null
           sha256_hash?: string | null
           storage_path: string
+          superseded?: boolean
           version?: number
         }
         Update: {
@@ -356,6 +358,7 @@ export type Database = {
           notes?: string | null
           sha256_hash?: string | null
           storage_path?: string
+          superseded?: boolean
           version?: number
         }
         Relationships: []
