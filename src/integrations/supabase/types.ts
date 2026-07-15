@@ -362,10 +362,12 @@ export type Database = {
           created_at: string
           currency: string
           id: string
+          pci_request_id: string | null
           provider: string
           provider_reference: string | null
           raw_response: Json | null
-          request_id: string
+          request_id: string | null
+          source_type: string
           status: Database["public"]["Enums"]["payment_status"]
           updated_at: string
           user_id: string
@@ -375,10 +377,12 @@ export type Database = {
           created_at?: string
           currency?: string
           id?: string
+          pci_request_id?: string | null
           provider?: string
           provider_reference?: string | null
           raw_response?: Json | null
-          request_id: string
+          request_id?: string | null
+          source_type?: string
           status?: Database["public"]["Enums"]["payment_status"]
           updated_at?: string
           user_id: string
@@ -388,15 +392,24 @@ export type Database = {
           created_at?: string
           currency?: string
           id?: string
+          pci_request_id?: string | null
           provider?: string
           provider_reference?: string | null
           raw_response?: Json | null
-          request_id?: string
+          request_id?: string | null
+          source_type?: string
           status?: Database["public"]["Enums"]["payment_status"]
           updated_at?: string
           user_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "payments_pci_request_id_fkey"
+            columns: ["pci_request_id"]
+            isOneToOne: false
+            referencedRelation: "pci_dss_requests"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "payments_request_id_fkey"
             columns: ["request_id"]
@@ -408,54 +421,69 @@ export type Database = {
       }
       pci_dss_requests: {
         Row: {
+          amount_kobo: number
           annual_transactions: string | null
           company: string
           contact_person: string
           created_at: string
+          currency: string
           current_status: string | null
           email: string
           environment: string | null
           id: string
           merchant_level: string | null
           notes: string | null
+          public_id: string
           saq_type: string | null
           status: string
+          tier: string
           timeline: string | null
           updated_at: string
+          user_id: string | null
           website: string | null
         }
         Insert: {
+          amount_kobo?: number
           annual_transactions?: string | null
           company: string
           contact_person: string
           created_at?: string
+          currency?: string
           current_status?: string | null
           email: string
           environment?: string | null
           id?: string
           merchant_level?: string | null
           notes?: string | null
+          public_id?: string
           saq_type?: string | null
           status?: string
+          tier?: string
           timeline?: string | null
           updated_at?: string
+          user_id?: string | null
           website?: string | null
         }
         Update: {
+          amount_kobo?: number
           annual_transactions?: string | null
           company?: string
           contact_person?: string
           created_at?: string
+          currency?: string
           current_status?: string | null
           email?: string
           environment?: string | null
           id?: string
           merchant_level?: string | null
           notes?: string | null
+          public_id?: string
           saq_type?: string | null
           status?: string
+          tier?: string
           timeline?: string | null
           updated_at?: string
+          user_id?: string | null
           website?: string | null
         }
         Relationships: []
