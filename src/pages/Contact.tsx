@@ -210,17 +210,19 @@ function Field({
   placeholder?: string;
   required?: boolean;
 }) {
+  const inputId = `contact-${name}`;
   return (
     <div>
-      <label className="text-xs font-semibold text-foreground/70 uppercase tracking-wider mb-1.5 block">
+      <label htmlFor={inputId} className="text-xs font-semibold text-foreground/70 uppercase tracking-wider mb-1.5 block">
         {label}
       </label>
       <input
+        id={inputId}
         name={name}
         type={type}
         required={required}
         placeholder={placeholder}
-        className="w-full rounded-xl border border-input bg-background px-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-primary/30"
+        className="w-full rounded-xl border border-input bg-background px-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30"
       />
     </div>
   );
