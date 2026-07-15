@@ -210,10 +210,8 @@ export default function PciDss() {
         <p className="text-center text-muted-foreground mt-2">Pay securely via Paystack. NGN pricing — invoicing available on request.</p>
         <div className="mt-10 grid md:grid-cols-3 gap-6">
           {Object.entries(TIERS).map(([key, item]) => (
-            <button
+            <div
               key={key}
-              type="button"
-              onClick={() => setTier(key)}
               className={`text-left rounded-2xl border p-6 bg-card flex flex-col transition-all ${
                 tier === key ? "border-primary shadow-brand ring-2 ring-primary/30" : "border-border hover:border-primary/40"
               }`}
@@ -228,12 +226,26 @@ export default function PciDss() {
                   <li key={i} className="flex items-start gap-2"><CheckCircle2 className="h-4 w-4 text-primary mt-0.5 shrink-0" />{i}</li>
                 ))}
               </ul>
-              <span className={`mt-6 inline-flex items-center justify-center rounded-xl px-4 py-2.5 text-sm font-semibold transition-all ${
-                tier === key ? "bg-primary text-primary-foreground" : "border border-border text-foreground"
-              }`}>
-                {tier === key ? "Selected" : `Choose ${key}`}
-              </span>
-            </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setTier(key);
+                  if (!user) {
+                    navigate(`/login?next=${encodeURIComponent(`/pci-dss?tier=${key}`)}`);
+                    return;
+                  }
+                  setTimeout(() => {
+                    document.getElementById("pci-next-step")?.scrollIntoView({ behavior: "smooth", block: "start" });
+                  }, 50);
+                }}
+                className={`mt-6 inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition-all ${
+                  tier === key ? "bg-primary text-primary-foreground" : "border border-border text-foreground hover:bg-primary/5"
+                }`}
+              >
+                {user ? (tier === key ? "Continue with this tier" : `Choose ${key}`) : "Sign in & continue"}
+                <ArrowRight className="h-4 w-4" />
+              </button>
+            </div>
           ))}
         </div>
       </section>
