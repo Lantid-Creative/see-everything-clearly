@@ -28,6 +28,7 @@ import PaymentCallback from "./pages/vapt/PaymentCallback";
 import AuditHub from "./pages/AuditHub";
 import AuditService from "./pages/audits/AuditService";
 import MyAudits from "./pages/audits/MyAudits";
+import EngagementDetail from "./pages/audits/EngagementDetail";
 
 const queryClient = new QueryClient();
 
