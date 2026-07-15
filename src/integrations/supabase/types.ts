@@ -406,6 +406,60 @@ export type Database = {
           },
         ]
       }
+      pci_dss_requests: {
+        Row: {
+          annual_transactions: string | null
+          company: string
+          contact_person: string
+          created_at: string
+          current_status: string | null
+          email: string
+          environment: string | null
+          id: string
+          merchant_level: string | null
+          notes: string | null
+          saq_type: string | null
+          status: string
+          timeline: string | null
+          updated_at: string
+          website: string | null
+        }
+        Insert: {
+          annual_transactions?: string | null
+          company: string
+          contact_person: string
+          created_at?: string
+          current_status?: string | null
+          email: string
+          environment?: string | null
+          id?: string
+          merchant_level?: string | null
+          notes?: string | null
+          saq_type?: string | null
+          status?: string
+          timeline?: string | null
+          updated_at?: string
+          website?: string | null
+        }
+        Update: {
+          annual_transactions?: string | null
+          company?: string
+          contact_person?: string
+          created_at?: string
+          current_status?: string | null
+          email?: string
+          environment?: string | null
+          id?: string
+          merchant_level?: string | null
+          notes?: string | null
+          saq_type?: string | null
+          status?: string
+          timeline?: string | null
+          updated_at?: string
+          website?: string | null
+        }
+        Relationships: []
+      }
       product_details: {
         Row: {
           context_notes: string | null

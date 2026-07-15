@@ -34,6 +34,7 @@ const cols = [
     title: "Security",
     links: [
       { to: "/vapt", label: "VAPT Services" },
+      { to: "/pci-dss", label: "PCI DSS Audit" },
       { to: "/verify-report", label: "Verify Report" },
     ],
   },
