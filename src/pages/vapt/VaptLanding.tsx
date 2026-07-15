@@ -1,27 +1,33 @@
 import { Link } from "react-router-dom";
 import { Shield, CheckCircle2, FileText, QrCode, Lock, ArrowRight } from "lucide-react";
 
+const VAT_RATE = 0.075;
+const fmt = (kobo: number) => new Intl.NumberFormat("en-NG", { style: "currency", currency: "NGN", maximumFractionDigits: 0 }).format(kobo / 100);
+
 const TIERS = [
   {
     key: "basic",
-    name: "Basic",
-    price: "₦150,000",
-    blurb: "Single web app, surface scan + OWASP Top 10 coverage.",
-    items: ["Up to 1 target domain", "Automated + light manual testing", "PDF report + verification code", "Turnaround: 5 business days"],
+    name: "Standard",
+    kobo: 25000000,
+    price: "₦250,000",
+    blurb: "Full VAPT engagement delivered within 3 business days.",
+    items: ["Web app + APIs in scope", "Authenticated + unauthenticated testing", "OWASP WSTG + PTES methodology", "PDF report, verification code, re-test", "Turnaround: 3 business days"],
   },
   {
     key: "standard",
-    name: "Standard",
-    price: "₦400,000",
-    blurb: "Web app + APIs with authenticated testing and business-logic review.",
-    items: ["Web app + REST/GraphQL APIs", "Authenticated + unauthenticated testing", "OWASP WSTG + PTES methodology", "PDF report, verification code, re-test", "Turnaround: 24 hours"],
+    name: "Priority",
+    kobo: 50000000,
+    price: "₦500,000",
+    blurb: "Same scope — expedited into a 24-hour window.",
+    items: ["Everything in Standard", "Dedicated lead pentester", "Priority Slack channel", "Turnaround: 24 hours"],
     highlighted: true,
   },
   {
     key: "advanced",
-    name: "Advanced",
-    price: "₦1,000,000",
-    blurb: "Full-stack assessment incl. infrastructure, business logic, and chained attack paths.",
+    name: "Expedited",
+    kobo: 150000000,
+    price: "₦1,500,000",
+    blurb: "Rush engagement with full-stack coverage and 6-hour turnaround.",
     items: ["Web + API + infra surface", "Manual exploitation & chained attacks", "Executive + technical reports", "Re-test + remediation walkthrough", "Expedited turnaround: 6 hours"],
   },
 ];
@@ -78,6 +84,7 @@ export default function VaptLanding() {
               {t.highlighted && <div className="text-[10px] font-semibold tracking-wider text-primary uppercase mb-2">Most popular</div>}
               <h3 className="text-xl font-semibold text-foreground">{t.name}</h3>
               <div className="mt-2 text-3xl font-serif text-foreground">{t.price}</div>
+              <div className="text-xs text-muted-foreground mt-1">+ 7.5% VAT · total {fmt(t.kobo + Math.round(t.kobo * VAT_RATE))}</div>
               <p className="mt-3 text-sm text-muted-foreground">{t.blurb}</p>
               <ul className="mt-4 space-y-2 text-sm text-foreground/80 flex-1">
                 {t.items.map((i) => (
