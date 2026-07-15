@@ -31,12 +31,14 @@ export const formatNaira = (kobo: number) =>
 export type IntakeField = {
   name: string;
   label: string;
-  type: "text" | "email" | "url" | "textarea" | "select" | "number";
+  type: "text" | "email" | "url" | "textarea" | "select" | "number" | "file";
   required?: boolean;
   placeholder?: string;
   helper?: string;
   options?: string[];
   colSpan?: 1 | 2;
+  multiple?: boolean;
+  accept?: string;
 };
 
 export type IntakeSection = { title: string; description?: string; fields: IntakeField[] };
@@ -63,15 +65,30 @@ export type AuditServiceDef = {
   sections?: IntakeSection[];
 };
 
-// Reusable section builders
+// ============ Reusable section builders ============
+
 const orgContactSection: IntakeSection = {
-  title: "Organisation",
+  title: "Organisation profile",
+  description: "Corporate identity used on the engagement letter, invoice and audit report cover. Match your CAC records exactly.",
   fields: [
-    { name: "legal_name", label: "Registered legal name", type: "text", required: true, colSpan: 2 },
+    { name: "legal_name", label: "Registered legal name (as on CAC)", type: "text", required: true, colSpan: 2 },
+    { name: "trading_name", label: "Trading / brand name (if different)", type: "text" },
+    { name: "rc_number", label: "RC / CAC registration number", type: "text", required: true },
+    { name: "tin", label: "Tax Identification Number (TIN)", type: "text", required: true },
+    { name: "incorporation_date", label: "Date of incorporation", type: "text", required: true, placeholder: "YYYY-MM-DD" },
+    { name: "entity_type", label: "Entity type", type: "select", required: true, options: ["Private limited (Ltd)","Public limited (Plc)","Limited by guarantee","Business name","Incorporated trustees","Foreign company (branch)","Cooperative","Other"] },
     { name: "industry", label: "Industry / sector", type: "text", required: true },
     { name: "hq_country", label: "Headquarters country", type: "text", required: true },
-    { name: "employees", label: "Employees in scope", type: "number" },
-    { name: "revenue_bracket", label: "Annual revenue bracket", type: "select", options: ["< ₦500M","₦500M – ₦5B","₦5B – ₦50B","> ₦50B","Prefer not to say"] },
+    { name: "registered_address", label: "Registered head office address", type: "textarea", required: true, colSpan: 2 },
+    { name: "website", label: "Primary website", type: "url", required: true },
+    { name: "employees", label: "Total employees", type: "number", required: true },
+    { name: "employees_in_scope", label: "Employees in audit scope", type: "number" },
+    { name: "revenue_bracket", label: "Annual revenue bracket", type: "select", required: true, options: ["< ₦500M","₦500M – ₦5B","₦5B – ₦50B","> ₦50B","Prefer not to say"] },
+    { name: "beneficial_owners", label: "Ultimate beneficial owners (name & % holding, ≥5%)", type: "textarea", colSpan: 2, helper: "Regulatory KYC. Required for FI, AML, PCI, SWIFT and any regulator-facing audit." },
+    { name: "directors", label: "Current directors (full names)", type: "textarea", colSpan: 2 },
+    { name: "authorised_signatory_name", label: "Authorised signatory name", type: "text", required: true },
+    { name: "authorised_signatory_role", label: "Authorised signatory role", type: "text", required: true },
+    { name: "authorised_signatory_email", label: "Authorised signatory email", type: "email", required: true },
   ],
 };
 
@@ -82,7 +99,29 @@ const engagementSection = (triggers: string[]): IntakeSection => ({
     { name: "scope_period", label: "Period under review", type: "text", required: true, placeholder: "e.g. Jan – Dec 2025" },
     { name: "prior_auditor", label: "Previous auditor (if any)", type: "text" },
     { name: "target_completion", label: "Target completion date", type: "text", placeholder: "YYYY-MM-DD" },
+    { name: "nda_required", label: "NDA required before evidence exchange?", type: "select", required: true, options: ["Yes — please issue Lantid's NDA","Yes — we will provide our NDA","No"] },
     { name: "notes", label: "Anything else we should know", type: "textarea", colSpan: 2 },
+  ],
+});
+
+// Core supporting documents required on every audit.
+const CORE_DOCS: IntakeField[] = [
+  { name: "doc_cac", label: "CAC Certificate of Incorporation (or foreign equivalent)", type: "file", required: true, accept: ".pdf,.png,.jpg,.jpeg", colSpan: 2, helper: "Required for engagement letter and audit report cover." },
+  { name: "doc_memart", label: "MEMART / Constitution", type: "file", accept: ".pdf", colSpan: 2 },
+  { name: "doc_cac_status", label: "CAC Status Report (last 90 days)", type: "file", accept: ".pdf", colSpan: 2, helper: "Confirms current directors, shareholders and registered address." },
+  { name: "doc_tin", label: "TIN / Tax Clearance Certificate (latest)", type: "file", accept: ".pdf,.png,.jpg,.jpeg", colSpan: 2 },
+  { name: "doc_signatory_id", label: "Government-issued ID of authorised signatory", type: "file", required: true, accept: ".pdf,.png,.jpg,.jpeg", colSpan: 2, helper: "NIN slip, international passport bio page, or driver's licence." },
+  { name: "doc_board_resolution", label: "Board resolution / authorisation to engage Lantid", type: "file", accept: ".pdf", colSpan: 2, helper: "Required for regulated entities; a signed engagement authorisation from a director is acceptable for private companies." },
+  { name: "doc_org_chart", label: "Organisation chart", type: "file", accept: ".pdf,.png,.jpg,.jpeg", colSpan: 2 },
+  { name: "doc_audited_financials", label: "Most recent audited financial statements", type: "file", accept: ".pdf", colSpan: 2, helper: "Latest signed audited accounts — required for FI, AML, NDIC, SOC 2, and any diligence-triggered audit." },
+];
+
+const documentsSection = (extras: IntakeField[] = [], intro?: string): IntakeSection => ({
+  title: "Supporting documents",
+  description: intro || "Upload the corporate pack plus any evidence you already have. You can add more via your dashboard after payment. PDF, PNG or JPEG up to 25 MB each.",
+  fields: [
+    ...CORE_DOCS,
+    ...extras.map((f) => ({ colSpan: 2 as const, accept: ".pdf,.docx,.xlsx,.png,.jpg,.jpeg,.zip", multiple: true, ...f })),
   ],
 });
 
