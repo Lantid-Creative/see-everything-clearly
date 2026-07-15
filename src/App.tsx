@@ -57,9 +57,6 @@ const App = () => (
                 <Route path="/vapt" element={<VaptLanding />} />
                 <Route path="/vapt/request" element={<VaptRequest />} />
                 <Route path="/vapt/dashboard" element={<Navigate to="/audits/my" replace />} />
-                <Route path="/vapt" element={<VaptLanding />} />
-                <Route path="/vapt/request" element={<VaptRequest />} />
-                <Route path="/vapt/dashboard" element={<VaptDashboard />} />
                 <Route path="/vapt/payment-callback" element={<PaymentCallback />} />
                 <Route path="/verify-report" element={<VerifyReport />} />
                 <Route path="/verify-report/:code" element={<VerifyReport />} />
