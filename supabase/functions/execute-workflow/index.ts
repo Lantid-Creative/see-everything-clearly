@@ -188,6 +188,18 @@ serve(async (req) => {
       throw new Error("Invalid workflow data");
     }
 
+    // Verify workflow belongs to caller before running or updating it
+    const { data: wf, error: wfErr } = await supabaseAdmin
+      .from("workflows")
+      .select("id, user_id")
+      .eq("id", workflowId)
+      .maybeSingle();
+    if (wfErr || !wf || wf.user_id !== userId) {
+      return new Response(JSON.stringify({ success: false, error: "Forbidden" }), {
+        status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
     const results: NodeResult[] = [];
     const context: Record<string, string> = {};
 
