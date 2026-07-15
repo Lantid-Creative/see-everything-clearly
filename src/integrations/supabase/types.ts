@@ -77,6 +77,78 @@ export type Database = {
         }
         Relationships: []
       }
+      audit_requests: {
+        Row: {
+          admin_notes: string | null
+          amount_kobo: number
+          audit_type: Database["public"]["Enums"]["audit_type"]
+          company_name: string
+          contact_email: string
+          contact_name: string
+          contact_phone: string | null
+          created_at: string
+          currency: string
+          id: string
+          intake: Json
+          paid_at: string | null
+          paystack_reference: string | null
+          reference: string
+          status: string
+          tier: string
+          total_kobo: number
+          updated_at: string
+          user_id: string
+          vat_kobo: number
+          verification_code: string
+        }
+        Insert: {
+          admin_notes?: string | null
+          amount_kobo: number
+          audit_type: Database["public"]["Enums"]["audit_type"]
+          company_name: string
+          contact_email: string
+          contact_name: string
+          contact_phone?: string | null
+          created_at?: string
+          currency?: string
+          id?: string
+          intake?: Json
+          paid_at?: string | null
+          paystack_reference?: string | null
+          reference: string
+          status?: string
+          tier: string
+          total_kobo: number
+          updated_at?: string
+          user_id: string
+          vat_kobo: number
+          verification_code?: string
+        }
+        Update: {
+          admin_notes?: string | null
+          amount_kobo?: number
+          audit_type?: Database["public"]["Enums"]["audit_type"]
+          company_name?: string
+          contact_email?: string
+          contact_name?: string
+          contact_phone?: string | null
+          created_at?: string
+          currency?: string
+          id?: string
+          intake?: Json
+          paid_at?: string | null
+          paystack_reference?: string | null
+          reference?: string
+          status?: string
+          tier?: string
+          total_kobo?: number
+          updated_at?: string
+          user_id?: string
+          vat_kobo?: number
+          verification_code?: string
+        }
+        Relationships: []
+      }
       checklist_progress: {
         Row: {
           completed_at: string
@@ -1013,10 +1085,20 @@ export type Database = {
         Args: { _team_id: string; _user_id: string }
         Returns: boolean
       }
+      verify_audit_report: {
+        Args: { _code: string }
+        Returns: {
+          audit_type: string
+          company_name: string
+          completed_at: string
+          status: string
+        }[]
+      }
     }
     Enums: {
       app_role: "admin" | "user"
       assessment_type: "basic" | "standard" | "advanced"
+      audit_type: "aml_cft" | "iso_27001" | "ndpr"
       payment_status: "pending" | "paid" | "failed" | "refunded"
       request_status:
         | "pending_payment"
@@ -1154,6 +1236,7 @@ export const Constants = {
     Enums: {
       app_role: ["admin", "user"],
       assessment_type: ["basic", "standard", "advanced"],
+      audit_type: ["aml_cft", "iso_27001", "ndpr"],
       payment_status: ["pending", "paid", "failed", "refunded"],
       request_status: [
         "pending_payment",
