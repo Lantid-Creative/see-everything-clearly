@@ -40,6 +40,7 @@ Deno.serve(async (req) => {
     if (report.status === "revoked") return json({ error: "revoked" }, 410);
 
     let storagePath = report.storage_path as string | null;
+    const reportType: "vapt" | "pci_dss" = (report.report_type === "pci_dss") ? "pci_dss" : "vapt";
 
     // Generate PDF on demand if missing
     if (!storagePath) {
@@ -54,7 +55,8 @@ Deno.serve(async (req) => {
       const logoBytes = logoDl?.data ? new Uint8Array(await logoDl.data.arrayBuffer()) : null;
       const sigBytes = sigDl?.data ? new Uint8Array(await sigDl.data.arrayBuffer()) : null;
 
-      const pdfBytes = await buildPdf({
+      const builder = reportType === "pci_dss" ? buildPciPdf : buildPdf;
+      const pdfBytes = await builder({
         company: report.company_name,
         target: report.target,
         scope: report.scope_summary || "",
@@ -84,9 +86,10 @@ Deno.serve(async (req) => {
       }).eq("id", report.id);
     }
 
+    const downloadPrefix = reportType === "pci_dss" ? "Lantid-PCI-DSS" : "Lantid-VAPT";
     const { data: signed, error: signErr } = await admin
       .storage.from("reports")
-      .createSignedUrl(storagePath, 60 * 5, { download: `Lantid-VAPT-${code}.pdf` });
+      .createSignedUrl(storagePath, 60 * 5, { download: `${downloadPrefix}-${code}.pdf` });
     if (signErr) throw signErr;
 
     return json({ url: signed.signedUrl, expires_in: 300 });
