@@ -19,7 +19,7 @@ import NotFound from "./pages/NotFound";
 import PciDss from "./pages/PciDss";
 import VaptLanding from "./pages/vapt/VaptLanding";
 import VaptRequest from "./pages/vapt/VaptRequest";
-import VaptDashboard from "./pages/vapt/VaptDashboard";
+
 import VerifyReport from "./pages/vapt/VerifyReport";
 import AdminVapt from "./pages/vapt/AdminVapt";
 import AdminPci from "./pages/vapt/AdminPci";
