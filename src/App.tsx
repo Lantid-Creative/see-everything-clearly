@@ -16,6 +16,7 @@ import Contact from "./pages/Contact";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import NotFound from "./pages/NotFound";
+import PciDss from "./pages/PciDss";
 import VaptLanding from "./pages/vapt/VaptLanding";
 import VaptRequest from "./pages/vapt/VaptRequest";
 import VaptDashboard from "./pages/vapt/VaptDashboard";
@@ -42,6 +43,7 @@ const App = () => (
                 <Route path="/company" element={<Company />} />
                 <Route path="/case-study" element={<CaseStudy />} />
                 <Route path="/contact" element={<Contact />} />
+                <Route path="/pci-dss" element={<PciDss />} />
                 <Route path="/vapt" element={<VaptLanding />} />
                 <Route path="/vapt/request" element={<VaptRequest />} />
                 <Route path="/vapt/dashboard" element={<VaptDashboard />} />
