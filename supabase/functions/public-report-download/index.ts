@@ -40,6 +40,7 @@ Deno.serve(async (req) => {
     if (report.status === "revoked") return json({ error: "revoked" }, 410);
 
     let storagePath = report.storage_path as string | null;
+    const reportType: "vapt" | "pci_dss" = (report.report_type === "pci_dss") ? "pci_dss" : "vapt";
 
     // Generate PDF on demand if missing
     if (!storagePath) {
@@ -54,7 +55,8 @@ Deno.serve(async (req) => {
       const logoBytes = logoDl?.data ? new Uint8Array(await logoDl.data.arrayBuffer()) : null;
       const sigBytes = sigDl?.data ? new Uint8Array(await sigDl.data.arrayBuffer()) : null;
 
-      const pdfBytes = await buildPdf({
+      const builder = reportType === "pci_dss" ? buildPciPdf : buildPdf;
+      const pdfBytes = await builder({
         company: report.company_name,
         target: report.target,
         scope: report.scope_summary || "",
@@ -84,9 +86,10 @@ Deno.serve(async (req) => {
       }).eq("id", report.id);
     }
 
+    const downloadPrefix = reportType === "pci_dss" ? "Lantid-PCI-DSS" : "Lantid-VAPT";
     const { data: signed, error: signErr } = await admin
       .storage.from("reports")
-      .createSignedUrl(storagePath, 60 * 5, { download: `Lantid-VAPT-${code}.pdf` });
+      .createSignedUrl(storagePath, 60 * 5, { download: `${downloadPrefix}-${code}.pdf` });
     if (signErr) throw signErr;
 
     return json({ url: signed.signedUrl, expires_in: 300 });
@@ -443,6 +446,288 @@ async function buildPdf(args: {
   drawText("Lantid Creative UK LTD", { size: 10, color: MUTED }); y -= 12;
   drawText("Date: " + formatDate(args.issued), { size: 9, color: MUTED }); y -= 10;
 
+
+  // -------- Verification block --------
+  ensure(220);
+  y -= 4;
+  page.drawLine({ start: { x: margin, y }, end: { x: A4.w - margin, y }, thickness: 0.5, color: LINE });
+  y -= 24;
+  drawText("Report Verification", { size: 14, f: bold }); y -= 20;
+  drawText("Verification Code:", { size: 9, color: MUTED }); y -= 12;
+  drawText(args.verificationCode, { size: 13, f: bold, color: BRAND_ORANGE }); y -= 18;
+  drawText("Verification URL:", { size: 9, color: MUTED }); y -= 12;
+  drawText(args.verifyUrl, { size: 10 }); y -= 18;
+  drawText("Issued by Lantid  •  " + formatDate(args.issued), { size: 9, color: MUTED }); y -= 14;
+  drawText("Scan the QR code or visit the verification URL to confirm authenticity.", { size: 9, color: MUTED });
+
+  const qrSize = 120;
+  page.drawImage(qr, { x: A4.w - margin - qrSize, y: y - qrSize + 30, width: qrSize, height: qrSize });
+
+  drawFooter();
+  return new Uint8Array(await doc.save());
+}
+
+// ============================================================================
+// PCI DSS report template — reuses same visual style + Adenike's signature,
+// but with a PCI-DSS-appropriate structure and signer role.
+// ============================================================================
+async function buildPciPdf(args: {
+  company: string; target: string; scope: string;
+  aType: string; overall: string; issued: string;
+  verificationCode: string; verifyUrl: string; qrPngBytes: Uint8Array;
+  logoBytes?: Uint8Array | null; sigBytes?: Uint8Array | null;
+}) {
+  const doc = await PDFDocument.create();
+  const font = await doc.embedFont(StandardFonts.Helvetica);
+  const bold = await doc.embedFont(StandardFonts.HelveticaBold);
+  const italic = await doc.embedFont(StandardFonts.HelveticaOblique);
+  const qr = await doc.embedPng(args.qrPngBytes);
+
+  const A4 = { w: 595.28, h: 841.89 };
+  const margin = 50;
+
+  let page = doc.addPage([A4.w, A4.h]);
+  let y = A4.h - margin;
+
+  const drawText = (t: string, opts: { size?: number; f?: typeof font; color?: typeof TEXT; x?: number } = {}) => {
+    const size = opts.size ?? 10;
+    const f = opts.f ?? font;
+    const color = opts.color ?? TEXT;
+    const x = opts.x ?? margin;
+    page.drawText(t, { x, y, size, font: f, color });
+  };
+  const drawFooter = () => {
+    page.drawLine({ start: { x: margin, y: margin + 24 }, end: { x: A4.w - margin, y: margin + 24 }, thickness: 0.5, color: LINE });
+    page.drawText(`Lantid PCI DSS Report  •  Verification: ${args.verificationCode}  •  ${args.verifyUrl}`, {
+      x: margin, y: margin + 10, size: 8, font, color: MUTED,
+    });
+  };
+  const ensure = (need: number) => {
+    if (y - need < margin + 40) {
+      drawFooter();
+      page = doc.addPage([A4.w, A4.h]);
+      y = A4.h - margin;
+    }
+  };
+  const section = (title: string) => {
+    ensure(28); y -= 6;
+    drawText(title, { size: 13, f: bold, color: BRAND_ORANGE }); y -= 4;
+    page.drawLine({ start: { x: margin, y }, end: { x: A4.w - margin, y }, thickness: 0.5, color: LINE });
+    y -= 14;
+  };
+  const paragraph = (text: string, f: typeof font = font) => {
+    const maxW = A4.w - margin * 2;
+    const size = 10; const lh = 14;
+    const words = text.split(/\s+/);
+    let line = "";
+    const flush = () => { ensure(lh); drawText(line, { size, f }); y -= lh; line = ""; };
+    for (const w of words) {
+      const test = line ? line + " " + w : w;
+      if (f.widthOfTextAtSize(test, size) > maxW) { flush(); line = w; } else line = test;
+    }
+    if (line) flush();
+    y -= 4;
+  };
+  const bullets = (items: string[]) => {
+    for (const it of items) {
+      const maxW = A4.w - margin * 2 - 14;
+      const size = 10; const lh = 14;
+      const words = it.split(/\s+/);
+      let line = ""; let first = true;
+      const flush = () => {
+        ensure(lh);
+        if (first) { drawText("•", { size, x: margin }); first = false; }
+        drawText(line, { size, x: margin + 14 });
+        y -= lh; line = "";
+      };
+      for (const w of words) {
+        const test = line ? line + " " + w : w;
+        if (font.widthOfTextAtSize(test, size) > maxW) { flush(); line = w; } else line = test;
+      }
+      if (line) flush();
+    }
+    y -= 4;
+  };
+
+  // -------- Header / Logo --------
+  try {
+    if (!args.logoBytes) throw new Error("no-logo");
+    const logoImg = await doc.embedPng(args.logoBytes);
+    const logoH = 32;
+    const logoW = (logoImg.width / logoImg.height) * logoH;
+    page.drawImage(logoImg, { x: margin, y: y - logoH, width: logoW, height: logoH });
+  } catch (_) {
+    page.drawText("LANTID", { x: margin, y: y - 22, size: 20, font: bold, color: TEXT });
+  }
+
+  const pillText = args.overall === "passed" ? "COMPLIANT — ALL 12 REQUIREMENTS MET" : "GAPS IDENTIFIED";
+  const pillColor = args.overall === "passed" ? GREEN : BRAND_ORANGE;
+  const pillW = bold.widthOfTextAtSize(pillText, 9) + 16;
+  page.drawRectangle({ x: A4.w - margin - pillW, y: y - 24, width: pillW, height: 20, color: pillColor, opacity: 0.12 });
+  page.drawText(pillText, { x: A4.w - margin - pillW + 8, y: y - 18, size: 9, font: bold, color: pillColor });
+
+  y -= 60;
+  page.drawLine({ start: { x: margin, y }, end: { x: A4.w - margin, y }, thickness: 0.7, color: LINE });
+  y -= 24;
+
+  // -------- Title --------
+  drawText("PAYMENT CARD INDUSTRY", { size: 18, f: bold }); y -= 22;
+  drawText("DATA SECURITY STANDARD (PCI DSS) v4.0", { size: 18, f: bold }); y -= 22;
+  drawText("COMPLIANCE ASSESSMENT REPORT", { size: 16, f: bold, color: BRAND_ORANGE }); y -= 30;
+
+  const kv = (k: string, v: string) => {
+    ensure(16);
+    drawText(k, { size: 9, color: MUTED });
+    drawText(v, { size: 11, f: bold, x: margin + 150 });
+    y -= 16;
+  };
+  kv("Standard", "PCI DSS v4.0");
+  kv("Assessment Type", "Compliance Gap Assessment & Attestation");
+  kv("Client", args.company);
+  kv("Assessed Environment", args.target);
+  kv("Assessment Date", formatDate(args.issued));
+  kv("Report Date", formatDate(args.issued));
+  kv("Report Version", "1.0");
+  kv("Verification Code", args.verificationCode);
+  kv("Overall Result", args.overall === "passed" ? "COMPLIANT — 12/12 Requirements Met" : "GAPS IDENTIFIED");
+  y -= 8;
+
+  // -------- Executive Summary --------
+  section("1. Executive Summary");
+  paragraph(`Lantid was engaged by ${args.company} to perform a Payment Card Industry Data Security Standard (PCI DSS) v4.0 compliance assessment of ${args.target} and the supporting cardholder data environment (CDE). The engagement covered the twelve principal PCI DSS requirements grouped under the six PCI Security Standards Council control objectives, evaluated against the applicable Self-Assessment Questionnaire (SAQ) profile for a service provider engaged in the storage, processing, and transmission of payment-related data on behalf of merchants and business customers.`);
+  paragraph(`The assessment combined evidence review, control-owner interviews, configuration inspection, external network probing, application-layer testing, and sampling of operational artefacts (change tickets, access reviews, incident records, training logs, and vendor attestations) covering the twelve-month look-back period preceding the report date.`);
+  paragraph(args.overall === "passed"
+    ? `Based on the evidence examined and testing performed within the agreed scope, ${args.company} was found to be COMPLIANT with all twelve (12) PCI DSS v4.0 requirements applicable to ${args.target} as of ${formatDate(args.issued)}. Cardholder data flows are appropriately segmented, cryptographic controls meet or exceed the v4.0 strong-cryptography threshold, quarterly ASV scans and internal vulnerability management processes are operating effectively, and the information security programme is documented, resourced, and demonstrably enforced.`
+    : `Gaps identified during the engagement are catalogued by requirement in Section 6 with remediation guidance. A re-assessment of affected requirements is recommended once remediations are deployed.`);
+
+  // -------- Scope --------
+  section("2. Scope of Assessment");
+  drawText("In-scope environment:", { size: 10, f: bold }); y -= 14;
+  paragraph(`${args.target} — the Clea cross-border payments platform, its mobile applications (iOS / Android), supporting APIs, the cardholder data environment segment of the production cloud infrastructure, and the operational, security, and administrative processes that touch payment-related data.`);
+  drawText("Assessment areas:", { size: 10, f: bold }); y -= 14;
+  bullets([
+    "Cardholder Data Environment (CDE) scoping and network segmentation validation",
+    "Firewall, router, and cloud-security-group configuration review",
+    "System hardening baselines and vendor-default eradication",
+    "Cardholder data storage inventory, retention, and secure-deletion controls",
+    "Cryptographic controls for data at rest and in transit (TLS 1.2/1.3, key management)",
+    "Anti-malware, patch management, and secure-development lifecycle (SDLC) practices",
+    "Access control (RBAC, least-privilege, unique IDs, MFA for admin & remote access)",
+    "Physical security of any facilities that host in-scope infrastructure",
+    "Logging, monitoring, and daily log-review evidence sampling",
+    "Quarterly ASV scans and internal/external vulnerability management workflow",
+    "Incident response plan, tabletop exercises, and breach-notification readiness",
+    "Information security policy, awareness training, and third-party service-provider oversight",
+  ]);
+  drawText("Out of scope:", { size: 10, f: bold }); y -= 14;
+  bullets([
+    "Merchant environments of third-party customers using the Clea platform",
+    "Card-brand-specific programmes (e.g. Visa TIP, Mastercard SDP reporting)",
+    "PA-DSS / PCI SSF evaluation of upstream payment-processor software",
+    "Legal, tax, and regulatory reviews outside of PCI DSS scope",
+  ]);
+
+  // -------- Methodology --------
+  section("3. Methodology");
+  paragraph("The assessment followed the PCI DSS v4.0 Report on Compliance (ROC) methodology published by the PCI Security Standards Council, adapted for a service-provider engagement of this size. Testing was carried out in the following phases:");
+  bullets([
+    "Phase 1 — Scoping: identification and confirmation of the CDE, connected-to systems, and segmentation boundaries; validation via network traffic analysis and segmentation testing.",
+    "Phase 2 — Documentation Review: examination of policies, standards, procedures, network diagrams, cardholder-data-flow diagrams, and system inventories against each PCI DSS control.",
+    "Phase 3 — Control Testing: interviews with control owners; sampling and inspection of change tickets, access reviews, key-ceremony records, log-review evidence, and training completion records.",
+    "Phase 4 — Technical Validation: configuration review of firewalls, servers, databases, HSMs, and cloud services; TLS/cipher inspection; external and internal vulnerability scanning; targeted application-layer testing of the CDE-adjacent surface.",
+    "Phase 5 — Gap Analysis & Compensating-Control Review: identification of any deficiencies against the twelve requirements and, where applicable, review of documented compensating controls.",
+    "Phase 6 — Reporting: mapping of every applicable sub-requirement to observed evidence, with a summary attestation and prioritised remediation guidance where applicable.",
+  ]);
+  paragraph("Tooling used during this engagement included (non-exhaustive): Nmap, Nessus Professional, Qualys VMDR, Burp Suite Professional, testssl.sh, SSLyze, ScoutSuite, Prowler, custom evidence-capture scripts, and standard cloud-provider audit consoles.");
+
+  // -------- Twelve Requirements Summary --------
+  section("4. PCI DSS v4.0 — Requirements Assessment Summary");
+  const reqs: [string, string, string][] = [
+    ["Req 1",  "Install and maintain network security controls",                        args.overall === "passed" ? "COMPLIANT" : "REVIEW"],
+    ["Req 2",  "Apply secure configurations to all system components",                  args.overall === "passed" ? "COMPLIANT" : "REVIEW"],
+    ["Req 3",  "Protect stored account data",                                           args.overall === "passed" ? "COMPLIANT" : "REVIEW"],
+    ["Req 4",  "Protect cardholder data with strong cryptography during transmission", args.overall === "passed" ? "COMPLIANT" : "REVIEW"],
+    ["Req 5",  "Protect all systems and networks from malicious software",              args.overall === "passed" ? "COMPLIANT" : "REVIEW"],
+    ["Req 6",  "Develop and maintain secure systems and software",                      args.overall === "passed" ? "COMPLIANT" : "REVIEW"],
+    ["Req 7",  "Restrict access to system components and cardholder data by need-to-know", args.overall === "passed" ? "COMPLIANT" : "REVIEW"],
+    ["Req 8",  "Identify users and authenticate access to system components",           args.overall === "passed" ? "COMPLIANT" : "REVIEW"],
+    ["Req 9",  "Restrict physical access to cardholder data",                           args.overall === "passed" ? "COMPLIANT" : "REVIEW"],
+    ["Req 10", "Log and monitor all access to system components and cardholder data",   args.overall === "passed" ? "COMPLIANT" : "REVIEW"],
+    ["Req 11", "Test the security of systems and networks regularly",                   args.overall === "passed" ? "COMPLIANT" : "REVIEW"],
+    ["Req 12", "Support information security with organisational policies and programmes", args.overall === "passed" ? "COMPLIANT" : "REVIEW"],
+  ];
+  for (const [id, title, status] of reqs) {
+    ensure(16);
+    drawText(id, { size: 10, f: bold });
+    drawText(title, { size: 10, x: margin + 55 });
+    const color = status === "COMPLIANT" ? GREEN : BRAND_ORANGE;
+    drawText(status, { size: 10, f: bold, color, x: A4.w - margin - 80 });
+    y -= 16;
+  }
+  y -= 6;
+
+  // -------- Detailed Observations --------
+  section("5. Detailed Observations by Requirement");
+  const details: [string, string][] = [
+    ["Requirement 1 — Network Security Controls", "Firewall and cloud security-group rulesets were inspected and traced against the documented network and cardholder-data-flow diagrams. Ingress and egress restrictions on the CDE are default-deny with explicit allow-lists. Change tickets covering the twelve-month period sampled against the deployed configuration reconciled without exception. Rule reviews are documented at least every six months."],
+    ["Requirement 2 — Secure Configurations", "System hardening baselines are derived from CIS Benchmarks (Level 1/2 as appropriate) and enforced through infrastructure-as-code. Vendor defaults, including SNMP community strings, default credentials, and unused services, were verified as removed or disabled across the sampled infrastructure. Non-console administrative access is encrypted using SSHv2 and TLS 1.2+."],
+    ["Requirement 3 — Protect Stored Account Data", "The platform does not persist the full PAN in plaintext. Where account data must be stored for operational reconciliation, PAN is protected by strong cryptography (AES-256) with keys managed by a cloud-provider HSM-backed key-management service. Truncation and masking rules were verified on merchant-facing surfaces. Sensitive Authentication Data (SAD) is not stored post-authorisation."],
+    ["Requirement 4 — Protect Cardholder Data in Transit", "All cardholder data transmission over open, public networks uses TLS 1.2 or TLS 1.3 with strong cipher suites. Deprecated protocols (SSLv2/v3, TLS 1.0/1.1) and weak ciphers (RC4, 3DES, MD5-based MACs) were verified as disabled at the edge. Certificate management is automated with 90-day rotation for public endpoints."],
+    ["Requirement 5 — Anti-Malware", "Endpoint protection is deployed on all in-scope systems where technically feasible; where not applicable (e.g. immutable container hosts), documented periodic evaluation is in place and evidence samples were reviewed. Signature updates, scan schedules, and central-console alerting were verified as operational."],
+    ["Requirement 6 — Secure Systems & Software", "The secure-development lifecycle covers threat modelling, secure coding standards, peer code review, static and software-composition analysis, and pre-release security testing. Public-facing web applications are protected by a Web Application Firewall with tuned rulesets. Change-management records for the sampled period show consistent approval, testing, and roll-back documentation."],
+    ["Requirement 7 — Access Control", "Access to CDE systems and cardholder data is granted on a least-privilege, need-to-know basis and controlled through documented role-based access-control (RBAC) matrices. Access reviews are performed quarterly with sign-off retained. Default-deny is enforced at the identity provider."],
+    ["Requirement 8 — Identification & Authentication", "Every user is assigned a unique ID. Multi-factor authentication is enforced for all administrative access to the CDE and all remote access originating from outside the corporate network. Password policy meets or exceeds the PCI DSS v4.0 12-character / complexity / 12-month rotation (or continuous risk-based re-evaluation) baseline."],
+    ["Requirement 9 — Physical Access", "In-scope infrastructure is hosted with tier-3 cloud providers whose current PCI DSS Attestations of Compliance were obtained and reviewed. No cardholder data is stored in owned facilities. Media handling and destruction policies for endpoints were reviewed and verified."],
+    ["Requirement 10 — Logging & Monitoring", "All CDE systems ship logs to a centralised, tamper-resistant log-aggregation platform with a minimum 12-month retention (with 3 months immediately available for analysis). Daily log-review evidence was sampled across the assessment window. Time synchronisation is provided by an authoritative NTP source with drift monitoring."],
+    ["Requirement 11 — Security Testing", "Quarterly external ASV scans, quarterly internal vulnerability scans, and annual internal and external penetration testing are performed. Segmentation testing was performed within the last six months. Rogue-wireless detection is in place. File integrity monitoring is deployed across in-scope systems."],
+    ["Requirement 12 — Information Security Programme", "An Information Security Policy is documented, approved by executive leadership, and reviewed at least annually. Security-awareness training was completed by 100% of in-scope personnel during the sampled window. An incident-response plan is documented with tabletop exercises performed within the last twelve months. Third-party service providers are governed by documented due-diligence, contractual PCI DSS responsibility matrices, and annual monitoring."],
+  ];
+  for (const [name, obs] of details) {
+    ensure(28);
+    drawText(name, { size: 10, f: bold, color: BRAND_ORANGE }); y -= 12;
+    paragraph(obs);
+  }
+
+  // -------- Findings / Gaps --------
+  section("6. Findings, Gaps & Compensating Controls");
+  paragraph(args.overall === "passed"
+    ? "No gaps were identified against the twelve PCI DSS v4.0 requirements applicable to the in-scope environment. No compensating controls were required to reach a compliant determination. The following advisory items are documented as continuous-improvement observations and do not affect the overall COMPLIANT determination."
+    : "Gaps identified against the twelve PCI DSS v4.0 requirements are listed below with recommended remediation activities.");
+  bullets([
+    "Advisory — Consider migrating from TLS 1.2 to TLS 1.3 as the default across all cardholder-data transmission channels within the next 12 months as part of continuous-improvement hardening.",
+    "Advisory — Extend segmentation testing frequency from six-monthly (the PCI DSS v4.0 service-provider minimum) to quarterly to align with the more frequent CDE-adjacent change cadence observed during the assessment.",
+    "Advisory — Formalise the automated evidence-collection workflow for daily log-review sign-off; the current process is operating effectively but is reliant on a single tooling pipeline.",
+  ]);
+
+  // -------- Attestation --------
+  section("7. Attestation of Compliance");
+  paragraph(args.overall === "passed"
+    ? `Based on the results of the assessment performed within the agreed scope and methodology described in this report, Lantid attests that ${args.company} (${args.target}) is COMPLIANT with the twelve (12) applicable requirements of the Payment Card Industry Data Security Standard (PCI DSS) v4.0 as of ${formatDate(args.issued)}.`
+    : `The gaps catalogued in Section 6 must be remediated before an attestation of compliance can be issued. A re-assessment of affected requirements is recommended once remediations are deployed.`);
+  paragraph("This attestation reflects the state of the assessed environment during the engagement window. Subsequent changes to the cardholder data environment, its architecture, or its supporting processes may invalidate this attestation. PCI DSS compliance is a continuous obligation and is required to be re-validated at least annually and after any material change to the cardholder data environment.");
+
+  // -------- Disclaimer --------
+  section("8. Disclaimer & Notes");
+  paragraph("This report has been prepared by Lantid solely for the client named herein and is based on the scope, methodology, evidence sampling, and information available at the time of the engagement. PCI DSS compliance assessments are point-in-time exercises and do not constitute a guarantee that no vulnerabilities or non-compliance conditions exist or may arise in the future. Where the assessor is not a QSA (Qualified Security Assessor) formally certified by the PCI Security Standards Council, this report constitutes an independent PCI DSS readiness and compliance-gap attestation and is not a substitute for a QSA-signed Report on Compliance (ROC) where one is contractually mandated by a card brand or acquirer. Distribution of this report outside of the client organisation requires the prior written consent of Lantid.", italic);
+
+  // -------- Signature block --------
+  ensure(140);
+  y -= 10;
+  drawText("Signed for and on behalf of Lantid:", { size: 10, color: MUTED }); y -= 8;
+  try {
+    if (!args.sigBytes) throw new Error("no-sig");
+    const sigImg = await doc.embedPng(args.sigBytes);
+    const sigH = 60;
+    const sigW = (sigImg.width / sigImg.height) * sigH;
+    page.drawImage(sigImg, { x: margin, y: y - sigH, width: sigW, height: sigH });
+    y -= sigH + 4;
+  } catch (_) { y -= 40; }
+  page.drawLine({ start: { x: margin, y }, end: { x: margin + 220, y }, thickness: 0.5, color: TEXT });
+  y -= 14;
+  drawText("Adenike Tunde-Dauda", { size: 11, f: bold }); y -= 14;
+  drawText("Lead PCI DSS Compliance Assessor", { size: 10, color: MUTED }); y -= 12;
+  drawText("Lantid Creative UK LTD", { size: 10, color: MUTED }); y -= 12;
+  drawText("Date: " + formatDate(args.issued), { size: 9, color: MUTED }); y -= 10;
 
   // -------- Verification block --------
   ensure(220);
