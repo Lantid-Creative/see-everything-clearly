@@ -36,7 +36,7 @@ Deno.serve(async (req) => {
 
     const { data: pay } = await supabase
       .from("payments")
-      .select("id, request_id")
+      .select("id, request_id, pci_request_id, source_type")
       .eq("provider_reference", reference)
       .single();
 
@@ -46,10 +46,17 @@ Deno.serve(async (req) => {
         .eq("id", pay.id);
 
       if (newStatus === "paid") {
-        await supabase.from("vapt_requests")
-          .update({ status: "paid" })
-          .eq("id", pay.request_id)
-          .in("status", ["pending_payment"]);
+        if (pay.source_type === "pci" && pay.pci_request_id) {
+          await supabase.from("pci_dss_requests")
+            .update({ status: "paid" })
+            .eq("id", pay.pci_request_id)
+            .in("status", ["new", "pending_payment"]);
+        } else if (pay.request_id) {
+          await supabase.from("vapt_requests")
+            .update({ status: "paid" })
+            .eq("id", pay.request_id)
+            .in("status", ["pending_payment"]);
+        }
       }
     }
 
