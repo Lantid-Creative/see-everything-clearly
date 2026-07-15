@@ -9,6 +9,28 @@ export default function Contact() {
   const [submitting, setSubmitting] = useState(false);
   const [sent, setSent] = useState(false);
   const { toast } = useToast();
+  const [searchParams] = useSearchParams();
+
+  const services = useMemo(
+    () => [
+      "Management Consulting",
+      "Business Consulting",
+      "Strategic Planning",
+      "Policy Research",
+      "Industrial Policy Development",
+      "Monitoring & Evaluation",
+      "Branding & Brand Development",
+      "IT & Technology Solutions",
+      "Audits & Assurance",
+      "Not sure yet",
+    ],
+    []
+  );
+
+  const prefill = (searchParams.get("service") || "").toLowerCase();
+  const matched = services.find((s) => s.toLowerCase() === prefill)
+    || (prefill.includes("audit") ? "Audits & Assurance" : "");
+  const [service, setService] = useState<string>(matched || services[0]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
