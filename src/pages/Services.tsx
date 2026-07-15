@@ -318,13 +318,23 @@ export default function Services() {
                     ))}
                   </ul>
                 </div>
-                <Link
-                  to={(g as any).cta?.to ?? "/contact"}
-                  className="mt-10 inline-flex items-center gap-2 rounded-full bg-primary text-primary-foreground px-6 py-3 text-sm font-semibold hover:bg-primary/90 transition-all hover:gap-3 group"
-                >
-                  {(g as any).cta?.label ?? `Discuss your ${g.title.toLowerCase()} need`}
-                  <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
-                </Link>
+                <div className="mt-10 flex flex-wrap items-center gap-4">
+                  <Link
+                    to={(g as any).cta?.to ?? `/contact?service=${encodeURIComponent(g.title)}`}
+                    className="inline-flex items-center gap-2 rounded-full bg-primary text-primary-foreground px-6 py-3 text-sm font-semibold hover:bg-primary/90 transition-all hover:gap-3 group"
+                  >
+                    {(g as any).cta?.label ?? `Discuss your ${g.title.toLowerCase()} need`}
+                    <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
+                  </Link>
+                  {(g as any).cta && (
+                    <Link
+                      to={`/contact?service=${encodeURIComponent(g.title)}`}
+                      className="text-sm font-semibold text-primary hover:underline"
+                    >
+                      Request a scoping call →
+                    </Link>
+                  )}
+                </div>
               </div>
             </motion.div>
           ))}
