@@ -47,13 +47,18 @@ export default function VerifyReport() {
     try {
       const { data, error } = await supabase.functions.invoke("public-report-download", { body: { code: c } });
       if (error || !data?.url) throw new Error(data?.error || error?.message || "Download failed");
+      // Fetch as a blob so the signed storage URL never lands in the address bar.
+      const res = await fetch(data.url);
+      if (!res.ok) throw new Error(`Download failed (${res.status})`);
+      const blob = await res.blob();
+      const objectUrl = URL.createObjectURL(blob);
       const a = document.createElement("a");
-      a.href = data.url;
-      a.rel = "noopener noreferrer";
+      a.href = objectUrl;
       a.download = `Lantid-Report-${c}.pdf`;
       document.body.appendChild(a);
       a.click();
       a.remove();
+      setTimeout(() => URL.revokeObjectURL(objectUrl), 1000);
     } catch (e) {
       toast({ title: "Download failed", description: (e as Error).message, variant: "destructive" });
     } finally {
