@@ -27,8 +27,8 @@ export default function PaymentCallback() {
       {state === "paid" && <>
         <CheckCircle2 className="h-12 w-12 text-green-600 mx-auto" />
         <h1 className="mt-4 text-2xl font-serif">Payment confirmed</h1>
-        <p className="text-muted-foreground mt-2">Your VAPT engagement will begin shortly. You'll receive the signed report by email.</p>
-        <Link to="/vapt/dashboard" className="inline-flex mt-6 rounded-xl bg-primary text-primary-foreground px-5 py-2.5 text-sm font-semibold">Go to dashboard</Link>
+        <p className="text-muted-foreground mt-2">Your audit engagement will begin shortly. You'll receive the signed report by email.</p>
+        <Link to="/audits" className="inline-flex mt-6 rounded-xl bg-primary text-primary-foreground px-5 py-2.5 text-sm font-semibold">Back to audits</Link>
       </>}
       {state === "failed" && <>
         <XCircle className="h-12 w-12 text-destructive mx-auto" />

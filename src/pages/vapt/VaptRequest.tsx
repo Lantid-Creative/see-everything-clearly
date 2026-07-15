@@ -5,10 +5,14 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2, ArrowRight } from "lucide-react";
 
+const VAT_RATE = 0.075;
+const fmt = (kobo: number) => new Intl.NumberFormat("en-NG", { style: "currency", currency: "NGN", maximumFractionDigits: 0 }).format(kobo / 100);
+const withVat = (base: number) => base + Math.round(base * VAT_RATE);
+
 const TIER_AMOUNTS: Record<string, { kobo: number; label: string }> = {
-  basic: { kobo: 15000000, label: "Basic — ₦150,000" },
-  standard: { kobo: 40000000, label: "Standard — ₦400,000" },
-  advanced: { kobo: 100000000, label: "Advanced — ₦1,000,000" },
+  basic: { kobo: 25000000, label: "Standard — ₦250,000 (3 days)" },
+  standard: { kobo: 50000000, label: "Priority — ₦500,000 (24h)" },
+  advanced: { kobo: 150000000, label: "Expedited — ₦1,500,000 (6h)" },
 };
 
 export default function VaptRequest() {
@@ -47,7 +51,7 @@ export default function VaptRequest() {
 
       const { data: reqRow, error: reqErr } = await supabase.from("vapt_requests").insert({
         user_id: user.id, organization_id: orgRow.id, target, scope,
-        assessment_type: tier, notes, amount_kobo: TIER_AMOUNTS[tier].kobo, currency: "NGN",
+        assessment_type: tier, notes, amount_kobo: withVat(TIER_AMOUNTS[tier].kobo), currency: "NGN",
       } as never).select().single();
       if (reqErr) throw reqErr;
       const reqRowTyped = reqRow as { id: string };
@@ -92,13 +96,15 @@ export default function VaptRequest() {
         <div className="md:col-span-2"><Field label="Scope of testing" required><textarea className={`${inputCls} min-h-[80px]`} value={scope} onChange={(e)=>setScope(e.target.value)} required /></Field></div>
         <div className="md:col-span-2"><Field label="Notes (optional)"><textarea className={`${inputCls} min-h-[80px]`} value={notes} onChange={(e)=>setNotes(e.target.value)} /></Field></div>
 
-        <div className="md:col-span-2 flex items-center justify-between rounded-xl border border-border bg-card p-4">
-          <div>
-            <div className="text-xs uppercase tracking-wider text-muted-foreground">Total due</div>
-            <div className="text-2xl font-serif">{TIER_AMOUNTS[tier].label.split(" — ")[1]}</div>
+        <div className="md:col-span-2 rounded-xl border border-border bg-card p-5">
+          <div className="text-xs uppercase tracking-wider text-muted-foreground mb-3">Order summary</div>
+          <div className="space-y-1.5 text-sm">
+            <div className="flex justify-between"><span className="text-muted-foreground">{TIER_AMOUNTS[tier].label}</span><span className="font-medium">{fmt(TIER_AMOUNTS[tier].kobo)}</span></div>
+            <div className="flex justify-between"><span className="text-muted-foreground">VAT (7.5%)</span><span className="font-medium">{fmt(Math.round(TIER_AMOUNTS[tier].kobo * VAT_RATE))}</span></div>
+            <div className="flex justify-between border-t border-border pt-2 mt-2 text-base"><span className="font-semibold">Total due</span><span className="font-serif text-xl">{fmt(withVat(TIER_AMOUNTS[tier].kobo))}</span></div>
           </div>
-          <button type="submit" disabled={submitting} className="inline-flex items-center gap-2 rounded-xl bg-primary text-primary-foreground px-5 py-3 text-sm font-semibold hover:shadow-brand transition-all disabled:opacity-50">
-            {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <>Continue to payment <ArrowRight className="h-4 w-4" /></>}
+          <button type="submit" disabled={submitting} className="mt-5 w-full inline-flex items-center justify-center gap-2 rounded-xl bg-primary text-primary-foreground px-5 py-3 text-sm font-semibold hover:shadow-brand transition-all disabled:opacity-50">
+            {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <>Pay {fmt(withVat(TIER_AMOUNTS[tier].kobo))} & start audit <ArrowRight className="h-4 w-4" /></>}
           </button>
         </div>
       </form>

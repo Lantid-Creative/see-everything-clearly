@@ -6,13 +6,16 @@ import { Seo } from "@/components/site/Seo";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 
+const VAT_RATE = 0.075;
+const fmt = (kobo: number) => new Intl.NumberFormat("en-NG", { style: "currency", currency: "NGN", maximumFractionDigits: 0 }).format(kobo / 100);
+
 const TIERS: Record<string, { kobo: number; label: string; price: string; turnaround: string; blurb: string; items: string[]; highlighted?: boolean }> = {
   standard: {
-    kobo: 10000000,
-    label: "Standard — ₦100,000",
-    price: "₦100,000",
+    kobo: 25000000,
+    label: "Standard — ₦250,000",
+    price: "₦250,000",
     turnaround: "3 business days",
-    blurb: "Gap assessment + SAQ facilitation for smaller merchants and service providers.",
+    blurb: "Gap assessment + SAQ facilitation delivered within 3 business days.",
     items: [
       "Scoping & CDE mapping",
       "PCI DSS v4.0.1 gap assessment",
@@ -137,7 +140,7 @@ export default function PciDss() {
           timeline,
           notes,
           tier,
-          amount_kobo: TIERS[tier].kobo,
+          amount_kobo: TIERS[tier].kobo + Math.round(TIERS[tier].kobo * VAT_RATE),
           currency: "NGN",
           status: "pending_payment",
         } as never)
@@ -219,6 +222,7 @@ export default function PciDss() {
               {item.highlighted && <div className="text-[10px] font-semibold tracking-wider text-primary uppercase mb-2">Most popular</div>}
               <h3 className="text-xl font-semibold text-foreground capitalize">{key}</h3>
               <div className="mt-2 text-3xl font-serif text-foreground">{item.price}</div>
+              <div className="text-xs text-muted-foreground mt-1">+ 7.5% VAT · total {fmt(item.kobo + Math.round(item.kobo * VAT_RATE))}</div>
               <p className="mt-1 text-xs text-muted-foreground uppercase tracking-wider">Turnaround: {item.turnaround}</p>
               <p className="mt-3 text-sm text-muted-foreground">{item.blurb}</p>
               <ul className="mt-4 space-y-2 text-sm text-foreground/80 flex-1">
@@ -319,18 +323,19 @@ export default function PciDss() {
                 <textarea value={notes} onChange={(e)=>setNotes(e.target.value)} rows={3} className={`${input} resize-none`} />
               </div>
 
-              <div className="flex items-center justify-between rounded-xl border border-border bg-background p-4">
-                <div>
-                  <div className="text-xs uppercase tracking-wider text-muted-foreground">Selected tier</div>
-                  <div className="text-2xl font-serif capitalize">{tier} — {t.price}</div>
-                  <div className="text-xs text-muted-foreground">Turnaround: {t.turnaround}</div>
+              <div className="rounded-xl border border-border bg-background p-5">
+                <div className="text-xs uppercase tracking-wider text-muted-foreground mb-3">Order summary</div>
+                <div className="space-y-1.5 text-sm">
+                  <div className="flex justify-between"><span className="text-muted-foreground capitalize">PCI DSS — {tier} ({t.turnaround})</span><span className="font-medium">{fmt(t.kobo)}</span></div>
+                  <div className="flex justify-between"><span className="text-muted-foreground">VAT (7.5%)</span><span className="font-medium">{fmt(Math.round(t.kobo * VAT_RATE))}</span></div>
+                  <div className="flex justify-between border-t border-border pt-2 mt-2 text-base"><span className="font-semibold">Total due</span><span className="font-serif text-xl">{fmt(t.kobo + Math.round(t.kobo * VAT_RATE))}</span></div>
                 </div>
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="inline-flex items-center gap-2 rounded-xl bg-primary text-primary-foreground px-5 py-3 text-sm font-semibold hover:shadow-brand transition-all disabled:opacity-50"
+                  className="mt-5 w-full inline-flex items-center justify-center gap-2 rounded-xl bg-primary text-primary-foreground px-5 py-3 text-sm font-semibold hover:shadow-brand transition-all disabled:opacity-50"
                 >
-                  {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : (<>Continue to payment <ArrowRight className="h-4 w-4" /></>)}
+                  {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : (<>Pay {fmt(t.kobo + Math.round(t.kobo * VAT_RATE))} & start audit <ArrowRight className="h-4 w-4" /></>)}
                 </button>
               </div>
 

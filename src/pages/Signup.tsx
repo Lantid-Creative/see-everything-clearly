@@ -1,12 +1,14 @@
 import { useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
-import { Navigate, Link } from "react-router-dom";
+import { Navigate, Link, useSearchParams } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2, ArrowRight, Mail, Lock, User } from "lucide-react";
 import { AuthLayout } from "@/components/auth/AuthLayout";
 
 const Signup = () => {
   const { user, loading, signUp } = useAuth();
+  const [params] = useSearchParams();
+  const nextPath = params.get("next") || "/audits";
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [displayName, setDisplayName] = useState("");
@@ -21,7 +23,7 @@ const Signup = () => {
     );
   }
 
-  if (user) return <Navigate to="/app" replace />;
+  if (user) return <Navigate to={nextPath} replace />;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
