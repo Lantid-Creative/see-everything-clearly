@@ -103,7 +103,8 @@ export default function EngagementDetail() {
         if (up.error) throw up.error;
         attachment_path = path;
       }
-      const { error } = await (supabase.from("engagement_messages" as never) as never).insert({
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const { error } = await (supabase as any).from("engagement_messages").insert({
         engagement_id: id,
         engagement_type: type,
         sender_id: user.id,
