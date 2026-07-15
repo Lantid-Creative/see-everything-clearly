@@ -167,8 +167,8 @@ export default function Home() {
   return (
     <>
       <Seo
-        title="Lantid Creative — Strategy, Research, Branding & Technology Consulting"
-        description="Lantid Creative is a Nigeria & UK consulting firm bridging strategy, policy research, M&E, branding and technology — trusted by government, development and enterprise clients."
+        title="Lantid Creative — Consulting, Research & Technology"
+        description="Nigeria & UK consulting firm bridging strategy, policy research, M&E, branding and technology for government and enterprise."
         path="/"
         jsonLd={homeJsonLd}
       />
