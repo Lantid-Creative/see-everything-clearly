@@ -31,11 +31,15 @@ const cols = [
     ],
   },
   {
-    title: "Security",
+    title: "Audits",
     links: [
-      { to: "/vapt", label: "VAPT Services" },
-      { to: "/pci-dss", label: "PCI DSS Audit" },
-      { to: "/verify-report", label: "Verify Report" },
+      { to: "/audits", label: "All Audits" },
+      { to: "/vapt", label: "VAPT" },
+      { to: "/pci-dss", label: "PCI DSS" },
+      { to: "/audits/aml-cft", label: "AML / CFT Audit" },
+      { to: "/audits/iso-27001", label: "ISO/IEC 27001" },
+      { to: "/audits/ndpr", label: "NDPR / NDPA" },
+      { to: "/verify-report", label: "Verify a Report" },
     ],
   },
   {
