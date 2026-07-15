@@ -6,13 +6,16 @@ import { Seo } from "@/components/site/Seo";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 
+const VAT_RATE = 0.075;
+const fmt = (kobo: number) => new Intl.NumberFormat("en-NG", { style: "currency", currency: "NGN", maximumFractionDigits: 0 }).format(kobo / 100);
+
 const TIERS: Record<string, { kobo: number; label: string; price: string; turnaround: string; blurb: string; items: string[]; highlighted?: boolean }> = {
   standard: {
-    kobo: 10000000,
-    label: "Standard — ₦100,000",
-    price: "₦100,000",
+    kobo: 25000000,
+    label: "Standard — ₦250,000",
+    price: "₦250,000",
     turnaround: "3 business days",
-    blurb: "Gap assessment + SAQ facilitation for smaller merchants and service providers.",
+    blurb: "Gap assessment + SAQ facilitation delivered within 3 business days.",
     items: [
       "Scoping & CDE mapping",
       "PCI DSS v4.0.1 gap assessment",

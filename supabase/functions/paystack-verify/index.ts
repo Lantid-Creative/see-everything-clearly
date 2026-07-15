@@ -38,7 +38,7 @@ Deno.serve(async (req) => {
       .from("payments")
       .select("id, request_id, pci_request_id, source_type")
       .eq("provider_reference", reference)
-      .single();
+      .maybeSingle();
 
     if (pay) {
       await supabase.from("payments")
@@ -57,6 +57,18 @@ Deno.serve(async (req) => {
             .eq("id", pay.request_id)
             .in("status", ["pending_payment"]);
         }
+      }
+    } else {
+      // Unified audit_requests path (AML/CFT, ISO 27001, NDPR)
+      const { data: auditRow } = await supabase
+        .from("audit_requests")
+        .select("id, status")
+        .eq("paystack_reference", reference)
+        .maybeSingle();
+      if (auditRow && newStatus === "paid" && auditRow.status === "pending") {
+        await supabase.from("audit_requests")
+          .update({ status: "paid", paid_at: new Date().toISOString() })
+          .eq("id", auditRow.id);
       }
     }
 
