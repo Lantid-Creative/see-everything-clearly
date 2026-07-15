@@ -39,7 +39,15 @@ export default function VerifyReport() {
     try {
       const { data, error } = await supabase.functions.invoke("public-report-download", { body: { code: c } });
       if (error || !data?.url) throw new Error(data?.error || error?.message || "Download failed");
-      window.open(data.url, "_blank", "noopener,noreferrer");
+      // Use anchor click (with download attr) rather than window.open — popup blockers
+      // strip user-activation after the awaited fetch and silently block window.open.
+      const a = document.createElement("a");
+      a.href = data.url;
+      a.rel = "noopener noreferrer";
+      a.download = `Lantid-Report-${c}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
     } catch (e) {
       toast({ title: "Download failed", description: (e as Error).message, variant: "destructive" });
     } finally {
