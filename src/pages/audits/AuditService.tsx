@@ -204,6 +204,37 @@ export default function AuditService() {
                           </div>
                         );
                       }
+                      if (f.type === "file") {
+                        const uploaded = form[`__file_${f.name}`] ? JSON.parse(form[`__file_${f.name}`]) as { name: string; path: string }[] : [];
+                        const busy = uploading[f.name];
+                        return (
+                          <div key={f.name} className={col}>
+                            <label className={label}>{f.label}{f.required ? " *" : ""}</label>
+                            <div className="rounded-xl border border-dashed border-input bg-background/50 px-3 py-3">
+                              <input
+                                type="file"
+                                accept={f.accept}
+                                multiple={f.multiple}
+                                required={f.required && uploaded.length === 0}
+                                onChange={(e) => handleFileUpload(f.name, e.target.files)}
+                                className="text-xs file:mr-3 file:rounded-lg file:border-0 file:bg-primary/10 file:text-primary file:px-3 file:py-1.5 file:text-xs file:font-semibold file:cursor-pointer w-full"
+                              />
+                              {busy && <p className="text-xs text-muted-foreground mt-2 flex items-center gap-1"><Loader2 className="h-3 w-3 animate-spin" /> Uploading…</p>}
+                              {uploaded.length > 0 && (
+                                <ul className="mt-2 space-y-1">
+                                  {uploaded.map((u, i) => (
+                                    <li key={i} className="flex items-center justify-between gap-2 text-xs text-foreground/80 bg-primary/5 rounded-md px-2 py-1">
+                                      <span className="truncate">📎 {u.name}</span>
+                                      <button type="button" onClick={() => removeFile(f.name, i)} className="text-muted-foreground hover:text-destructive text-[10px] font-semibold uppercase tracking-wider">Remove</button>
+                                    </li>
+                                  ))}
+                                </ul>
+                              )}
+                            </div>
+                            {f.helper && <p className="text-xs text-muted-foreground mt-1">{f.helper}</p>}
+                          </div>
+                        );
+                      }
                       return (
                         <div key={f.name} className={col}>
                           <label className={label}>{f.label}{f.required ? " *" : ""}</label>
