@@ -247,7 +247,9 @@ export default function AdminQueue() {
                         {TYPE_LABEL[r.type]}
                       </span>
                     </td>
-                    <td className="p-3 font-mono text-xs">{r.public_id}</td>
+                    <td className="p-3 font-mono text-xs">
+                      <Link to={`/audits/my/${r.type}/${r.id}`} className="text-primary hover:underline">{r.public_id}</Link>
+                    </td>
                     <td className="p-3 font-medium truncate max-w-[220px]">{r.company_name || "—"}</td>
                     <td className="p-3 text-xs truncate max-w-[240px]">{r.subject || "—"}</td>
                     <td className="p-3 text-right font-mono text-xs">{fmt(r.amount_kobo, r.currency)}</td>
