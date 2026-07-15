@@ -678,6 +678,7 @@ export type Database = {
           id: string
           issued_at: string
           overall_result: string
+          report_type: string
           request_id: string | null
           revoked_at: string | null
           revoked_reason: string | null
@@ -696,6 +697,7 @@ export type Database = {
           id?: string
           issued_at?: string
           overall_result?: string
+          report_type?: string
           request_id?: string | null
           revoked_at?: string | null
           revoked_reason?: string | null
@@ -714,6 +716,7 @@ export type Database = {
           id?: string
           issued_at?: string
           overall_result?: string
+          report_type?: string
           request_id?: string | null
           revoked_at?: string | null
           revoked_reason?: string | null
