@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import {
-  Briefcase, TrendingUp, Map, Search, Factory, BarChart3, Palette, Cpu,
+  Briefcase, TrendingUp, Map, Search, Factory, BarChart3, Palette, Cpu, ShieldCheck,
   ArrowRight, CheckCircle2, Sparkles,
 } from "lucide-react";
 import { SectionHeading } from "@/components/site/SectionHeading";
