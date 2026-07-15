@@ -19,6 +19,41 @@ export default function AuditService() {
   const [tier, setTier] = useState<TierKey>(initialTier);
   const [submitting, setSubmitting] = useState(false);
   const [form, setForm] = useState<Record<string, string>>({});
+  const [uploading, setUploading] = useState<Record<string, boolean>>({});
+
+  const handleFileUpload = async (fieldName: string, files: FileList | null) => {
+    if (!files || files.length === 0 || !user) return;
+    setUploading((s) => ({ ...s, [fieldName]: true }));
+    try {
+      const existing = form[`__file_${fieldName}`] ? JSON.parse(form[`__file_${fieldName}`]) as { name: string; path: string }[] : [];
+      const uploaded: { name: string; path: string }[] = [...existing];
+      for (const file of Array.from(files)) {
+        if (file.size > 25 * 1024 * 1024) {
+          toast({ title: "File too large", description: `${file.name} exceeds 25 MB.`, variant: "destructive" });
+          continue;
+        }
+        const safe = file.name.replace(/[^a-zA-Z0-9._-]/g, "_");
+        const path = `${user.id}/audit-intake/${audit?.slug}/${fieldName}/${Date.now()}-${safe}`;
+        const { error } = await supabase.storage.from("attachments").upload(path, file, { upsert: false, contentType: file.type || undefined });
+        if (error) {
+          toast({ title: "Upload failed", description: `${file.name}: ${error.message}`, variant: "destructive" });
+          continue;
+        }
+        uploaded.push({ name: file.name, path });
+      }
+      setForm((s) => ({ ...s, [`__file_${fieldName}`]: JSON.stringify(uploaded) }));
+    } finally {
+      setUploading((s) => ({ ...s, [fieldName]: false }));
+    }
+  };
+
+  const removeFile = async (fieldName: string, index: number) => {
+    const existing = form[`__file_${fieldName}`] ? JSON.parse(form[`__file_${fieldName}`]) as { name: string; path: string }[] : [];
+    const target = existing[index];
+    if (target) await supabase.storage.from("attachments").remove([target.path]);
+    const next = existing.filter((_, i) => i !== index);
+    setForm((s) => ({ ...s, [`__file_${fieldName}`]: next.length ? JSON.stringify(next) : "" }));
+  };
 
   const [companyName, setCompanyName] = useState("");
   const [contactName, setContactName] = useState("");
@@ -201,6 +236,37 @@ export default function AuditService() {
                               <option value="">Select…</option>
                               {f.options?.map((o) => <option key={o} value={o}>{o}</option>)}
                             </select>
+                          </div>
+                        );
+                      }
+                      if (f.type === "file") {
+                        const uploaded = form[`__file_${f.name}`] ? JSON.parse(form[`__file_${f.name}`]) as { name: string; path: string }[] : [];
+                        const busy = uploading[f.name];
+                        return (
+                          <div key={f.name} className={col}>
+                            <label className={label}>{f.label}{f.required ? " *" : ""}</label>
+                            <div className="rounded-xl border border-dashed border-input bg-background/50 px-3 py-3">
+                              <input
+                                type="file"
+                                accept={f.accept}
+                                multiple={f.multiple}
+                                required={f.required && uploaded.length === 0}
+                                onChange={(e) => handleFileUpload(f.name, e.target.files)}
+                                className="text-xs file:mr-3 file:rounded-lg file:border-0 file:bg-primary/10 file:text-primary file:px-3 file:py-1.5 file:text-xs file:font-semibold file:cursor-pointer w-full"
+                              />
+                              {busy && <p className="text-xs text-muted-foreground mt-2 flex items-center gap-1"><Loader2 className="h-3 w-3 animate-spin" /> Uploading…</p>}
+                              {uploaded.length > 0 && (
+                                <ul className="mt-2 space-y-1">
+                                  {uploaded.map((u, i) => (
+                                    <li key={i} className="flex items-center justify-between gap-2 text-xs text-foreground/80 bg-primary/5 rounded-md px-2 py-1">
+                                      <span className="truncate">📎 {u.name}</span>
+                                      <button type="button" onClick={() => removeFile(f.name, i)} className="text-muted-foreground hover:text-destructive text-[10px] font-semibold uppercase tracking-wider">Remove</button>
+                                    </li>
+                                  ))}
+                                </ul>
+                              )}
+                            </div>
+                            {f.helper && <p className="text-xs text-muted-foreground mt-1">{f.helper}</p>}
                           </div>
                         );
                       }

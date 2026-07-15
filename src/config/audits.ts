@@ -31,12 +31,14 @@ export const formatNaira = (kobo: number) =>
 export type IntakeField = {
   name: string;
   label: string;
-  type: "text" | "email" | "url" | "textarea" | "select" | "number";
+  type: "text" | "email" | "url" | "textarea" | "select" | "number" | "file";
   required?: boolean;
   placeholder?: string;
   helper?: string;
   options?: string[];
   colSpan?: 1 | 2;
+  multiple?: boolean;
+  accept?: string;
 };
 
 export type IntakeSection = { title: string; description?: string; fields: IntakeField[] };
@@ -63,15 +65,30 @@ export type AuditServiceDef = {
   sections?: IntakeSection[];
 };
 
-// Reusable section builders
+// ============ Reusable section builders ============
+
 const orgContactSection: IntakeSection = {
-  title: "Organisation",
+  title: "Organisation profile",
+  description: "Corporate identity used on the engagement letter, invoice and audit report cover. Match your CAC records exactly.",
   fields: [
-    { name: "legal_name", label: "Registered legal name", type: "text", required: true, colSpan: 2 },
+    { name: "legal_name", label: "Registered legal name (as on CAC)", type: "text", required: true, colSpan: 2 },
+    { name: "trading_name", label: "Trading / brand name (if different)", type: "text" },
+    { name: "rc_number", label: "RC / CAC registration number", type: "text", required: true },
+    { name: "tin", label: "Tax Identification Number (TIN)", type: "text", required: true },
+    { name: "incorporation_date", label: "Date of incorporation", type: "text", required: true, placeholder: "YYYY-MM-DD" },
+    { name: "entity_type", label: "Entity type", type: "select", required: true, options: ["Private limited (Ltd)","Public limited (Plc)","Limited by guarantee","Business name","Incorporated trustees","Foreign company (branch)","Cooperative","Other"] },
     { name: "industry", label: "Industry / sector", type: "text", required: true },
     { name: "hq_country", label: "Headquarters country", type: "text", required: true },
-    { name: "employees", label: "Employees in scope", type: "number" },
-    { name: "revenue_bracket", label: "Annual revenue bracket", type: "select", options: ["< ₦500M","₦500M – ₦5B","₦5B – ₦50B","> ₦50B","Prefer not to say"] },
+    { name: "registered_address", label: "Registered head office address", type: "textarea", required: true, colSpan: 2 },
+    { name: "website", label: "Primary website", type: "url", required: true },
+    { name: "employees", label: "Total employees", type: "number", required: true },
+    { name: "employees_in_scope", label: "Employees in audit scope", type: "number" },
+    { name: "revenue_bracket", label: "Annual revenue bracket", type: "select", required: true, options: ["< ₦500M","₦500M – ₦5B","₦5B – ₦50B","> ₦50B","Prefer not to say"] },
+    { name: "beneficial_owners", label: "Ultimate beneficial owners (name & % holding, ≥5%)", type: "textarea", colSpan: 2, helper: "Regulatory KYC. Required for FI, AML, PCI, SWIFT and any regulator-facing audit." },
+    { name: "directors", label: "Current directors (full names)", type: "textarea", colSpan: 2 },
+    { name: "authorised_signatory_name", label: "Authorised signatory name", type: "text", required: true },
+    { name: "authorised_signatory_role", label: "Authorised signatory role", type: "text", required: true },
+    { name: "authorised_signatory_email", label: "Authorised signatory email", type: "email", required: true },
   ],
 };
 
@@ -82,7 +99,29 @@ const engagementSection = (triggers: string[]): IntakeSection => ({
     { name: "scope_period", label: "Period under review", type: "text", required: true, placeholder: "e.g. Jan – Dec 2025" },
     { name: "prior_auditor", label: "Previous auditor (if any)", type: "text" },
     { name: "target_completion", label: "Target completion date", type: "text", placeholder: "YYYY-MM-DD" },
+    { name: "nda_required", label: "NDA required before evidence exchange?", type: "select", required: true, options: ["Yes — please issue Lantid's NDA","Yes — we will provide our NDA","No"] },
     { name: "notes", label: "Anything else we should know", type: "textarea", colSpan: 2 },
+  ],
+});
+
+// Core supporting documents required on every audit.
+const CORE_DOCS: IntakeField[] = [
+  { name: "doc_cac", label: "CAC Certificate of Incorporation (or foreign equivalent)", type: "file", required: true, accept: ".pdf,.png,.jpg,.jpeg", colSpan: 2, helper: "Required for engagement letter and audit report cover." },
+  { name: "doc_memart", label: "MEMART / Constitution", type: "file", accept: ".pdf", colSpan: 2 },
+  { name: "doc_cac_status", label: "CAC Status Report (last 90 days)", type: "file", accept: ".pdf", colSpan: 2, helper: "Confirms current directors, shareholders and registered address." },
+  { name: "doc_tin", label: "TIN / Tax Clearance Certificate (latest)", type: "file", accept: ".pdf,.png,.jpg,.jpeg", colSpan: 2 },
+  { name: "doc_signatory_id", label: "Government-issued ID of authorised signatory", type: "file", required: true, accept: ".pdf,.png,.jpg,.jpeg", colSpan: 2, helper: "NIN slip, international passport bio page, or driver's licence." },
+  { name: "doc_board_resolution", label: "Board resolution / authorisation to engage Lantid", type: "file", accept: ".pdf", colSpan: 2, helper: "Required for regulated entities; a signed engagement authorisation from a director is acceptable for private companies." },
+  { name: "doc_org_chart", label: "Organisation chart", type: "file", accept: ".pdf,.png,.jpg,.jpeg", colSpan: 2 },
+  { name: "doc_audited_financials", label: "Most recent audited financial statements", type: "file", accept: ".pdf", colSpan: 2, helper: "Latest signed audited accounts — required for FI, AML, NDIC, SOC 2, and any diligence-triggered audit." },
+];
+
+const documentsSection = (extras: IntakeField[] = [], intro?: string): IntakeSection => ({
+  title: "Supporting documents",
+  description: intro || "Upload the corporate pack plus any evidence you already have. You can add more via your dashboard after payment. PDF, PNG or JPEG up to 25 MB each.",
+  fields: [
+    ...CORE_DOCS,
+    ...extras.map((f) => ({ colSpan: 2 as const, accept: ".pdf,.docx,.xlsx,.png,.jpg,.jpeg,.zip", multiple: true, ...f })),
   ],
 });
 
@@ -154,6 +193,17 @@ export const AUDITS: AuditServiceDef[] = [
         { name: "regulatory_actions", label: "Regulatory actions / findings in last 24 months", type: "textarea", colSpan: 2 },
       ]},
       engagementSection(["Annual independent audit (regulatory)","Pre-regulator on-site examination","Post-inspection remediation","Correspondent bank onboarding","Board / Audit Committee request","Other"]),
+      documentsSection([
+        { name: "doc_aml_policy", label: "Board-approved AML/CFT/CPF policy", type: "file", required: true },
+        { name: "doc_ewra", label: "Latest Enterprise-Wide Risk Assessment (EWRA)", type: "file" },
+        { name: "doc_kyc_manual", label: "KYC / CDD / EDD procedures manual", type: "file" },
+        { name: "doc_sanctions_procedure", label: "Sanctions & PEP screening procedure", type: "file" },
+        { name: "doc_tm_rules", label: "Transaction monitoring rules / scenarios catalogue", type: "file" },
+        { name: "doc_goaml_reg", label: "goAML / NFIU registration confirmation", type: "file" },
+        { name: "doc_prior_regulator_reports", label: "Last CBN / NFIU examination reports & responses", type: "file" },
+        { name: "doc_training_records", label: "AML training records (last 12 months)", type: "file" },
+        { name: "doc_cbn_license", label: "CBN operating licence", type: "file", required: true },
+      ]),
     ],
   },
   {
@@ -187,6 +237,16 @@ export const AUDITS: AuditServiceDef[] = [
         { name: "excluded_controls", label: "Annex A controls excluded (with justification)", type: "textarea", colSpan: 2 },
       ]},
       engagementSection(["Readiness / gap assessment","Internal audit (Clause 9.2)","Pre-certification mock audit","Post-audit remediation review"]),
+      documentsSection([
+        { name: "doc_isms_scope", label: "ISMS scope statement", type: "file", required: true },
+        { name: "doc_soa", label: "Statement of Applicability (SoA) — current version", type: "file", required: true },
+        { name: "doc_isms_policy", label: "Information security policy pack", type: "file", required: true },
+        { name: "doc_risk_register", label: "Risk assessment & risk treatment plan", type: "file" },
+        { name: "doc_internal_audit_report", label: "Last internal audit report + management review minutes", type: "file" },
+        { name: "doc_prior_cert", label: "Existing ISO 27001 certificate (if applicable)", type: "file" },
+        { name: "doc_asset_inventory", label: "Information asset inventory", type: "file" },
+        { name: "doc_incident_log", label: "Security incident register (last 12 months)", type: "file" },
+      ]),
     ],
   },
   {
@@ -228,6 +288,16 @@ export const AUDITS: AuditServiceDef[] = [
         { name: "breach_notification_sla", label: "Internal breach notification SLA", type: "text" },
       ]},
       engagementSection(["Annual NDPR compliance audit (DCMI filing)","NDPC enforcement / investigation response","Pre-onboarding due diligence","M&A / fundraising diligence","Internal assurance","Other"]),
+      documentsSection([
+        { name: "doc_ndpc_registration", label: "NDPC / DCMI registration certificate", type: "file" },
+        { name: "doc_privacy_policy", label: "Published privacy notice / policy", type: "file", required: true },
+        { name: "doc_rop", label: "Record of Processing Activities (RoPA)", type: "file", required: true },
+        { name: "doc_dpia_samples", label: "Sample DPIAs (last 12 months)", type: "file" },
+        { name: "doc_processor_contracts", label: "Data processor / sub-processor contracts", type: "file" },
+        { name: "doc_breach_playbook", label: "Personal data breach playbook", type: "file" },
+        { name: "doc_dsr_log", label: "Data subject request register", type: "file" },
+        { name: "doc_prior_ndpr_filing", label: "Last NDPR audit filing (if any)", type: "file" },
+      ]),
     ],
   },
 
@@ -262,6 +332,17 @@ export const AUDITS: AuditServiceDef[] = [
         { name: "third_party_criticals", label: "Critical third-party providers", type: "textarea", colSpan: 2 },
       ]},
       engagementSection(["Annual CBN-mandated audit","Post-incident regulator submission","Licensing / new product approval","Board request","Other"]),
+      documentsSection([
+        { name: "doc_cbn_license", label: "CBN operating licence", type: "file", required: true },
+        { name: "doc_cyber_policy", label: "Board-approved cybersecurity policy", type: "file", required: true },
+        { name: "doc_cyber_strategy", label: "Cybersecurity strategy & roadmap", type: "file" },
+        { name: "doc_risk_appetite", label: "Cyber risk appetite statement", type: "file" },
+        { name: "doc_last_pentest", label: "Most recent independent VAPT report", type: "file" },
+        { name: "doc_incident_log_cbn", label: "Reportable incident log & CBN notifications", type: "file" },
+        { name: "doc_bcp_dr", label: "BCP / DR plan and last test report", type: "file" },
+        { name: "doc_third_party_register", label: "Critical third-party / outsourcing register", type: "file" },
+        { name: "doc_prior_cbn_examination", label: "Last CBN cybersecurity examination report & responses", type: "file" },
+      ]),
     ],
   },
   {
@@ -293,6 +374,14 @@ export const AUDITS: AuditServiceDef[] = [
         { name: "prior_findings", label: "Non-compliant controls in last attestation", type: "textarea", colSpan: 2 },
       ]},
       engagementSection(["Annual mandatory attestation","Post-incident review","Correspondent bank request","New SWIFT connection go-live","Other"]),
+      documentsSection([
+        { name: "doc_prior_kycsa", label: "Last KYC-SA attestation submission", type: "file" },
+        { name: "doc_swift_network_diagram", label: "SWIFT-zone network diagram (secure zone, jump servers, interfaces)", type: "file", required: true },
+        { name: "doc_swift_asset_inventory", label: "SWIFT-related asset inventory", type: "file" },
+        { name: "doc_operator_list", label: "List of SWIFT operators & administrators", type: "file" },
+        { name: "doc_service_bureau_attestation", label: "Service Bureau CSP attestation (if applicable)", type: "file" },
+        { name: "doc_change_mgmt_swift", label: "SWIFT change management & patching procedure", type: "file" },
+      ]),
     ],
   },
   {
@@ -325,6 +414,15 @@ export const AUDITS: AuditServiceDef[] = [
         { name: "incidents_12mo", label: "Security / availability incidents (12mo)", type: "text" },
       ]},
       engagementSection(["Enterprise buyer requirement","Renewal / re-issuance","M&A / fundraising diligence","Internal control uplift","Other"]),
+      documentsSection([
+        { name: "doc_system_description", label: "System description (Section III draft, if any)", type: "file" },
+        { name: "doc_policies", label: "Policy pack (security, access, change, incident, vendor, BCP)", type: "file", required: true },
+        { name: "doc_prior_soc_report", label: "Previous SOC 2 report (if any)", type: "file" },
+        { name: "doc_sub_service_soc_reports", label: "Sub-service organisation SOC 2 reports (AWS, GCP, Azure, etc.)", type: "file" },
+        { name: "doc_risk_assessment", label: "Latest risk assessment", type: "file" },
+        { name: "doc_pen_test", label: "Latest penetration test report", type: "file" },
+        { name: "doc_control_matrix", label: "Control matrix / mapping (if drafted)", type: "file" },
+      ]),
     ],
   },
   {
@@ -354,6 +452,14 @@ export const AUDITS: AuditServiceDef[] = [
         { name: "prudential_ratios", label: "Current key prudential ratios", type: "textarea", colSpan: 2, placeholder: "CAR, NPL, liquidity ratio…" },
       ]},
       engagementSection(["Annual internal controls audit","Pre-NDIC on-site exam","Post-exam remediation validation","Board Audit Committee request","Other"]),
+      documentsSection([
+        { name: "doc_prudential_returns", label: "Latest CBN / NDIC prudential returns", type: "file", required: true },
+        { name: "doc_last_ndic_report", label: "Last NDIC examination report & management response", type: "file" },
+        { name: "doc_internal_audit_charter", label: "Internal audit charter & annual plan", type: "file" },
+        { name: "doc_credit_policy", label: "Credit / risk management policy", type: "file" },
+        { name: "doc_treasury_policy", label: "Treasury & liquidity management policy", type: "file" },
+        { name: "doc_dep_ins_returns", label: "Deposit insurance premium computations & returns", type: "file" },
+      ]),
     ],
   },
 
@@ -385,6 +491,15 @@ export const AUDITS: AuditServiceDef[] = [
         { name: "tia_completed", label: "Transfer Impact Assessments completed?", type: "select", options: ["Yes — all transfers","Partial","No"] },
       ]},
       engagementSection(["Enterprise buyer / procurement requirement","Post-breach remediation","Regulator inquiry","New EU market launch","Internal assurance","Other"]),
+      documentsSection([
+        { name: "doc_ropa_gdpr", label: "Article 30 Record of Processing Activities", type: "file", required: true },
+        { name: "doc_privacy_notices", label: "Public-facing privacy notices (all products)", type: "file", required: true },
+        { name: "doc_dpia_samples_gdpr", label: "Sample DPIAs / TIAs", type: "file" },
+        { name: "doc_dpa_templates", label: "DPA / Article 28 processor templates in use", type: "file" },
+        { name: "doc_scc_annexes", label: "Signed SCC annexes for transfers", type: "file" },
+        { name: "doc_breach_register", label: "GDPR breach register (last 24 months)", type: "file" },
+        { name: "doc_dpo_appointment", label: "DPO appointment letter / EU representative agreement", type: "file" },
+      ]),
     ],
   },
   {
@@ -410,6 +525,14 @@ export const AUDITS: AuditServiceDef[] = [
         { name: "prior_hhs_notice", label: "Any prior HHS / OCR investigation?", type: "select", options: ["No","Yes — closed","Yes — ongoing"] },
       ]},
       engagementSection(["US market entry","Enterprise health customer requirement","Post-breach remediation","Annual security risk assessment (§164.308)","Other"]),
+      documentsSection([
+        { name: "doc_hipaa_policies", label: "HIPAA policy & procedure pack", type: "file", required: true },
+        { name: "doc_sra", label: "Security Risk Analysis (§164.308(a)(1))", type: "file", required: true },
+        { name: "doc_baa_samples", label: "Sample Business Associate Agreements", type: "file" },
+        { name: "doc_phi_dataflow", label: "PHI data-flow diagrams", type: "file" },
+        { name: "doc_breach_notif_procedure", label: "Breach notification procedure", type: "file" },
+        { name: "doc_workforce_training", label: "Workforce HIPAA training records", type: "file" },
+      ]),
     ],
   },
   {
@@ -434,6 +557,14 @@ export const AUDITS: AuditServiceDef[] = [
         { name: "local_content_pct", label: "Local content %", type: "text" },
       ]},
       engagementSection(["IT Project Clearance submission","NITDA GRC audit","Post-award compliance verification","Procurement bid requirement","Other"]),
+      documentsSection([
+        { name: "doc_project_charter", label: "Project charter / scope document", type: "file", required: true },
+        { name: "doc_boq", label: "Bill of Quantities / cost breakdown", type: "file", required: true },
+        { name: "doc_procurement_award", label: "Procurement award letter / contract (if any)", type: "file" },
+        { name: "doc_local_content_plan", label: "Nigerian content compliance plan", type: "file" },
+        { name: "doc_vendor_profiles", label: "Vendor / OEM company profiles & NITDA certifications", type: "file" },
+        { name: "doc_prior_nitda_clearance", label: "Prior NITDA clearance certificates (if any)", type: "file" },
+      ]),
     ],
   },
   {
@@ -460,6 +591,22 @@ export const AUDITS: AuditServiceDef[] = [
         { name: "prior_incidents", label: "Major continuity incidents in 24mo", type: "textarea", colSpan: 2 },
       ]},
       engagementSection(["First certification","Recertification / surveillance","Internal audit","Post-incident review","Board / regulator request","Other"]),
+      documentsSection([
+        { name: "doc_ir_plan", label: "Incident Response plan", type: "file", required: true },
+        { name: "doc_ir_playbooks", label: "IR playbooks (ransomware, BEC, insider, cloud, data loss)", type: "file" },
+        { name: "doc_asset_criticality", label: "Critical asset & crown-jewel register", type: "file" },
+        { name: "doc_prior_ir_reports", label: "Post-incident reports (last 24 months)", type: "file" },
+        { name: "doc_retainer_contract", label: "Existing IR retainer contract (if any)", type: "file" },
+        { name: "doc_communication_plan", label: "Crisis communication / regulator notification plan", type: "file" },
+      ]),
+      documentsSection([
+        { name: "doc_bia", label: "Business Impact Analysis (BIA)", type: "file", required: true },
+        { name: "doc_bcp", label: "Business Continuity Plan", type: "file", required: true },
+        { name: "doc_dr_plan", label: "Disaster Recovery plan(s)", type: "file" },
+        { name: "doc_test_reports", label: "BCP / DR test reports (last 24 months)", type: "file" },
+        { name: "doc_supplier_bcp", label: "Critical supplier BCP attestations", type: "file" },
+        { name: "doc_prior_cert_22301", label: "Existing ISO 22301 certificate (if any)", type: "file" },
+      ]),
     ],
   },
 
@@ -492,6 +639,13 @@ export const AUDITS: AuditServiceDef[] = [
         { name: "cspm_in_use", label: "CSPM / CNAPP tool in use", type: "text", placeholder: "e.g. Wiz, Prisma, Orca, none" },
       ]},
       engagementSection(["Pre-launch hardening","Post-incident remediation","Annual security review","M&A diligence","Cloud migration validation","Other"]),
+      documentsSection([
+        { name: "doc_cloud_readonly_role", label: "Read-only IAM role / service account credentials (via secure vault)", type: "file", required: true, helper: "We prefer a time-bound audit role. Upload the credentials envelope or the confirmation of role ARN/Service Account email." },
+        { name: "doc_network_diagram_cloud", label: "Cloud network / architecture diagrams", type: "file", required: true },
+        { name: "doc_iac_repo_access", label: "IaC repository access confirmation", type: "file" },
+        { name: "doc_prior_cspm_report", label: "Latest CSPM / CNAPP export (Wiz, Prisma, Orca, etc.)", type: "file" },
+        { name: "doc_cloud_policies", label: "Cloud security & IAM policies", type: "file" },
+      ]),
     ],
   },
   {
@@ -523,6 +677,14 @@ export const AUDITS: AuditServiceDef[] = [
         { name: "prior_findings", label: "Prior SAST / audit findings still open", type: "textarea", colSpan: 2 },
       ]},
       engagementSection(["Pre-launch security gate","Post-incident deep dive","M&A / fundraising diligence","Annual review","Enterprise customer requirement","Other"]),
+      documentsSection([
+        { name: "doc_repo_access", label: "Repository read access confirmation (signed auditor account list)", type: "file", required: true },
+        { name: "doc_architecture", label: "Application architecture & data-flow diagrams", type: "file", required: true },
+        { name: "doc_threat_model", label: "Existing threat model (if any)", type: "file" },
+        { name: "doc_sast_reports", label: "Latest SAST / SCA / dependency scan reports", type: "file" },
+        { name: "doc_sbom", label: "Software Bill of Materials (SBOM)", type: "file" },
+        { name: "doc_secure_sdlc", label: "Secure SDLC / coding standard document", type: "file" },
+      ]),
     ],
   },
   {
@@ -552,6 +714,13 @@ export const AUDITS: AuditServiceDef[] = [
         { name: "prior_engagements", label: "Prior red team / pentest history", type: "textarea", colSpan: 2 },
       ]},
       engagementSection(["Regulator-required exercise (e.g. TIBER-like)","Post-incident validation","Detection & response uplift","Board request","M&A diligence","Other"]),
+      documentsSection([
+        { name: "doc_rules_of_engagement", label: "Signed Rules of Engagement (we can provide a template)", type: "file", required: true },
+        { name: "doc_authorization_letter", label: "Written authorisation letter from an officer of the company", type: "file", required: true },
+        { name: "doc_asset_list", label: "Confirmed in-scope asset & IP list", type: "file", required: true },
+        { name: "doc_out_of_scope_list", label: "Out-of-scope / do-not-touch list", type: "file" },
+        { name: "doc_third_party_authorizations", label: "Third-party hosting authorisations (AWS/Azure/GCP pentest forms, ISP)", type: "file" },
+      ]),
     ],
   },
   {
@@ -583,6 +752,14 @@ export const AUDITS: AuditServiceDef[] = [
         { name: "known_issues", label: "Known open issues", type: "textarea", colSpan: 2 },
       ]},
       engagementSection(["Pre-mainnet launch","Pre-upgrade / new module","Post-incident review","Investor / listing requirement","Bug bounty preparation","Other"]),
+      documentsSection([
+        { name: "doc_repo_access_bc", label: "Contract repository access + specific commit hash", type: "file", required: true },
+        { name: "doc_spec", label: "Protocol / whitepaper / technical spec", type: "file", required: true },
+        { name: "doc_test_suite", label: "Test suite & coverage report", type: "file" },
+        { name: "doc_prior_audits_bc", label: "Prior audit reports & remediation PRs", type: "file" },
+        { name: "doc_deployment_scripts", label: "Deployment scripts & upgrade procedures", type: "file" },
+        { name: "doc_admin_key_procedure", label: "Admin key custody & multisig procedure", type: "file" },
+      ]),
     ],
   },
 
@@ -615,6 +792,14 @@ export const AUDITS: AuditServiceDef[] = [
         { name: "incident_history", label: "AI incidents (last 12mo)", type: "textarea", colSpan: 2 },
       ]},
       engagementSection(["First certification / readiness","Investor / enterprise customer requirement","Post-incident review","EU AI Act preparation","Internal assurance","Other"]),
+      documentsSection([
+        { name: "doc_ai_inventory", label: "AI system inventory / register", type: "file", required: true },
+        { name: "doc_ai_policy", label: "AI / responsible-AI policy", type: "file", required: true },
+        { name: "doc_ai_impact_assessments", label: "AI impact / bias / fairness assessments", type: "file" },
+        { name: "doc_model_cards", label: "Model cards / system cards for material AI systems", type: "file" },
+        { name: "doc_training_data_docs", label: "Training-data provenance & licensing documentation", type: "file" },
+        { name: "doc_ai_incident_log", label: "AI incident / near-miss log", type: "file" },
+      ]),
     ],
   },
   {
@@ -640,6 +825,13 @@ export const AUDITS: AuditServiceDef[] = [
         { name: "vendor_count_total", label: "Total active vendors (for programme audit)", type: "text" },
       ]},
       engagementSection(["New vendor onboarding","Annual vendor re-assessment","Post-incident vendor review","TPRM programme maturity audit","Regulator / customer request","Other"]),
+      documentsSection([
+        { name: "doc_vendor_questionnaire", label: "Completed vendor security questionnaire (SIG / CAIQ / bespoke)", type: "file", required: true },
+        { name: "doc_vendor_soc_iso", label: "Vendor SOC 2 / ISO 27001 / PCI attestations", type: "file" },
+        { name: "doc_vendor_contract", label: "Vendor contract + DPA / BAA", type: "file", required: true },
+        { name: "doc_tprm_policy", label: "Your TPRM policy & vendor tiering methodology", type: "file" },
+        { name: "doc_vendor_register", label: "Full vendor register (for programme audits)", type: "file" },
+      ]),
     ],
   },
   {
@@ -669,6 +861,13 @@ export const AUDITS: AuditServiceDef[] = [
         { name: "financial_transactions", label: "Handles financial transactions?", type: "select", options: ["Yes","No"] },
       ]},
       engagementSection(["Pre-store submission","Post-launch periodic review","Enterprise / bank customer requirement","Post-incident review","M&A diligence","Other"]),
+      documentsSection([
+        { name: "doc_ios_build", label: "iOS build (.ipa) or TestFlight access", type: "file", accept: ".ipa,.zip,.pdf" },
+        { name: "doc_android_build", label: "Android build (.apk / .aab)", type: "file", accept: ".apk,.aab,.zip" },
+        { name: "doc_test_credentials", label: "Test user accounts & credentials envelope", type: "file" },
+        { name: "doc_backend_endpoints", label: "Backend endpoint / API documentation", type: "file", required: true },
+        { name: "doc_prior_mobile_reports", label: "Previous mobile security reports (if any)", type: "file" },
+      ]),
     ],
   },
   {
