@@ -133,17 +133,13 @@ export default function Contact() {
                   </label>
                   <select
                     name="service"
+                    value={service}
+                    onChange={(e) => setService(e.target.value)}
                     className="w-full rounded-xl border border-input bg-background px-3 py-2.5 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30"
                   >
-                    <option>Management Consulting</option>
-                    <option>Business Consulting</option>
-                    <option>Strategic Planning</option>
-                    <option>Policy Research</option>
-                    <option>Industrial Policy Development</option>
-                    <option>Monitoring & Evaluation</option>
-                    <option>Branding & Brand Development</option>
-                    <option>IT & Technology Solutions</option>
-                    <option>Not sure yet</option>
+                    {services.map((s) => (
+                      <option key={s} value={s}>{s}</option>
+                    ))}
                   </select>
 
                 </div>
