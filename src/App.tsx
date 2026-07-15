@@ -24,6 +24,7 @@ import VerifyReport from "./pages/vapt/VerifyReport";
 import AdminVapt from "./pages/vapt/AdminVapt";
 import AdminPci from "./pages/vapt/AdminPci";
 import AdminAudits from "./pages/vapt/AdminAudits";
+import AdminQueue from "./pages/vapt/AdminQueue";
 import PaymentCallback from "./pages/vapt/PaymentCallback";
 import AuditHub from "./pages/AuditHub";
 import AuditService from "./pages/audits/AuditService";
