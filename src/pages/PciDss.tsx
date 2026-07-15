@@ -222,6 +222,7 @@ export default function PciDss() {
               {item.highlighted && <div className="text-[10px] font-semibold tracking-wider text-primary uppercase mb-2">Most popular</div>}
               <h3 className="text-xl font-semibold text-foreground capitalize">{key}</h3>
               <div className="mt-2 text-3xl font-serif text-foreground">{item.price}</div>
+              <div className="text-xs text-muted-foreground mt-1">+ 7.5% VAT · total {fmt(item.kobo + Math.round(item.kobo * VAT_RATE))}</div>
               <p className="mt-1 text-xs text-muted-foreground uppercase tracking-wider">Turnaround: {item.turnaround}</p>
               <p className="mt-3 text-sm text-muted-foreground">{item.blurb}</p>
               <ul className="mt-4 space-y-2 text-sm text-foreground/80 flex-1">
