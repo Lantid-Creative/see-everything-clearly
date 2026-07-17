@@ -2,6 +2,7 @@ import { Link, NavLink, useLocation } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { Menu, X } from "lucide-react";
 import { Logo } from "@/components/Logo";
+import { NavAuditsMenu, NavAuditsMobile } from "@/components/site/NavAuditsMenu";
 
 const nav = [
   { to: "/services", label: "Services" },
@@ -37,6 +38,7 @@ export function SiteHeader() {
               {n.label}
             </NavLink>
           ))}
+          <NavAuditsMenu />
         </nav>
 
         <div className="flex items-center gap-3">
@@ -57,7 +59,7 @@ export function SiteHeader() {
       </div>
 
       {open && (
-        <div className="lg:hidden border-t border-border bg-background">
+        <div className="lg:hidden border-t border-border bg-background max-h-[80vh] overflow-y-auto">
           <div className="px-4 py-3 space-y-1">
             {nav.map((n) => (
               <NavLink
@@ -72,6 +74,7 @@ export function SiteHeader() {
                 {n.label}
               </NavLink>
             ))}
+            <NavAuditsMobile onNavigate={() => setOpen(false)} />
             <Link
               to="/contact"
               className="block px-3 py-2 rounded-md text-sm font-semibold bg-primary text-primary-foreground text-center mt-2"
