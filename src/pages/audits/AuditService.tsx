@@ -143,8 +143,22 @@ export default function AuditService() {
   if (!audit || audit.external || !audit.sections) return <Navigate to="/audits" replace />;
   if (loading) return <div className="min-h-[50vh] flex items-center justify-center"><Loader2 className="h-6 w-6 animate-spin text-primary" /></div>;
 
-  const label = "text-xs font-semibold text-foreground/70 uppercase tracking-wider mb-1.5 block";
-  const inputCls = "w-full rounded-xl border border-input bg-background px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30";
+  const label = "text-xs font-semibold text-foreground/80 mb-1.5 block";
+  const inputCls = "w-full rounded-xl border border-input bg-background px-3.5 py-2.5 text-sm text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/60 transition";
+  const Req = () => <span className="text-destructive ml-0.5" aria-hidden="true">*</span>;
+
+  // Completion metrics across all required fields (contact + section fields).
+  const contactRequired = [companyName, contactName, contactEmail];
+  const sectionRequiredFields = (audit.sections || []).flatMap((s) => s.fields.filter((f) => f.required));
+  const sectionRequiredDone = sectionRequiredFields.filter((f) => {
+    if (f.type === "file") {
+      try { return (JSON.parse(form[`__file_${f.name}`] || "[]") as unknown[]).length > 0; } catch { return false; }
+    }
+    return !!(form[f.name] && form[f.name].trim());
+  }).length;
+  const totalRequired = contactRequired.length + sectionRequiredFields.length;
+  const doneRequired = contactRequired.filter((v) => !!v.trim()).length + sectionRequiredDone;
+  const progressPct = totalRequired === 0 ? 100 : Math.round((doneRequired / totalRequired) * 100);
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
