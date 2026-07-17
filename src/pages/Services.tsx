@@ -209,6 +209,29 @@ const faqs = [
   },
 ];
 
+const auditFaqs = [
+  {
+    q: "What is included in the audit scope?",
+    a: "Scope is agreed during a kickoff call and captured in a signed scope confirmation. It covers the systems, locations, people, processes and time period to be assessed. For technical audits we define IP ranges, applications, cloud accounts and sample sizes; for governance audits we define departments, policies and evidence sets. Anything outside scope is explicitly excluded so there are no surprises.",
+  },
+  {
+    q: "How long does an audit take?",
+    a: "Standard audits typically complete within 3 business days from evidence receipt. Priority engagements can be delivered in 24 hours, and expedited engagements in 6 hours for urgent regulatory or board deadlines. Complex readiness assessments such as ISO 27001 or SOC 2 span several weeks because they require multiple evidence rounds and management interviews.",
+  },
+  {
+    q: "What evidence do we need to provide?",
+    a: "Every audit has a downloadable checklist, but common evidence includes your CAC certificate, MEMART, CAC status report, TIN, audited financials, organisation chart, network diagrams, access-control lists, policies (information security, privacy, AML, change management, incident response), prior audit reports, and system configuration exports. We collect these through a secure, per-client portal and never over email.",
+  },
+  {
+    q: "Can we retest after remediation?",
+    a: "Yes. VAPT and technical assurance reports include one retest window. If findings are remediated within the agreed period, we retest the affected controls and issue an updated report or addendum at no extra charge. Additional retest rounds or extended remediation support can be scoped separately.",
+  },
+  {
+    q: "Are the reports accepted by regulators and card schemes?",
+    a: "Our PCI DSS, VAPT and governance reports are prepared against recognised standards and signed by a named assessor. Reports carry a unique verification code and tamper-evident hash that regulators, acquirers, customers and auditors can check online at lantid.com/verify-report.",
+  },
+];
+
 export default function Services() {
   const jsonLd = {
     "@context": "https://schema.org",
