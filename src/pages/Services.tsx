@@ -364,6 +364,48 @@ export default function Services() {
         </div>
       </section>
 
+      {/* Audit-specific FAQ */}
+      <section id="audits-faq" className="py-24 bg-background">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+          <SectionHeading
+            eyebrow="Audit & assurance"
+            title={<>Frequently asked audit questions</>}
+            description="Scope, timelines, evidence and retesting — the practical details clients ask before kickoff."
+          />
+          <div className="mt-12 space-y-4">
+            {auditFaqs.map((f) => (
+              <details
+                key={f.q}
+                className="group rounded-2xl border border-border bg-card p-6 open:border-primary/30 transition-colors"
+              >
+                <summary className="cursor-pointer list-none flex items-center justify-between gap-4">
+                  <span className="font-semibold text-foreground">{f.q}</span>
+                  <span className="h-7 w-7 rounded-full border border-border flex items-center justify-center text-primary group-open:rotate-45 transition-transform">
+                    +
+                  </span>
+                </summary>
+                <p className="mt-4 text-muted-foreground leading-relaxed">{f.a}</p>
+              </details>
+            ))}
+          </div>
+          <div className="mt-10 flex flex-wrap items-center justify-center gap-4">
+            <Link
+              to="/audits"
+              className="inline-flex items-center gap-2 rounded-full bg-primary text-primary-foreground px-6 py-3 text-sm font-semibold hover:bg-primary/90 transition-all hover:gap-3 group"
+            >
+              Explore audit services
+              <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
+            </Link>
+            <Link
+              to="/contact?service=Audits%20%26%20Assurance"
+              className="text-sm font-semibold text-primary hover:underline"
+            >
+              Request a scoping call →
+            </Link>
+          </div>
+        </div>
+      </section>
+
       {/* FAQs for SEO */}
       <section className="py-24 bg-card/40">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
