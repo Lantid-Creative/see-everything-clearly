@@ -358,27 +358,51 @@ export default function AuditService() {
                   <h2 className="font-serif text-2xl text-foreground">Engagement intake</h2>
                   <p className="text-sm text-muted-foreground mt-1">The more accurate this is, the sharper your audit will be. All information is confidential; NDA on request.</p>
                 </div>
-                <div className="text-[10px] uppercase tracking-wider text-muted-foreground">
-                  {lastSavedAt ? `Autosaved · ${new Date(lastSavedAt).toLocaleTimeString()}` : "Autosaving as you type"}
+                <div className="text-right">
+                  <div className="text-[10px] uppercase tracking-wider text-muted-foreground">
+                    {lastSavedAt ? `Autosaved · ${new Date(lastSavedAt).toLocaleTimeString()}` : "Autosaving as you type"}
+                  </div>
+                  <div className="text-[10px] text-muted-foreground mt-0.5">Confidential · NDA available</div>
                 </div>
               </div>
 
-              <div className="space-y-4">
-                <h3 className="text-sm font-semibold uppercase tracking-wider text-foreground/80">Primary contact</h3>
+              {/* Completion meter */}
+              <div className="rounded-xl border border-border bg-background/60 px-4 py-3">
+                <div className="flex items-center justify-between text-xs">
+                  <span className="font-semibold text-foreground/80">Intake completion</span>
+                  <span className="text-muted-foreground">{doneRequired} / {totalRequired} required · <span className="text-primary font-semibold">{progressPct}%</span></span>
+                </div>
+                <div className="mt-2 h-1.5 rounded-full bg-muted overflow-hidden">
+                  <div className="h-full bg-primary transition-all" style={{ width: `${progressPct}%` }} />
+                </div>
+              </div>
+
+              {/* Section 1 — Primary contact */}
+              <section className="rounded-2xl border border-border bg-background/40 p-5 lg:p-6">
+                <header className="flex items-start gap-3 mb-5 pb-4 border-b border-border">
+                  <div className="h-7 w-7 shrink-0 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center text-xs font-semibold text-primary">1</div>
+                  <div>
+                    <h3 className="text-sm font-semibold text-foreground">Primary contact</h3>
+                    <p className="text-xs text-muted-foreground mt-0.5">Who we'll coordinate the engagement with day-to-day.</p>
+                  </div>
+                </header>
                 <div className="grid sm:grid-cols-2 gap-4">
-                  <div><label className={label}>Company name *</label><input required value={companyName} onChange={(e) => setCompanyName(e.target.value)} className={inputCls} /></div>
-                  <div><label className={label}>Contact name *</label><input required value={contactName} onChange={(e) => setContactName(e.target.value)} className={inputCls} /></div>
-                  <div><label className={label}>Contact email *</label><input required type="email" value={contactEmail} onChange={(e) => setContactEmail(e.target.value)} className={inputCls} /></div>
+                  <div><label className={label}>Company name<Req /></label><input required value={companyName} onChange={(e) => setCompanyName(e.target.value)} className={inputCls} /></div>
+                  <div><label className={label}>Contact name<Req /></label><input required value={contactName} onChange={(e) => setContactName(e.target.value)} className={inputCls} /></div>
+                  <div><label className={label}>Contact email<Req /></label><input required type="email" value={contactEmail} onChange={(e) => setContactEmail(e.target.value)} className={inputCls} /></div>
                   <div><label className={label}>Contact phone</label><input value={contactPhone} onChange={(e) => setContactPhone(e.target.value)} placeholder="+234…" className={inputCls} /></div>
                 </div>
-              </div>
+              </section>
 
-              {audit.sections!.map((section) => (
-                <div key={section.title} className="space-y-4">
-                  <div>
-                    <h3 className="text-sm font-semibold uppercase tracking-wider text-foreground/80">{section.title}</h3>
-                    {section.description && <p className="text-xs text-muted-foreground mt-1">{section.description}</p>}
-                  </div>
+              {audit.sections!.map((section, idx) => (
+                <section key={section.title} className="rounded-2xl border border-border bg-background/40 p-5 lg:p-6">
+                  <header className="flex items-start gap-3 mb-5 pb-4 border-b border-border">
+                    <div className="h-7 w-7 shrink-0 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center text-xs font-semibold text-primary">{idx + 2}</div>
+                    <div>
+                      <h3 className="text-sm font-semibold text-foreground">{section.title}</h3>
+                      {section.description && <p className="text-xs text-muted-foreground mt-0.5">{section.description}</p>}
+                    </div>
+                  </header>
                   <div className="grid sm:grid-cols-2 gap-4">
                     {section.fields.map((f) => {
                       const val = form[f.name] || "";
@@ -387,20 +411,21 @@ export default function AuditService() {
                       if (f.type === "textarea") {
                         return (
                           <div key={f.name} className={col}>
-                            <label className={label}>{f.label}{f.required ? " *" : ""}</label>
-                            <textarea required={f.required} value={val} onChange={(e) => onChange(e.target.value)} rows={3} placeholder={f.placeholder} className={`${inputCls} resize-none`} />
-                            {f.helper && <p className="text-xs text-muted-foreground mt-1">{f.helper}</p>}
+                            <label className={label}>{f.label}{f.required && <Req />}</label>
+                            <textarea required={f.required} value={val} onChange={(e) => onChange(e.target.value)} rows={3} placeholder={f.placeholder} className={`${inputCls} resize-y min-h-[92px]`} />
+                            {f.helper && <p className="text-xs text-muted-foreground mt-1.5">{f.helper}</p>}
                           </div>
                         );
                       }
                       if (f.type === "select") {
                         return (
                           <div key={f.name} className={col}>
-                            <label className={label}>{f.label}{f.required ? " *" : ""}</label>
+                            <label className={label}>{f.label}{f.required && <Req />}</label>
                             <select required={f.required} value={val} onChange={(e) => onChange(e.target.value)} className={inputCls}>
                               <option value="">Select…</option>
                               {f.options?.map((o) => <option key={o} value={o}>{o}</option>)}
                             </select>
+                            {f.helper && <p className="text-xs text-muted-foreground mt-1.5">{f.helper}</p>}
                           </div>
                         );
                       }
@@ -409,9 +434,10 @@ export default function AuditService() {
                         const busy = uploading[f.name];
                         const isDragging = dragging === f.name;
                         const pct = busy ? Math.round(((busy.done) / Math.max(busy.total, 1)) * 100) : 0;
+                        const hasFiles = uploaded.length > 0;
                         return (
                           <div key={f.name} className={col}>
-                            <label className={label}>{f.label}{f.required ? " *" : ""}</label>
+                            <label className={label}>{f.label}{f.required && <Req />}{hasFiles && <span className="ml-2 inline-flex items-center gap-1 text-[10px] font-semibold text-primary"><CheckCircle2 className="h-3 w-3" /> {uploaded.length} attached</span>}</label>
                             <div
                               onDragOver={(e) => { e.preventDefault(); setDragging(f.name); }}
                               onDragLeave={() => setDragging((d) => (d === f.name ? null : d))}
@@ -420,9 +446,9 @@ export default function AuditService() {
                                 setDragging(null);
                                 handleFiles(f.name, e.dataTransfer.files, f.accept, f.multiple);
                               }}
-                              className={`rounded-xl border-2 border-dashed px-4 py-4 transition-colors ${isDragging ? "border-primary bg-primary/5" : "border-input bg-background/50"}`}
+                              className={`rounded-xl border-2 border-dashed px-4 py-5 transition-colors ${isDragging ? "border-primary bg-primary/10" : hasFiles ? "border-primary/40 bg-primary/[0.03]" : "border-input bg-background/50 hover:border-primary/40"}`}
                             >
-                              <label className="cursor-pointer flex flex-col items-center justify-center text-center py-2">
+                              <label className="cursor-pointer flex flex-col items-center justify-center text-center py-1">
                                 <UploadCloud className="h-6 w-6 text-primary mb-2" />
                                 <span className="text-xs font-semibold text-foreground">Drop files here or click to browse</span>
                                 <span className="text-[10px] text-muted-foreground mt-1">{f.accept ? `Accepted: ${f.accept}` : "PDF, image, docx, xlsx"} · max 25 MB{f.multiple ? " · multiple allowed" : ""}</span>
@@ -451,8 +477,8 @@ export default function AuditService() {
                               {uploaded.length > 0 && (
                                 <ul className="mt-3 space-y-1">
                                   {uploaded.map((u, i) => (
-                                    <li key={i} className="flex items-center justify-between gap-2 text-xs text-foreground/80 bg-primary/5 rounded-md px-2 py-1.5">
-                                      <span className="truncate flex items-center gap-1.5">📎 {u.name} {u.size ? <span className="text-[10px] text-muted-foreground">({(u.size / 1024 / 1024).toFixed(2)} MB)</span> : null}</span>
+                                    <li key={i} className="flex items-center justify-between gap-2 text-xs text-foreground/80 bg-background border border-border rounded-md px-2.5 py-1.5">
+                                      <span className="truncate flex items-center gap-2"><CheckCircle2 className="h-3.5 w-3.5 text-primary shrink-0" /> <span className="truncate">{u.name}</span> {u.size ? <span className="text-[10px] text-muted-foreground shrink-0">({(u.size / 1024 / 1024).toFixed(2)} MB)</span> : null}</span>
                                       <button type="button" onClick={() => removeFile(f.name, i)} className="text-muted-foreground hover:text-destructive shrink-0" aria-label={`Remove ${u.name}`}>
                                         <X className="h-3.5 w-3.5" />
                                       </button>
@@ -461,34 +487,44 @@ export default function AuditService() {
                                 </ul>
                               )}
                             </div>
-                            {f.helper && <p className="text-xs text-muted-foreground mt-1">{f.helper}</p>}
+                            {f.helper && <p className="text-xs text-muted-foreground mt-1.5">{f.helper}</p>}
                           </div>
                         );
                       }
                       return (
                         <div key={f.name} className={col}>
-                          <label className={label}>{f.label}{f.required ? " *" : ""}</label>
+                          <label className={label}>{f.label}{f.required && <Req />}</label>
                           <input required={f.required} type={f.type} value={val} onChange={(e) => onChange(e.target.value)} placeholder={f.placeholder} className={inputCls} />
-                          {f.helper && <p className="text-xs text-muted-foreground mt-1">{f.helper}</p>}
+                          {f.helper && <p className="text-xs text-muted-foreground mt-1.5">{f.helper}</p>}
                         </div>
                       );
                     })}
                   </div>
-                </div>
+                </section>
               ))}
 
-              {/* Order summary */}
-              <div className="rounded-xl border border-border bg-background p-5">
-                <div className="text-xs uppercase tracking-wider text-muted-foreground mb-3">Order summary</div>
-                <div className="space-y-1.5 text-sm">
-                  <div className="flex justify-between"><span className="text-muted-foreground">{audit.name} — {TIERS[tier].label} ({TIERS[tier].turnaround})</span><span className="font-medium">{formatNaira(pricing.base)}</span></div>
-                  <div className="flex justify-between"><span className="text-muted-foreground">VAT (7.5%)</span><span className="font-medium">{formatNaira(pricing.vat)}</span></div>
-                  <div className="flex justify-between border-t border-border pt-2 mt-2 text-base"><span className="font-semibold">Total due</span><span className="font-serif text-xl">{formatNaira(pricing.total)}</span></div>
+              {/* Order summary — sticky on desktop so pricing stays visible */}
+              <div className="sticky bottom-4 z-10">
+                <div className="rounded-2xl border border-primary/30 bg-card shadow-brand p-5 lg:p-6">
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="text-xs uppercase tracking-wider text-muted-foreground">Order summary</div>
+                    <div className="text-[10px] font-semibold text-primary uppercase tracking-wider">{TIERS[tier].turnaround}</div>
+                  </div>
+                  <div className="space-y-1.5 text-sm">
+                    <div className="flex justify-between gap-3"><span className="text-muted-foreground">{audit.name} — {TIERS[tier].label}</span><span className="font-medium text-foreground">{formatNaira(pricing.base)}</span></div>
+                    <div className="flex justify-between gap-3"><span className="text-muted-foreground">VAT (7.5%)</span><span className="font-medium text-foreground">{formatNaira(pricing.vat)}</span></div>
+                    <div className="flex justify-between gap-3 border-t border-border pt-2 mt-2 items-baseline"><span className="font-semibold text-foreground">Total due</span><span className="font-serif text-2xl text-foreground">{formatNaira(pricing.total)}</span></div>
+                  </div>
+                  {progressPct < 100 && (
+                    <div className="mt-3 text-[11px] text-muted-foreground bg-muted/50 rounded-md px-3 py-2">
+                      {totalRequired - doneRequired} required {totalRequired - doneRequired === 1 ? "field is" : "fields are"} still missing — you can still submit and complete them from your dashboard, but we'll need them before starting.
+                    </div>
+                  )}
+                  <button type="submit" disabled={submitting || Object.keys(uploading).length > 0} className="mt-4 w-full inline-flex items-center justify-center gap-2 rounded-xl bg-primary text-primary-foreground px-5 py-3 text-sm font-semibold hover:shadow-brand transition-all disabled:opacity-50 disabled:cursor-not-allowed">
+                    {submitting ? <><Loader2 className="h-4 w-4 animate-spin" /> Redirecting to secure payment…</> : <>Pay {formatNaira(pricing.total)} & start audit <ArrowRight className="h-4 w-4" /></>}
+                  </button>
+                  <p className="text-[11px] text-muted-foreground text-center mt-3">Secured by Paystack · NGN · Invoice available on request · Data encrypted in transit &amp; at rest</p>
                 </div>
-                <button type="submit" disabled={submitting || Object.keys(uploading).length > 0} className="mt-5 w-full inline-flex items-center justify-center gap-2 rounded-xl bg-primary text-primary-foreground px-5 py-3 text-sm font-semibold hover:shadow-brand transition-all disabled:opacity-50">
-                  {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <>Pay {formatNaira(pricing.total)} & start audit <ArrowRight className="h-4 w-4" /></>}
-                </button>
-                <p className="text-xs text-muted-foreground text-center mt-3">Secured by Paystack. NGN pricing. Invoice available on request.</p>
               </div>
             </form>
           )}
