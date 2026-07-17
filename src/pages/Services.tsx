@@ -209,11 +209,34 @@ const faqs = [
   },
 ];
 
+const auditFaqs = [
+  {
+    q: "What is included in the audit scope?",
+    a: "Scope is agreed during a kickoff call and captured in a signed scope confirmation. It covers the systems, locations, people, processes and time period to be assessed. For technical audits we define IP ranges, applications, cloud accounts and sample sizes; for governance audits we define departments, policies and evidence sets. Anything outside scope is explicitly excluded so there are no surprises.",
+  },
+  {
+    q: "How long does an audit take?",
+    a: "Standard audits typically complete within 3 business days from evidence receipt. Priority engagements can be delivered in 24 hours, and expedited engagements in 6 hours for urgent regulatory or board deadlines. Complex readiness assessments such as ISO 27001 or SOC 2 span several weeks because they require multiple evidence rounds and management interviews.",
+  },
+  {
+    q: "What evidence do we need to provide?",
+    a: "Every audit has a downloadable checklist, but common evidence includes your CAC certificate, MEMART, CAC status report, TIN, audited financials, organisation chart, network diagrams, access-control lists, policies (information security, privacy, AML, change management, incident response), prior audit reports, and system configuration exports. We collect these through a secure, per-client portal and never over email.",
+  },
+  {
+    q: "Can we retest after remediation?",
+    a: "Yes. VAPT and technical assurance reports include one retest window. If findings are remediated within the agreed period, we retest the affected controls and issue an updated report or addendum at no extra charge. Additional retest rounds or extended remediation support can be scoped separately.",
+  },
+  {
+    q: "Are the reports accepted by regulators and card schemes?",
+    a: "Our PCI DSS, VAPT and governance reports are prepared against recognised standards and signed by a named assessor. Reports carry a unique verification code and tamper-evident hash that regulators, acquirers, customers and auditors can check online at lantid.com/verify-report.",
+  },
+];
+
 export default function Services() {
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "FAQPage",
-    mainEntity: faqs.map((f) => ({
+    mainEntity: [...auditFaqs, ...faqs].map((f) => ({
       "@type": "Question",
       name: f.q,
       acceptedAnswer: { "@type": "Answer", text: f.a },
@@ -338,6 +361,48 @@ export default function Services() {
               </div>
             </motion.div>
           ))}
+        </div>
+      </section>
+
+      {/* Audit-specific FAQ */}
+      <section id="audits-faq" className="py-24 bg-background">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+          <SectionHeading
+            eyebrow="Audit & assurance"
+            title={<>Frequently asked audit questions</>}
+            description="Scope, timelines, evidence and retesting — the practical details clients ask before kickoff."
+          />
+          <div className="mt-12 space-y-4">
+            {auditFaqs.map((f) => (
+              <details
+                key={f.q}
+                className="group rounded-2xl border border-border bg-card p-6 open:border-primary/30 transition-colors"
+              >
+                <summary className="cursor-pointer list-none flex items-center justify-between gap-4">
+                  <span className="font-semibold text-foreground">{f.q}</span>
+                  <span className="h-7 w-7 rounded-full border border-border flex items-center justify-center text-primary group-open:rotate-45 transition-transform">
+                    +
+                  </span>
+                </summary>
+                <p className="mt-4 text-muted-foreground leading-relaxed">{f.a}</p>
+              </details>
+            ))}
+          </div>
+          <div className="mt-10 flex flex-wrap items-center justify-center gap-4">
+            <Link
+              to="/audits"
+              className="inline-flex items-center gap-2 rounded-full bg-primary text-primary-foreground px-6 py-3 text-sm font-semibold hover:bg-primary/90 transition-all hover:gap-3 group"
+            >
+              Explore audit services
+              <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
+            </Link>
+            <Link
+              to="/contact?service=Audits%20%26%20Assurance"
+              className="text-sm font-semibold text-primary hover:underline"
+            >
+              Request a scoping call →
+            </Link>
+          </div>
         </div>
       </section>
 
